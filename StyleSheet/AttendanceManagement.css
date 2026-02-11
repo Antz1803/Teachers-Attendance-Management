@@ -199,6 +199,13 @@ header {
     align-items: center;
     margin-bottom: 30px;
 }
+
+header h1 {
+    color: #aaa;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
 :root {
     --calendar-border: #acc6cc; /* Light teal border from image */
     --calendar-text: #444;
@@ -356,3 +363,4 @@ background-color: #f9f9f9;
         background-color: #f9f9f9; /* Remove hover effect for future dates */
 
     }
+
