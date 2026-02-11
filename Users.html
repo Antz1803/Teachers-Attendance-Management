@@ -64,22 +64,43 @@
              <div class="status-badge" id="display-status-badge">Active</div>
         </div>
         
+  <div class="profile-card">
+    <div class="card-glow"></div>
+    
+    <div class="card-content">
+        <div class="card-header-wrapper">
+            <h2 class="card-title">Teacher's Profile</h2>
+            <div class="status-badge" id="display-status-badge">ACTIVE</div>
+        </div>
+        
         <div class="profile-details">
             <div class="detail-item">
-                <i class="fas fa-id-card"></i>
-                <div><strong>Name</strong><span id="display-name">Loading...</span></div>
+                <i class="fas fa-user"></i>
+                <div>
+                    <strong>Name</strong>
+                    <span id="display-name">Loading...</span>
+                </div>
             </div>
             <div class="detail-item">
-                <i class="fas fa-birthday-cake"></i>
-                <div><strong>Birthdate</strong><span id="display-birthdate">Loading...</span></div>
+                <i class="fas fa-calendar-alt"></i>
+                <div>
+                    <strong>Birthdate</strong>
+                    <span id="display-birthdate">Loading...</span>
+                </div>
             </div>
             <div class="detail-item">
                 <i class="fas fa-envelope"></i>
-                <div><strong>Email</strong><span id="display-email">Loading...</span></div>
+                <div>
+                    <strong>Email</strong>
+                    <span id="display-email">Loading...</span>
+                </div>
             </div>
             <div class="detail-item">
                 <i class="fas fa-map-marker-alt"></i>
-                <div><strong>Address</strong><span id="display-address">Loading...</span></div>
+                <div>
+                    <strong>Address</strong>
+                    <span id="display-address">Loading...</span>
+                </div>
             </div>
         </div>
     </div>
@@ -87,10 +108,9 @@
     <div class="photo-column">
         <div class="profile-photo-container">
             <img src="avatar.png" id="display-photo" alt="Profile Photo">
-            <div class="photo-overlay"></div>
         </div>
         <button class="btn-edit-profile" onclick="openEditModal()">
-            <i class="fas fa-pen-nib"></i> Edit profile
+            <i class="fas fa-edit"></i> Edit profile
         </button>
     </div>
 </div>
@@ -325,6 +345,7 @@
         document.getElementById('logoutBtn').addEventListener('click', () => { signOut(auth).then(() => window.location.href = 'index.html'); });
     </script>
 </html>
+
 
 
 
