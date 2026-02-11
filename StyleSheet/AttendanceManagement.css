@@ -14,36 +14,6 @@ body {
     background-color: var(--bg-gray);
 }
 
-/* Sidebar Navigation */
-.sidebar {
-    width: 180px;
-    background-color: var(--teal-main);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    padding-top: 30px;
-}
-
-.profile-icon {
-    width: 60px;
-    height: 60px;
-    background-color: #d9d9d9;
-    border-radius: 50%;
-    margin: 0 auto 40px;
-}
-
-.nav-item {
-    padding: 15px 25px;
-    font-size: 12px;
-    text-transform: uppercase;
-    cursor: pointer;
-    letter-spacing: 0.5px;
-}
-
-.nav-item:hover {
-    background-color: var(--teal-dark);
-}
-
 /* Main Content Area */
 .content {
     flex-grow: 1;
@@ -384,4 +354,5 @@ background-color: #f9f9f9;
     }
     .days-grid div.disabled-day:hover {
         background-color: #f9f9f9; /* Remove hover effect for future dates */
+
     }
