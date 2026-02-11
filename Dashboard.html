@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management Dashboard</title>
+    <link rel="stylesheet" href="StyleSheet/Dashboard.css">
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="profile-circle"></div>
+        <ul class="nav-links">
+            <li class="nav-item active"><a href="Dashboard.html">Dashboard</a></li>
+            <li class="nav-item"><a href="Users.html">Users</a></li>
+            <li class="nav-item"><a href="Courses.html">Courses</a></li>
+            <li class="nav-item"><a href="Settings.html">Settings</a></li>
+            <li class="nav-item"><a href="#" id="logoutBtn">Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <h1>DASHBOARD</h1>
+            <div id="liveClock" style="font-size: 1rem; color: #555; font-weight: 500; margin-top: -10px;">
+            Loading date and time...
+        </div>
+            <div class="menu-container">
+                <button class="menu-button" onclick="toggleMenu()">
+                    &#9776;
+                </button>
+        
+                <div id="myDropdown" class="dropdown-menu">
+                    <a href="AttendanceManagement.html" class="active-link">Attendance Management</a>
+                    <a href="AttendanceReport.html">Attendance Report</a>
+                </div>
+            </div>
+        </header>
+
+        <div class="stats-container">
+            <div class="card">
+                <h2>Late</h2>
+                <p id="lateCount">0</p>
+            </div>
+            <div class="card">
+                <h2>Absent</h2>
+                <p id="absentCount">0</p>
+            </div>
+            <div class="card">
+                <h2>Present</h2>
+                <p id="presentCount">0</p>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-header">Student List</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Student ID</th>
+                        <th>Year Level</th>
+                        <th>Section</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTableBody">
+                    <!-- Data will load here from Firebase -->
+                    <tr>
+                        <td colspan="6" style="text-align:center;">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
+        authDomain: "attendancesystem-cb683.firebaseapp.com",
+        databaseURL: "https://attendancesystem-cb683-default-rtdb.firebaseio.com",
+        projectId: "attendancesystem-cb683",
+        storageBucket: "attendancesystem-cb683.appspot.com",
+        messagingSenderId: "975901701661",
+        appId: "1:975901701661:web:f8ccfbafd8e6c6e9c3f8f4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    onAuthStateChanged(auth, (user) => {
+        if (!user) window.location.href = 'index.html';
+    });
+
+    // Helper to get today's date in YYYY-MM-DD format
+    function getTodayDate() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
+   function loadTodayAttendance() {
+        const todayStr = getTodayDate();
+        const attendanceRef = ref(db, `attendance/${todayStr}`);
+
+        onValue(attendanceRef, (snapshot) => {
+            const tbody = document.getElementById('studentTableBody');
+            let late = 0, absent = 0, present = 0;
+
+            if (snapshot.exists()) {
+                const records = snapshot.val();
+                let html = '';
+
+                Object.keys(records).forEach((key) => {
+                    const data = records[key];
+                    let statusClass = '';
+                    
+                    if (data.status === "PRESENT") {
+                        present++;
+                        statusClass = 'status-present';
+                    } else if (data.status === "LATE") {
+                        late++;
+                        statusClass = 'status-late';
+                    } else if (data.status === "ABSENT") {
+                        absent++;
+                        statusClass = 'status-absent';
+                    }
+
+                    html += `
+                        <tr>
+                            <td>${data.name}</td>
+                            <td>${data.email || 'N/A'}</td>
+                            <td>${data.studentID}</td>
+                            <td>${data.yearLevel || 'N/A'}</td>
+                            <td>${data.section || 'N/A'}</td>
+                            <td><span class="${statusClass}">${data.status}</span></td>
+                        </tr>
+                    `;
+                });
+
+                tbody.innerHTML = html;
+            } else {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No attendance records found for today (${todayStr}).</td></tr>`;
+            }
+
+            document.getElementById('lateCount').textContent = late;
+            document.getElementById('absentCount').textContent = absent;
+            document.getElementById('presentCount').textContent = present;
+        });
+    }
+
+    loadTodayAttendance();
+
+    // Dropdown Menu Logic
+    window.toggleMenu = () => document.getElementById("myDropdown").classList.toggle("show");
+
+    function startLiveClock() {
+    const clockElement = document.getElementById('liveClock');
+
+    function updateTime() {
+        const now = new Date();
+        
+        // Options for formatting
+        const dateOptions = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        };
+        const timeOptions = { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit', 
+            hour12: true 
+        };
+
+        const dateStr = now.toLocaleDateString(undefined, dateOptions);
+        const timeStr = now.toLocaleTimeString(undefined, timeOptions);
+
+        clockElement.innerHTML = `${dateStr} | ${timeStr}`;
+    }
+
+    setInterval(updateTime, 1000); // Update every 1 second
+    updateTime(); // Run immediately on load
+}
+
+// Call the clock function
+startLiveClock();
+</script>
+</body>
+</html>

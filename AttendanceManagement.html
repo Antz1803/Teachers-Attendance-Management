@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management</title>
+    <link rel="stylesheet" href="StyleSheet/AttendanceManagement.css">
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="profile-icon"></div>
+        <div class="nav-item">Dashboard</div>
+        <div class="nav-item">Users</div>
+        <div class="nav-item">Courses</div>
+        <div class="nav-item">Settings</div>
+    </div>
+
+    <div class="content">
+        <header>
+            <h1>Attendance Management</h1>
+            <div class="menu-container">
+                <button class="menu-button" onclick="toggleMenu()">
+                    &#9776;
+                </button>
+        
+                <div id="myDropdown" class="dropdown-menu">
+                    <a href="AttendanceManagement.html" class="active-link">Attendance Management</a>
+                    <a href="AttendanceReport.html">Attendance Report</a>
+                </div>
+            </div>
+        </header>
+        <div class="filters">
+            <div class="filter-group" style="position: relative;">
+                <label style="display: block; margin-bottom: 5px;">Courses</label>
+                <div class="course-input-box" id="courseBox">
+                    <span id="coursePillText" style="color: #666;">Select Course</span>
+                    <span class="pill-arrow">▼</span>
+                </div>
+                <div id="courseDropdown" class="dropdown-menu" style="display: none;">
+                    <a href="javascript:void(0)" onclick="setCourse('IT')">IT</a>
+                    <a href="javascript:void(0)" onclick="setCourse('CS')">CS</a>
+                    <a href="javascript:void(0)" onclick="setCourse('IS')">IS</a>
+                </div>
+            </div>
+
+            <div class="filter-group" style="position: relative; cursor: pointer;">
+                <label style="display: block; margin-bottom: 5px;">Date</label>
+                <div class="calendar-input-box" id="calendarBox">
+                    <span id="selectedDateText" style="color: #666;">Select Date</span>
+                    <span class="pill-arrow">▼</span>
+                </div>
+
+                <div id="calendarWrapper" style="display: none; position: absolute; top: 100%; left: 0; z-index: 999; margin-top: 5px;">
+                    <div class="calendar-container">
+                        <div class="cal-header">
+                            <span id="prevMonth">&laquo;</span>
+                            <span id="currentMonthYear" class="month-name">AUGUST</span>
+                            <span id="nextMonth">&raquo;</span>
+                        </div>
+                        <div class="day-labels">
+                            <div class="weekend-label">Sun</div>
+                            <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div>
+                            <div class="weekend-label">Sat</div>
+                        </div>
+                        <div id="calendarDays" class="days-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-search" onclick="fetchStudents()">Search</button>
+        </div>
+
+        <div class="table-box">
+            <table>
+                <thead class="table-header">
+                    <tr>
+                        <th style="width: 40%;">Name</th>
+                        <th style="width: 30%;">Student ID</th>
+                        <th style="width: 30%;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTableBody">
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: #666;">Select a course and date, then click Search</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="footer-actions">
+                <button class="btn-save" onclick="saveAttendance()">Save All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMPORTANT: type="module" is required for ES6 imports -->
+    <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getDatabase, ref, get, set, query, orderByChild } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
+        authDomain: "attendancesystem-cb683.firebaseapp.com",
+        databaseURL: "https://attendancesystem-cb683-default-rtdb.firebaseio.com",
+        projectId: "attendancesystem-cb683",
+        storageBucket: "attendancesystem-cb683.firebasestorage.app",
+        messagingSenderId: "975901701661",
+        appId: "1:975901701661:web:f8ccfbafd8e6c6e9c3f8f4",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+        if (!user) window.location.href = 'index.html';
+    });
+
+    window.fetchStudents = async function() {
+        const tableBody = document.getElementById("studentTableBody");
+        const selectedCourse = document.getElementById("coursePillText").innerText;
+        const selectedDate = document.getElementById("selectedDateText").innerText;
+
+        if (selectedCourse === "Select Course" || selectedDate === "Select Date") {
+            alert("Please select both a Course and a Date first!");
+            return;
+        }
+
+        const dateKey = formatDateForFirebase(selectedDate);
+        tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Fetching master list...</td></tr>";
+
+        try {
+            // 1. Fetch any existing attendance for this specific date
+            const attendanceSnapshot = await get(ref(db, `attendance/${dateKey}`));
+            const savedAttendance = attendanceSnapshot.exists() ? attendanceSnapshot.val() : {};
+
+            // 2. Fetch ALL registered students (The Master List)
+            const studentsRef = ref(db, 'students');
+            const studentSnapshot = await get(query(studentsRef, orderByChild('name')));
+
+            if (studentSnapshot.exists()) {
+                tableBody.innerHTML = "";
+                let found = false;
+
+                studentSnapshot.forEach((childSnapshot) => {
+                    const data = childSnapshot.val();
+                    const userId = childSnapshot.key;
+                    
+                    // Filter only by course
+                    if (data.stuCourses === selectedCourse) {
+                        found = true;
+                        
+                        // If record exists for this date, use its status. Otherwise, default to PRESENT.
+                        const existingStatus = savedAttendance[userId] ? savedAttendance[userId].status : "PRESENT";
+
+                        const row = document.createElement("tr");
+                        row.setAttribute('data-user-id', userId);
+                        row.setAttribute('data-student-id', data.studentID);
+                        row.setAttribute('data-name', data.name);
+                        row.setAttribute('data-section', data.section || "N/A"); 
+                        row.setAttribute('data-email', data.email || "No Email");
+                        row.setAttribute('data-year', data.yearLevel || "N/A");
+                        
+                        row.innerHTML = `
+                            <td>${data.name}</td>
+                            <td>${data.studentID}</td>
+                            <td>
+                                <select class="status-dropdown">
+                                    <option value="PRESENT" ${existingStatus === 'PRESENT' ? 'selected' : ''}>PRESENT</option>
+                                    <option value="LATE" ${existingStatus === 'LATE' ? 'selected' : ''}>LATE</option>
+                                    <option value="ABSENT" ${existingStatus === 'ABSENT' ? 'selected' : ''}>ABSENT</option>
+                                </select>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    }
+                });
+
+                if (!found) {
+                    tableBody.innerHTML = `<tr><td colspan='3' style='text-align:center;'>No students registered in ${selectedCourse}</td></tr>`;
+                }
+            }
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            alert("Permission error or database failure.");
+        }
+    };
+
+   window.saveAttendance = async function() {
+    const tableBody = document.getElementById("studentTableBody");
+    const rows = tableBody.querySelectorAll("tr[data-user-id]");
+    
+    if (rows.length === 0) {
+        alert("Nothing to save!");
+        return;
+    }
+
+    const selectedDate = document.getElementById("selectedDateText").innerText;
+    const selectedCourse = document.getElementById("coursePillText").innerText;
+    const dateKey = formatDateForFirebase(selectedDate);
+
+    try {
+        const savePromises = [];
+
+        rows.forEach((row) => {
+            const userId = row.getAttribute('data-user-id');
+            const studentName = row.getAttribute('data-name');
+            const studentID = row.getAttribute('data-student-id');
+            const studentSection = row.getAttribute('data-section');
+            
+            // PULL THE NEW ATTRIBUTES:
+            const studentEmail = row.getAttribute('data-email');
+            const studentYear = row.getAttribute('data-year');
+            
+            const status = row.querySelector('.status-dropdown').value;
+
+            const attendanceRef = ref(db, `attendance/${dateKey}/${userId}`);
+            
+            // SAVE EVERYTHING TO FIREBASE:
+            savePromises.push(set(attendanceRef, {
+                name: studentName,
+                studentID: studentID,
+                email: studentEmail, 
+                year: studentYear,   
+                section: studentSection,
+                course: selectedCourse,
+                status: status,
+                date: selectedDate,
+                timestamp: new Date().toISOString()
+            }));
+        });
+
+        await Promise.all(savePromises);
+        alert(`✓ Saved ${rows.length} records successfully!`);
+    } catch (error) {
+        console.error("Save Error:", error);
+        alert("Error: " + error.message);
+    }
+};
+
+    function formatDateForFirebase(dateString) {
+        const date = new Date(dateString);
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+</script>
+
+    <!-- Separate script for UI interactions (non-module) -->
+    <script>
+        // --- Menu Toggle ---
+        function toggleMenu() {
+            document.getElementById("myDropdown").classList.toggle("show");
+        }
+
+        // --- UI Logic: Course Dropdown ---
+        let selectedCourse = null;
+
+        // Add click event to course box
+        document.addEventListener('DOMContentLoaded', function() {
+            const courseBox = document.getElementById('courseBox');
+            courseBox.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const dd = document.getElementById("courseDropdown");
+                const isVisible = dd.style.display === "block";
+                
+                // Close calendar if open
+                document.getElementById("calendarWrapper").style.display = "none";
+                
+                dd.style.display = isVisible ? "none" : "block";
+            });
+        });
+
+        window.setCourse = function(course) {
+            const pill = document.getElementById("coursePillText");
+            pill.innerText = course;
+            pill.style.color = "#000";
+            selectedCourse = course;
+            document.getElementById("courseDropdown").style.display = "none";
+        }
+
+        // --- UI Logic: Calendar & Date ---
+     let date = new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time for accurate comparison
+
+    function renderCalendar() {
+        const monthYearElement = document.getElementById('currentMonthYear');
+        const daysElement = document.getElementById('calendarDays');
+        const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", 
+                            "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+        
+        monthYearElement.innerText = monthNames[date.getMonth()] + " " + date.getFullYear();
+        const firstDayIndex = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+        
+        let days = "";
+        for (let x = firstDayIndex; x > 0; x--) { 
+            days += `<div></div>`; 
+        }
+        
+        for (let i = 1; i <= lastDay; i++) {
+            const currentIterDate = new Date(date.getFullYear(), date.getMonth(), i);
+            const currentDayOfWeek = currentIterDate.getDay();
+            
+            let className = (currentDayOfWeek === 0 || currentDayOfWeek === 6) ? "sun-col" : "";
+            
+            // Highlight Today
+            if (i === today.getDate() && 
+                date.getMonth() === today.getMonth() && 
+                date.getFullYear() === today.getFullYear()) {
+                className += " is-today";
+            }
+
+            // RESTRICTION: Check if the date is in the future
+            if (currentIterDate > today) {
+                className += " disabled-day";
+                days += `<div class="${className}">${i}</div>`;
+            } else {
+                days += `<div class="${className}" onclick="selectDate(${i})">${i}</div>`;
+            }
+        }
+        daysElement.innerHTML = days;
+    }
+
+    window.selectDate = function(day) {
+        const selectedDateObj = new Date(date.getFullYear(), date.getMonth(), day);
+        
+        // Final safety check against future dates
+        if (selectedDateObj > today) {
+            alert("You cannot mark attendance for future dates.");
+            return;
+        }
+
+        const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", 
+                            "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+        const selectedDateText = `${monthNames[date.getMonth()]} ${day}, ${date.getFullYear()}`;
+        
+        document.getElementById("selectedDateText").innerText = selectedDateText;
+        document.getElementById("selectedDateText").style.color = "#000";
+        document.getElementById("calendarWrapper").style.display = "none";
+    }
+
+        window.moveMonth = function(dir) {
+            date.setMonth(date.getMonth() + dir);
+            renderCalendar();
+        }
+
+        // Add click events for calendar
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarBox = document.getElementById('calendarBox');
+            calendarBox.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const wrapper = document.getElementById('calendarWrapper');
+                const isVisible = wrapper.style.display === "block";
+                
+                // Close course dropdown if open
+                document.getElementById("courseDropdown").style.display = "none";
+                
+                wrapper.style.display = isVisible ? "none" : "block";
+                if (wrapper.style.display === "block") {
+                    renderCalendar();
+                }
+            });
+
+            // Month navigation
+            document.getElementById('prevMonth').addEventListener('click', function(e) {
+                e.stopPropagation();
+                moveMonth(-1);
+            });
+
+            document.getElementById('nextMonth').addEventListener('click', function(e) {
+                e.stopPropagation();
+                moveMonth(1);
+            });
+
+            // Prevent calendar from closing when clicking inside it
+            document.getElementById('calendarWrapper').addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+
+        // Global click to close menus
+        document.addEventListener('click', function(e) {
+            // Close course dropdown
+            if (!e.target.closest('#courseBox')) {
+                document.getElementById("courseDropdown").style.display = "none";
+            }
+            
+            // Close calendar
+            if (!e.target.closest('#calendarBox') && !e.target.closest('#calendarWrapper')) {
+                document.getElementById("calendarWrapper").style.display = "none";
+            }
+
+            // Close main menu
+            if (!e.target.closest('.menu-container')) {
+                const dropdown = document.getElementById('myDropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
+
+        // Initialize calendar on page load
+        renderCalendar();
+    </script>
+</body>
+</html>

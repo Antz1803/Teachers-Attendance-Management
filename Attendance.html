@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management</title>
+    <link rel="stylesheet" href="StyleSheet/AttendanceManagement.css">
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="profile-icon"></div>
+        <div class="nav-item">Dashboard</div>
+        <div class="nav-item">Users</div>
+        <div class="nav-item">Courses</div>
+        <div class="nav-item">Settings</div>
+    </div>
+
+    <div class="content">
+        <header>
+            <h1>Attendance Management</h1>
+            <div class="menu-container">
+                <button class="menu-button" onclick="toggleMenu()">
+                    &#9776;
+                </button>
+        
+                <div id="myDropdown" class="dropdown-menu">
+                    <a href="Attendance.html" class="active-link">Attendance Management</a>
+                    <a href="AttendanceReport.html">Attendance Report</a>
+                </div>
+            </div>
+        </header>
+        <div class="filters">
+            <div class="filter-group">
+                <label style="display: block; margin-bottom: 5px;">Courses</label>
+                <div class="course-input-box" onclick="">
+                    <span id="" style="color: #666;">Select Course</span>
+                    <span class="pill-arrow">▼</span>
+                </div>
+            </div>
+            <div class="filter-group" onclick="toggleCalendarPopup(event)" style="position: relative; cursor: pointer;">
+                <div class="filter-group">
+                    <label style="display: block; margin-bottom: 5px;">Date</label>
+                    <div class="calendar-input-box" onclick="toggleCalendar(event)">
+                        <span id="selectedDateText" style="color: #666;">Select Date</span>
+                        <span class="pill-arrow">▼</span>
+                    </div>
+                </div>
+            
+                <div id="calendarWrapper" style="display: none; position: absolute; top: 100%; left: 0; z-index: 999; margin-top: 5px;">
+                    <div class="calendar-container" onclick="event.stopPropagation()">
+                        <div class="cal-header">
+                            <span onclick="event.stopPropagation(); moveMonth(-1)">&laquo;</span>
+                            <span id="currentMonthYear" class="month-name">AUGUST</span>
+                            <span onclick="event.stopPropagation(); moveMonth(1)">&raquo;</span>
+                        </div>
+                
+                        <div class="day-labels">
+                            <div class="weekend-label">Sun</div>
+                            <div>Mon</div>
+                            <div>Tue</div>
+                            <div>Wed</div>
+                            <div>Thu</div>
+                            <div>Fri</div>
+                            <div class="weekend-label">Sat</div>
+                        </div>
+                
+                        <div id="calendarDays" class="days-grid"></div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-search">Search</button>
+        </div>
+
+        <div class="table-box">
+            <table>
+                <thead class="table-header">
+                    <tr>
+                        <th style="width: 40%;">Name</th>
+                        <th style="width: 30%;">Student ID</th>
+                        <th style="width: 30%;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Daniel Miguel R. Santos</td>
+                        <td>1234561</td>
+                        <td><select class="status-dropdown"><option style="color: green;">PRESENT</option>
+                            <option style="color: #FFA600;">LATE</option>
+                            <option style="color: red;">ABSENT</option></select></td>
+                    </tr>
+                    <tr>
+                        <td>Maria Angela C. Flores</td>
+                        <td>1234562</td>
+                        <td><select class="status-dropdown"><option style="color: green;">PRESENT</option>
+                            <option style="color: #FFA600;">LATE</option>
+                            <option style="color: red;">ABSENT</option></select></td>
+                    </tr>
+                    <tr>
+                        <td>Joshua Paul L. Hernandez</td>
+                        <td>1234563</td>
+                        <td><select class="status-dropdown"><option style="color: green;">PRESENT</option>
+                            <option style="color: #FFA600;">LATE</option>
+                            <option style="color: red;">ABSENT</option></select></td>
+                    </tr>
+                    <tr>
+                        <td>Kristine Mae D. Villanueva</td>
+                        <td>1234564</td>
+                        <td><select class="status-dropdown"><option style="color: green;">PRESENT</option>
+                            <option style="color: #FFA600;">LATE</option>
+                            <option style="color: red;">ABSENT</option></select></td>
+                    </tr>
+                    <tr>
+                        <td>Mark Anthony B. Delgado</td>
+                        <td>1234565</td>
+                        <td><select class="status-dropdown"><option style="color: green;">PRESENT</option>
+                            <option style="color: #FFA600;">LATE</option>
+                            <option style="color: red;">ABSENT</option></select></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="footer-actions">
+                <button class="btn-save">Save All</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        /* Function to open/close the menu */
+        function toggleMenu() {
+            document.getElementById("myDropdown").classList.toggle("show");
+        }
+
+        /* Close the menu if the user clicks anywhere else on the screen */
+        window.onclick = function(event) {
+            if (!event.target.matches('.menu-button')) {
+                var dropdowns = document.getElementsByClassName("dropdown-menu");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        let date = new Date(); // Current date for navigation
+
+function renderCalendar() {
+    const monthYearElement = document.getElementById('currentMonthYear');
+    const daysElement = document.getElementById('calendarDays');
+    
+    const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
+                        "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+    
+    // Updates the Month/Year in the header
+    monthYearElement.innerText = monthNames[date.getMonth()] + " " + date.getFullYear();
+    
+    const firstDayIndex = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+    const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    
+    // Captured once per render to ensure real-time accuracy
+    const today = new Date();
+    let days = "";
+
+    // Add empty spaces for previous month alignment
+    for (let x = firstDayIndex; x > 0; x--) {
+        days += `<div></div>`;
+    }
+
+    // Fill the days
+    for (let i = 1; i <= lastDay; i++) {
+        const currentDayOfWeek = new Date(date.getFullYear(), date.getMonth(), i).getDay();
+        
+        let className = "";
+        
+        // If it's Sunday (0) or Saturday (6), color it red
+        if (currentDayOfWeek === 0 || currentDayOfWeek === 6) {
+            className += " sun-col";
+        }
+        
+        // REAL-TIME HIGHLIGHT: Check if current date matches the system clock
+        if (i === today.getDate() && 
+            date.getMonth() === today.getMonth() && 
+            date.getFullYear() === today.getFullYear()) {
+            
+            // This adds the red underline styling from your design
+            className += " is-today";
+        }
+
+        days += `<div class="${className}">${i}</div>`;
+    }
+
+    daysElement.innerHTML = days;
+}
+
+function moveMonth(dir) {
+    date.setMonth(date.getMonth() + dir);
+    renderCalendar();
+}
+
+renderCalendar();
+
+// Toggle Function
+function toggleCalendarPopup(event) {
+        // Prevents the click from triggering parent elements
+        event.stopPropagation();
+        
+        const wrapper = document.getElementById('calendarWrapper');
+        
+        if (wrapper.style.display === "none" || wrapper.style.display === "") {
+            wrapper.style.display = "block";
+            renderCalendar(); // Refreshes today's highlight in real-time
+        } else {
+            wrapper.style.display = "none";
+        }
+    }
+
+    // Close the calendar if you click anywhere else on the page
+    document.addEventListener('click', function(e) {
+        const wrapper = document.getElementById('calendarWrapper');
+        const filterGroup = document.querySelector('.filter-group');
+        
+        if (!filterGroup.contains(e.target)) {
+            wrapper.style.display = "none";
+        }
+    });
+
+    // Ensure moveMonth doesn't close the calendar
+    function moveMonth(dir) {
+        date.setMonth(date.getMonth() + dir);
+        renderCalendar();
+    }
+    </script>
+</body>
+</html>
