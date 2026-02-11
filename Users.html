@@ -85,7 +85,60 @@
         <button class="btn-edit-profile" onclick="openEditModal()">✎ Edit profile</button>
     </div>
 </div>
+
+<div id="editProfileModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+        <div class="modal-body">
+            <h3>Update Teacher Profile</h3>
+            
+            <div class="modal-form-group">
+                <label>Full Name</label>
+                <input type="text" id="editName">
+            </div>
+            <div class="modal-form-group">
+                <label>Age</label>
+                <input type="text" id="editAge">
+            </div>
+            <div class="modal-form-group">
+                <label>Birthdate</label>
+                <input type="date" id="editBirthdate">
+            </div>
+            <div class="modal-form-group">
+                <label>Gender</label>
+                <select id="editGender">
+                    <option value="MALE">MALE</option>
+                    <option value="FEMALE">FEMALE</option>
+                    <option value="OTHER">OTHER</option>
+                </select>
+            </div>
+            <div class="modal-form-group">
+                <label>Birthplace</label>
+                <input type="text" id="editBirthplace">
+            </div>
+            <div class="modal-form-group">
+                <label>Current Address</label>
+                <input type="text" id="editAddress">
+            </div>
+            <div class="modal-form-group">
+                <label>Nationality</label>
+                <input type="text" id="editNationality">
+            </div>
+            <div class="modal-form-group">
+                <label>Status</label>
+                <select id="editStatus">
+                    <option value="SINGLE">SINGLE</option>
+                    <option value="MARRIED">MARRIED</option>
+                    <option value="WIDOWED">WIDOWED</option>
+                </select>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-submit" onclick="saveProfile()">Save Changes</button>
+                <button class="btn-clear" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </div>
     </div>
+</div>
     
     <div id="studentModal" class="modal-overlay" style="display: none;">
         <div class="modal-card">
@@ -141,6 +194,7 @@
     </div>
 </body>
   <script type="module">
+    import { getDatabase, ref, push, get, query, orderByChild, equalTo, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
     import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
     import { getDatabase, ref, push, get, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
@@ -224,6 +278,58 @@
         closeModal();
     };
 
+// Open Edit Modal and fill with current data
+window.openEditModal = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const snapshot = await get(ref(db, 'users/' + user.uid));
+    if (snapshot.exists()) {
+        const data = snapshot.val();
+        // Fill the inputs with current DB values
+        document.getElementById('editName').value = data.fullName || "";
+        document.getElementById('editAge').value = data.age !== "N/A" ? data.age : "";
+        document.getElementById('editBirthdate').value = data.birthdate !== "N/A" ? data.birthdate : "";
+        document.getElementById('editGender').value = data.gender !== "N/A" ? data.gender : "MALE";
+        document.getElementById('editBirthplace').value = data.birthplace !== "N/A" ? data.birthplace : "";
+        document.getElementById('editAddress').value = data.currentAddress !== "N/A" ? data.currentAddress : "";
+        document.getElementById('editNationality').value = data.nationality !== "N/A" ? data.nationality : "";
+        document.getElementById('editStatus').value = data.status !== "N/A" ? data.status : "SINGLE";
+        
+        document.getElementById('editProfileModal').style.display = 'flex';
+    }
+};
+
+window.closeEditModal = () => {
+    document.getElementById('editProfileModal').style.display = 'none';
+};
+
+// Save updated data to Firebase
+window.saveProfile = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const updatedData = {
+        fullName: document.getElementById('editName').value,
+        age: document.getElementById('editAge').value || "N/A",
+        birthdate: document.getElementById('editBirthdate').value || "N/A",
+        gender: document.getElementById('editGender').value,
+        birthplace: document.getElementById('editBirthplace').value || "N/A",
+        currentAddress: document.getElementById('editAddress').value || "N/A",
+        nationality: document.getElementById('editNationality').value || "N/A",
+        status: document.getElementById('editStatus').value
+    };
+
+    try {
+        await update(ref(db, 'users/' + user.uid), updatedData);
+        alert("✅ Profile Updated!");
+        closeEditModal();
+        location.reload(); // Refresh to show new data
+    } catch (error) {
+        alert("❌ Update failed: " + error.message);
+    }
+};
+      
     // ===== SUBMIT STUDENT =====
     window.submitStudent = async function() {
         const nameInput = document.getElementById('stuName');
@@ -281,6 +387,7 @@
 </script>
 
 </html>
+
 
 
 
