@@ -15,43 +15,6 @@
             background-color: var(--bg-gray);
         }
 
-        /* Reusing Sidebar Styles */
-        .sidebar {
-            width: 150px;
-            background-color: var(--teal-primary);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            padding-top: 20px;
-            text-align: center;
-        }
-
-        .profile-circle {
-            width: 60px;
-            height: 60px;
-            background-color: #ccc;
-            border-radius: 50%;
-            margin: 0 auto 30px;
-        }
-
-        .nav-link {
-            padding: 15px 10px;
-            font-size: 11px;
-            text-transform: uppercase;
-            cursor: pointer;
-            color: white;
-            text-decoration: none;
-        }
-
-        .nav-link:hover { background: var(--teal-dark); }
-
-        /* Main Content */
-        .main-content {
-            flex-grow: 1;
-            padding: 20px 40px;
-        }
-
-    
 /* Container for positioning */
 .menu-container {
     position: relative;
@@ -207,3 +170,4 @@
         }
 
         .val-blue { color: #0055aa; font-weight: bold; }
+
