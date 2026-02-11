@@ -1,0 +1,306 @@
+:root {
+    --sidebar-teal: #0c7b84;
+    --card-teal: #086b74;
+    --white: #ffffff;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f6;
+}
+
+.dashboard-wrapper {
+    display: flex; /* Keeps sidebar on the left and content on the right */
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 200px;
+    background-color: var(--sidebar-teal);
+    color: white;
+    padding-top: 30px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.profile-avatar {
+    width: 70px;
+    height: 70px;
+    background: #e0e0e0;
+    border-radius: 50%;
+    margin: 0 auto 40px;
+}
+
+.nav-links {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+}
+
+.nav-links li {
+    padding: 15px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.nav-links li.active, .nav-links li:hover {
+    color: white;
+    background: rgba(255,255,255,0.1);
+}
+
+/* Main Content Layout */
+.main-content {
+    flex-grow: 1;
+    padding: 20px 40px;
+}
+
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.page-title {
+    color: #999;
+    font-size: 14px;
+}
+
+.menu-icon {
+    font-size: 24px;
+    color: var(--sidebar-teal);
+    cursor: pointer;
+}
+
+/* Controls (Courses and Add Student) */
+.controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
+}
+
+.pill-select {
+    width: 300px;
+    height: 40px;
+    border: 2px solid var(--sidebar-teal);
+    border-radius: 20px; /* Pill shape */
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    margin-top: 5px;
+}
+
+.btn-add-student {
+    background: var(--sidebar-teal);
+    color: white;
+    border-radius: 25px;
+    padding: 10px 25px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.admin-label {
+    text-align: center;
+    color: var(--sidebar-teal);
+    margin-bottom: 20px;
+}
+
+/* Profile Card Styling */
+.profile-card {
+    background-color: var(--card-teal);
+    color: white;
+    border-radius: 30px;
+    padding: 40px;
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.card-title {
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 40px;
+}
+
+.profile-photo-container {
+    width: 150px;
+    height: 180px;
+    background: white;
+    border-radius: 15px;
+    position: absolute;
+    right: 40px;
+    top: 60px; /* Aligns with name fields */
+    overflow: hidden;
+}
+
+.profile-photo-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.btn-edit-profile {
+    background: transparent;
+    border: 2px solid white;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two column layout */
+    gap: 20px;
+}
+
+.detail-item {
+    font-size: 16px;
+}
+
+.detail-item u {
+    text-decoration: underline;
+    margin-left: 5px;
+}
+
+.radio-group label {
+    margin-left: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Modal Background */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Dims the background dashboard */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Modal Overlay Styling */
+.modal-overlay {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-card {
+    background: white;
+    width: 400px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    background-color: var(--sidebar-teal);
+    height: 50px;
+}
+
+.modal-body {
+    padding: 20px 30px;
+}
+
+.modal-form-group {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.modal-form-group label {
+    width: 100px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.modal-form-group input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Modal Buttons */
+.modal-footer {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-submit {
+    flex: 1;
+    background: var(--sidebar-teal);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-clear {
+    flex: 1;
+    background: white;
+    color: var(--sidebar-teal);
+    border: 2px solid var(--sidebar-teal);
+    padding: 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-form-group {
+    margin-bottom: 18px; 
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-start;
+}
+
+.modal-form-group label {
+    width: 100% !important; 
+    margin-bottom: 5px;
+}
+
+.modal-form-group input, .modal-form-group select {
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+.error-msg {
+    color: #ff4d4d;
+    font-size: 11px;
+    margin-top: 5px; 
+    margin-bottom: 2px; 
+    display: none;
+    font-weight: bold;
+}
+
+.input-error {
+    border: 1.5px solid #ff4d4d !important;
+}

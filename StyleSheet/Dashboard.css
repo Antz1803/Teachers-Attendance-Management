@@ -1,0 +1,235 @@
+
+:root {
+    --primary-teal: #008081;
+    --dark-teal: #006666;
+    --bg-light: #f4f7f6;
+    --white: #ffffff;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    height: 100vh;
+    background-color: var(--bg-light);
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 200px;
+    background-color: var(--primary-teal);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+}
+
+.profile-circle {
+    width: 60px;
+    height: 60px;
+    background-color: #ccc;
+    border-radius: 50%;
+    margin-bottom: 30px;
+}
+
+.nav-links {
+    width: 100%;
+    list-style: none;
+    padding: 0;
+}
+
+.nav-links li {
+    padding: 15px 20px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.nav-links li:hover {
+    background-color: var(--dark-teal);
+}
+
+/* Main Content Styling */
+.main-content {
+    flex-grow: 1;
+    padding: 20px 40px;
+    overflow-y: auto;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    color: #aaa;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+/* Stats Cards */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.card {
+    background-color: var(--primary-teal);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.card h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    border-bottom: 2px solid white;
+    padding-bottom: 5px;
+    display: inline-block;
+    width: 80%;
+}
+
+.card p {
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+/* Student Table Section */
+.table-container {
+    background-color: var(--white);
+    border: 2px solid var(--primary-teal);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table-header {
+    background-color: var(--primary-teal);
+    color: white;
+    padding: 12px 20px;
+    font-weight: bold;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    text-align: left;
+    padding: 15px 20px;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.85rem;
+}
+
+th {
+    color: #555;
+    text-transform: capitalize;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+.status-text {
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #444;
+}
+
+:root {
+    --primary-teal: #10808a; /* Matching the teal in your image */
+    --white: #ffffff;
+}
+
+/* Container for positioning */
+.menu-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* The Burger Button */
+.menu-button {
+    background-color: var(--primary-teal);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.menu-button:hover {
+    background-color: #0d6a72;
+}
+
+/* The Dropdown Menu Wrapper */
+.dropdown-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    right: 0;
+    top: 45px;
+    background-color: var(--primary-teal);
+    min-width: 220px;
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: 100;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+}
+
+/* Menu Links */
+.dropdown-menu a {
+    color: white;
+    padding: 12px 20px;
+    text-decoration: none;
+    display: block;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-menu a:last-child {
+    border-bottom: none;
+}
+
+.dropdown-menu a:hover {
+    background-color: #0d6a72;
+}
+
+/* Show class for JS */
+.show {
+    display: block;
+}
+
+/* Color the numbers in the dashboard cards */
+#lateCount { 
+    color: #f9a825; 
+    font-weight: bold; 
+    font-size: 2rem; 
+}
+
+#absentCount { 
+    color: #c62828; 
+    font-weight: bold; 
+    font-size: 2rem;
+}
+
+#presentCount { 
+    color: #55e65c; 
+    font-weight: bold; 
+    font-size: 2rem;
+}
+
+.status-present { color: #2e7d32; background: #e8f5e9; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
+.status-late { color: #f9a825; background: #fffde7; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
+.status-absent { color: #c62828; background: #ffebee; padding: 5px 10px; border-radius: 4px; font-weight: bold; }

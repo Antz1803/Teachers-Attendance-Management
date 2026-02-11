@@ -1,0 +1,212 @@
+
+:root {
+    --teal-main: #0c7b84;
+    --bg-gray: #e9e9e9;
+    --text-gray: #666;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: var(--bg-gray);
+    font-family: 'Arial', sans-serif;
+}
+
+/* Login Card */
+.login-card {
+    width: 400px;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: var(--teal-main);
+    height: 80px;
+    width: 100%;
+}
+
+.card-body {
+    padding: 30px 40px 40px;
+}
+
+h2 {
+    text-align: center;
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 30px;
+    font-weight: normal;
+}
+
+/* Form Styling */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #444;
+    font-size: 14px;
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1.5px solid #333;
+    border-radius: 12px;
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+    font-size: 13px;
+}
+
+.form-group input::placeholder {
+    color: #ccc;
+}
+
+/* Utils Row (Remember Me / Forgot Password) */
+.form-utils {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    margin-bottom: 30px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--teal-main);
+}
+
+.remember-me input {
+    accent-color: var(--teal-main);
+}
+
+.forgot-pass {
+    color: var(--teal-main);
+    text-decoration: none;
+}
+
+/* Login Button */
+.btn-login {
+    width: 100%;
+    background-color: var(--teal-main);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-login:hover {
+    opacity: 0.9;
+}
+
+/* Links for New Teacher & Create Account */
+.signup-links {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.signup-links a ,label{
+    font-size: 14px;
+    color: var(--teal-main);
+    text-decoration: none;
+}
+
+.signup-links a:hover {
+    text-decoration: underline;
+}
+
+:root {
+    --primary-teal: #10808a; /* Your dashboard teal color */
+    --card-bg: #ffffff;
+}
+
+body {
+    background-color: #e9ecef;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.login-card {
+    background: var(--card-bg);
+    width: 380px;
+    border-radius: 20px; /* Rounded card */
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: var(--primary-teal);
+    height: 80px; /* Teal header bar */
+}
+
+.card-body {
+    padding: 30px;
+    text-align: center;
+}
+
+.form-group {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* The Pill-Shaped Inputs from your format */
+input[type="email"], 
+input[type="password"], 
+input[type="text"] {
+    width: 100%;
+    padding: 12px 20px;
+    border: 2px solid #333; /* Dark border as seen in registration image */
+    border-radius: 15px;    /* Rounded pill shape */
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+/* Teal action button */
+.btn-action {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary-teal);
+    color: white;
+    border: none;
+    border-radius: 25px; /* Fully rounded button */
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.signup-links {
+    margin-top: 15px;
+    font-size: 13px;
+}
+
+.signup-links a {
+    color: var(--primary-teal);
+    text-decoration: none;
+    font-weight: bold;
+}
