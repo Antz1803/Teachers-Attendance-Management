@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="StyleSheet/AttendanceReport.css">
     <link rel="stylesheet" href="StyleSheet/SideBar.css">
     <style>
-        /* This ensures the sidebar and content are side-by-side */
         body {
             display: flex;
             margin: 0;
@@ -20,6 +19,11 @@
             flex-grow: 1;
             padding: 20px;
             overflow-y: auto;
+        }
+        /* Style for the active link inside the Burger Dropdown */
+        .dropdown-menu a.active-link {
+            background-color: var(--teal-primary, #008080);
+            color: white !important;
         }
     </style>
 </head>
@@ -40,7 +44,7 @@
 
         <ul class="nav-links">
             <li class="nav-item active">
-                <a href="Dashboard.html"><i class="fas fa-chart-line"></i> Attendance Report</a>
+                <a href="Dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a>
             </li>
             <li class="nav-item">
                 <a href="Users.html"><i class="fas fa-users"></i> Users</a>
@@ -69,8 +73,8 @@
                 </button>
         
                 <div id="myDropdown" class="dropdown-menu">
-                    <a href="AttendanceManagement.html" class="active-link">Attendance Management</a>
-                    <a href="AttendanceReport.html">Attendance Report</a>
+                    <a href="Dashboard.html">Attendance Management</a>
+                    <a href="AttendanceReport.html" class="active-link">Attendance Report</a>
                 </div>
             </div>
         </header>
@@ -254,11 +258,28 @@
     }
 
     document.querySelector('.btn-generate').onclick = generateReport;
-    window.toggleMenu = () => document.getElementById("myDropdown").classList.toggle("show");
+    // Dropdown toggle
+    window.toggleMenu = () => {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+
+    // Close dropdown if user clicks outside
+    window.onclick = function(event) {
+        if (!event.target.matches('.menu-button')) {
+            var dropdowns = document.getElementsByClassName("dropdown-menu");
+            for (var i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
 </script>
 </body>
 
 </html>
+
 
 
 
