@@ -46,14 +46,7 @@
     
       <div class="main-content">
         <header class="top-header">
-            <h1>Users</h1>
-            <div class="menu-container">
-                <button class="menu-button" onclick="toggleMenu()">&#9776;</button>
-                <div id="myDropdown" class="dropdown-menu">
-                    <a href="AttendanceManagement.html">Attendance Management</a>
-                    <a href="AttendanceReport.html">Attendance Report</a>
-                </div>
-            </div>
+            <h1>Users</h1>       
         </header>
 
         <div class="controls-row">
@@ -316,6 +309,7 @@
         document.getElementById('logoutBtn').addEventListener('click', () => { signOut(auth).then(() => window.location.href = 'index.html'); });
     </script>
 </html>
+
 
 
 
