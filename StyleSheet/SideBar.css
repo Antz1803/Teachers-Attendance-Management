@@ -1,4 +1,4 @@
-/* Sidebar Refinement */
+/* Sidebar Style */
 .sidebar {
     width: 240px; /* Slightly wider for better text flow */
     background: linear-gradient(180deg, var(--primary-teal) 0%, var(--dark-teal) 100%);
