@@ -16,39 +16,105 @@ body {
 
 /* Sidebar Styling */
 .sidebar {
-    width: 200px;
-    background-color: var(--primary-teal);
+    width: 240px; /* Slightly wider for better text flow */
+    background: linear-gradient(180deg, var(--primary-teal) 0%, var(--dark-teal) 100%);
     color: white;
     display: flex;
     flex-direction: column;
+    height: 100vh;
+    box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+/* Profile Section */
+.sidebar-header {
+    padding: 30px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.profile-container {
+    display: flex;
     align-items: center;
-    padding-top: 20px;
+    gap: 15px;
 }
 
 .profile-circle {
-    width: 60px;
-    height: 60px;
-    background-color: #ccc;
+    width: 50px;
+    height: 50px;
+    background-color: rgba(255,255,255,0.2);
+    border: 2px solid white;
     border-radius: 50%;
-    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
 }
 
+.profile-info h3 {
+    margin: 0;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+}
+
+.profile-info span {
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+/* Nav Links */
 .nav-links {
-    width: 100%;
+    flex-grow: 1;
+    padding: 20px 0;
+    margin: 0;
     list-style: none;
-    padding: 0;
 }
 
-.nav-links li {
-    padding: 15px 20px;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.3s;
+.nav-item {
+    position: relative;
+    margin: 5px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
 }
 
-.nav-links li:hover {
-    background-color: var(--dark-teal);
+.nav-item a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.nav-item i {
+    width: 25px; /* Fixed width for icon alignment */
+    margin-right: 15px;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+/* Hover & Active States */
+.nav-item:hover {
+    background-color: rgba(255,255,255,0.1);
+    transform: translateX(5px); /* Small slide effect */
+}
+
+.nav-item.active {
+    background-color: var(--white);
+}
+
+.nav-item.active a {
+    color: var(--primary-teal);
+}
+
+/* Logout at the bottom */
+.sidebar-footer {
+    padding: 20px 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.nav-item.logout:hover {
+    background-color: #c62828; /* Red hover for logout */
 }
 
 /* Main Content Styling */
@@ -232,4 +298,5 @@ tr:last-child td {
 
 .status-present { color: #2e7d32; background: #e8f5e9; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
 .status-late { color: #f9a825; background: #fffde7; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
+
 .status-absent { color: #c62828; background: #ffebee; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
