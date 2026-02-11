@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Users - Attendance System</title>
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="StyleSheet/Users.css">
     <link rel="stylesheet" href="StyleSheet/SideBar.css">
 </head>
 <body>
+
     <div class="sidebar">
         <div class="sidebar-header">
             <div class="profile-container">
@@ -26,7 +27,8 @@
             <li class="nav-item">
                 <a href="Dashboard.html"><i class="fas fa-chart-line"></i> Attendance Report</a>
             </li>
-            <li class="nav-item active"> <a href="Users.html"><i class="fas fa-users"></i> Users</a>
+            <li class="nav-item active"> 
+                <a href="Users.html"><i class="fas fa-users"></i> Users</a>
             </li>
             <li class="nav-item">
                 <a href="Courses.html"><i class="fas fa-book"></i> Courses</a>
@@ -42,6 +44,24 @@
             </li>
         </div>
     </div>
+
+    <div class="main-content">
+        <header class="top-header">
+            <span class="page-title">Users</span>
+            <div class="menu-icon">☰</div>
+        </header>
+
+        <div class="controls-row">
+            <div class="filter-group">
+                <label>Courses</label>
+                <div class="pill-select">
+                    <span></span>
+                    <span class="arrow-down">▼</span>
+                </div>
+            </div>
+            <button class="btn-add-student" onclick="openModal()">+ Student</button>
+        </div>
+        </div>
     
         <div class="main-content">
             <header class="top-header">
@@ -274,6 +294,7 @@
 </body>
 
 </html>
+
 
 
 
