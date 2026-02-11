@@ -60,28 +60,28 @@
             <button class="btn-add-student" onclick="openModal()">+ Student</button>
         </div>
 
-        <h3 class="admin-label">Hello! <span>Mr. Jeorge Rey A. Mancilla</span></h3>
+     <h3 class="admin-label">Hello! <span id="display-admin-name">Loading...</span></h3>
 
-     <div class="profile-card">
+<div class="profile-card">
     <div class="card-content">
         <h2 class="card-title">Teacher's Profile</h2>
         <div class="profile-details">
-            <div class="detail-item"><strong>Name:</strong> <u>Jeorge Rey Bugwak</u></div>
-            <div class="detail-item"><strong>Age:</strong> <u>69 y/o</u></div>
-            <div class="detail-item"><strong>Birthdate:</strong> <u>9/09/1969</u></div>
-            <div class="detail-item"><strong>Gender:</strong> MALE</div>
-            <div class="detail-item"><strong>Birthplace:</strong> <u>Isla Canto pangi</u></div>
-            <div class="detail-item"><strong>Current Address:</strong> <u>Crab Island</u></div>
-            <div class="detail-item"><strong>Nationality:</strong> <u>Half spanish</u></div>
-            <div class="detail-item"><strong>Status:</strong> MARRIED</div>
+            <div class="detail-item"><strong>Name:</strong> <u id="display-name">Loading...</u></div>
+            <div class="detail-item"><strong>Age:</strong> <u id="display-age">Loading...</u></div>
+            <div class="detail-item"><strong>Birthdate:</strong> <u id="display-birthdate">Loading...</u></div>
+            <div class="detail-item"><strong>Gender:</strong> <span id="display-gender">Loading...</span></div>
+            <div class="detail-item"><strong>Birthplace:</strong> <u id="display-birthplace">Loading...</u></div>
+            <div class="detail-item"><strong>Current Address:</strong> <u id="display-address">Loading...</u></div>
+            <div class="detail-item"><strong>Nationality:</strong> <u id="display-nationality">Loading...</u></div>
+            <div class="detail-item"><strong>Status:</strong> <span id="display-status">Loading...</span></div>
         </div>
     </div>
 
     <div class="photo-column">
         <div class="profile-photo-container">
-            <img src="avatar.png" alt="Profile Photo">
+            <img src="avatar.png" id="display-photo" alt="Profile Photo">
         </div>
-        <button class="btn-edit-profile">✎ Edit profile</button>
+        <button class="btn-edit-profile" onclick="openEditModal()">✎ Edit profile</button>
     </div>
 </div>
     </div>
@@ -139,133 +139,147 @@
         </div>
     </div>
 </body>
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getDatabase, ref, push, get, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getDatabase, ref, push, get, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
-            authDomain: "attendancesystem-cb683.firebaseapp.com",
-            databaseURL: "https://attendancesystem-cb683-default-rtdb.firebaseio.com",
-            projectId: "attendancesystem-cb683",
-            storageBucket: "attendancesystem-cb683.appspot.com",
-            messagingSenderId: "975901701661",
-            appId: "1:975901701661:web:f8ccfbafd8e6c6e9c3f8f4"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
+        authDomain: "attendancesystem-cb683.firebaseapp.com",
+        databaseURL: "https://attendancesystem-cb683-default-rtdb.firebaseio.com",
+        projectId: "attendancesystem-cb683",
+        storageBucket: "attendancesystem-cb683.appspot.com",
+        messagingSenderId: "975901701661",
+        appId: "1:975901701661:web:f8ccfbafd8e6c6e9c3f8f4"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-        // Check Auth State
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                window.location.href = 'index.html'; 
+    // ===== FETCH AND DISPLAY PROFILE DATA =====
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            try {
+                const userRef = ref(db, 'users/' + user.uid);
+                const snapshot = await get(userRef);
+
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+
+                    // Update Hello Header
+                    const adminLabel = document.querySelector('.admin-label span');
+                    if (adminLabel) adminLabel.innerText = data.fullName || "Admin";
+
+                    // Update Profile Card Fields (Matching the IDs we discussed)
+                    if (document.getElementById('display-name')) document.getElementById('display-name').innerText = data.fullName || "N/A";
+                    if (document.getElementById('display-age')) document.getElementById('display-age').innerText = data.age || "N/A";
+                    if (document.getElementById('display-birthdate')) document.getElementById('display-birthdate').innerText = data.birthdate || "N/A";
+                    if (document.getElementById('display-gender')) document.getElementById('display-gender').innerText = data.gender || "N/A";
+                    if (document.getElementById('display-birthplace')) document.getElementById('display-birthplace').innerText = data.birthplace || "N/A";
+                    if (document.getElementById('display-address')) document.getElementById('display-address').innerText = data.currentAddress || "N/A";
+                    if (document.getElementById('display-nationality')) document.getElementById('display-nationality').innerText = data.nationality || "N/A";
+                    if (document.getElementById('display-status')) document.getElementById('display-status').innerText = data.status || "N/A";
+                    
+                    // Update Profile Photo
+                    const profImg = document.querySelector('.profile-photo-container img');
+                    if (profImg && data.profilePic) {
+                        profImg.src = data.profilePic;
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching profile:", error);
             }
-        });
+        } else {
+            window.location.href = 'index.html';
+        }
+    });
 
-        // ===== MODAL CONTROLS =====
-        window.openModal = () => {
-            resetErrors();
-            document.getElementById('studentModal').style.display = 'flex';
-        };
+    // ===== MODAL CONTROLS =====
+    window.openModal = () => {
+        resetErrors();
+        document.getElementById('studentModal').style.display = 'flex';
+    };
 
-        window.closeModal = () => document.getElementById('studentModal').style.display = 'none';
+    window.closeModal = () => document.getElementById('studentModal').style.display = 'none';
 
-        // Helper to hide all red labels
-        function resetErrors() {
-            const errors = document.querySelectorAll('.error-msg');
-            errors.forEach(err => err.style.display = 'none');
-            
-            const inputs = document.querySelectorAll('input');
-            inputs.forEach(input => input.classList.remove('input-error'));
+    function resetErrors() {
+        const errors = document.querySelectorAll('.error-msg');
+        errors.forEach(err => err.style.display = 'none');
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => input.classList.remove('input-error'));
+    }
+
+    window.clearForm = function() {
+        document.getElementById('stuName').value = '';
+        document.getElementById('stuEmail').value = '';
+        document.getElementById('stuID').value = '';
+        document.getElementById('stuCourse').value = '';
+        document.getElementById('stuYear').value = '';
+        document.getElementById('stuSection').value = '';
+        resetErrors();
+        closeModal();
+    };
+
+    // ===== SUBMIT STUDENT =====
+    window.submitStudent = async function() {
+        const nameInput = document.getElementById('stuName');
+        const emailInput = document.getElementById('stuEmail');
+        const CoursesInput = document.getElementById('stuCourse');
+        const idInput = document.getElementById('stuID');
+        
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim();
+        const stuID = idInput.value.trim();
+        const stuCourses = CoursesInput.value.trim();
+        const year = document.getElementById('stuYear').value;
+        const section = document.getElementById('stuSection').value.trim();
+
+        resetErrors();
+
+        if (!name || !email || !stuID || !year || !stuCourses || !section) {
+            alert('❌ Please fill in all fields!');
+            return;
         }
 
-        window.clearForm = function() {
-            document.getElementById('stuName').value = '';
-            document.getElementById('stuEmail').value = '';
-            document.getElementById('stuID').value = '';
-            document.getElementById('stuCourse').value = '';
-            document.getElementById('stuYear').value = '';
-            document.getElementById('stuSection').value = '';
-            resetErrors();
-            closeModal();
-        };
+        if (!email.toLowerCase().endsWith('@gmail.com')) {
+            document.getElementById('error-email').style.display = 'block';
+            emailInput.classList.add('input-error');
+            return;
+        }
 
-        // ===== SUBMIT STUDENT (WITH RESTRICTIONS) =====
-        window.submitStudent = async function() {
-            const nameInput = document.getElementById('stuName');
-            const emailInput = document.getElementById('stuEmail');
-            const CoursesInput = document.getElementById('stuCourse');
-            const idInput = document.getElementById('stuID');
-            
-            const name = nameInput.value.trim();
-            const email = emailInput.value.trim();
-            const stuID = idInput.value.trim();
-            const stuCourses = CoursesInput.value.trim();
-            const year = document.getElementById('stuYear').value;
-            const section = document.getElementById('stuSection').value.trim();
-
-            // Clear previous errors
-            resetErrors();
-
-            // 1. Basic empty check
-            if (!name || !email || !stuID || !year || !stuCourses || !section) {
-                alert('❌ Please fill in all fields!');
+        try {
+            const studentsRef = ref(db, 'students');
+            const idQuery = query(studentsRef, orderByChild('studentID'), equalTo(stuID));
+            const idSnapshot = await get(idQuery);
+            if (idSnapshot.exists()) {
+                document.getElementById('error-id').style.display = 'block';
+                idInput.classList.add('input-error');
                 return;
             }
 
-            // 2. Validate Gmail format
-            if (!email.toLowerCase().endsWith('@gmail.com')) {
-                document.getElementById('error-email').style.display = 'block';
-                emailInput.classList.add('input-error');
-                return;
-            }
+            await push(studentsRef, {
+                name,
+                email,
+                studentID: stuID,
+                stuCourses,
+                yearLevel: year,
+                section,
+                createdAt: new Date().toISOString()
+            });
 
-            try {
-                const studentsRef = ref(db, 'students');
-
-                // 3. Check if ID exists
-                const idQuery = query(studentsRef, orderByChild('studentID'), equalTo(stuID));
-                const idSnapshot = await get(idQuery);
-                if (idSnapshot.exists()) {
-                    document.getElementById('error-id').style.display = 'block';
-                    idInput.classList.add('input-error');
-                    return;
-                }
-
-                // 4. Check if Name exists
-                const nameQuery = query(studentsRef, orderByChild('name'), equalTo(name));
-                const nameSnapshot = await get(nameQuery);
-                if (nameSnapshot.exists()) {
-                    document.getElementById('error-name').style.display = 'block';
-                    nameInput.classList.add('input-error');
-                    return;
-                }
-
-                // 5. Push data if all validations pass
-                await push(studentsRef, {
-                    name,
-                    email,
-                    studentID: stuID,
-                    stuCourses,
-                    yearLevel: year,
-                    section,
-                    createdAt: new Date().toISOString()
-                });
-
-                alert('✅ Student Added Successfully!');
-                clearForm();
-
-            } catch (error) {
-                console.error(error);
-                alert('❌ Error: ' + error.message);
-            }
-        };
-    </script>
+            alert('✅ Student Added Successfully!');
+            clearForm();
+        } catch (error) {
+            console.error(error);
+            alert('❌ Error: ' + error.message);
+        }
+    };
+</script>
 
 </html>
+
 
 
 
