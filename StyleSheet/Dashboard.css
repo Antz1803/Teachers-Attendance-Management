@@ -14,6 +14,15 @@ body {
     background-color: var(--bg-light);
 }
 
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
 /* Main Content Styling */
 .main-content {
     flex-grow: 1;
@@ -197,4 +206,5 @@ tr:last-child td {
 .status-late { color: #f9a825; background: #fffde7; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
 
 .status-absent { color: #c62828; background: #ffebee; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
+
 
