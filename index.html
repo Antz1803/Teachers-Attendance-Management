@@ -59,6 +59,13 @@
                 <div class="signup-links">      
                     <a href="#" onclick="showLogin()">Login here</a>
                 </div>
+                <input type="hidden" id="regAge" value="N/A">
+                <input type="hidden" id="regBirthdate" value="N/A">
+                <input type="hidden" id="regGender" value="N/A">
+                <input type="hidden" id="regBirthplace" value="N/A">
+                <input type="hidden" id="regAddress" value="N/A">
+                <input type="hidden" id="regNationality" value="N/A">
+                <input type="hidden" id="regStatus" value="N/A">
             </form>
         </div>
     </div>
@@ -80,7 +87,7 @@
         set 
     } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-    // Your Firebase configuration
+    // Firebase configuration
     const firebaseConfig = {
         apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
         authDomain: "attendancesystem-cb683.firebaseapp.com",
@@ -114,6 +121,14 @@
                 fullName: fullName,
                 email: email,
                 role: 'Teacher',
+                age: "N/A",
+                birthdate: "N/A",
+                gender: "N/A",
+                birthplace: "N/A",
+                currentAddress: "N/A",
+                nationality: "N/A",
+                religion: "N/A",
+                status: "N/A",
                 createdAt: new Date().toISOString()
             });
 
@@ -174,3 +189,4 @@
 </body>
 
 </html>
+
