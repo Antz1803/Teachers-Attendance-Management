@@ -69,35 +69,28 @@ body {
 
 /* --- Profile Card --- */
 .profile-card {
-    background-color: var(--card-teal);
-    color: white;
-    border-radius: 30px;
-    padding: 40px;
-    position: relative;
-    max-width: 900px;
-    margin: 0 auto;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    position: relative; /* Base for the absolute image */
+    overflow: visible; /* Allows image to stay in place */
 }
 
+.card-title {
+    margin-top: 0;
+    font-size: 28px;
+    text-align: left; /* Aligns with the design in image 7 */
+}
+
+/* Specific styling for the radio-style labels in the card */
+.radio-group label {
+    margin-right: 10px;
+    font-weight: normal;
+}
+
+/* Correcting the Photo Container position */
 .profile-photo-container {
-    width: 150px;
-    height: 180px;
-    background: white;
-    border-radius: 15px;
-    position: absolute;
+    top: 40px; 
     right: 40px;
-    top: 100px;
-    overflow: hidden;
-    border: 3px solid white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
-
-.profile-details {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    max-width: 70%; 
-}
-
 /* --- Modal Styling --- */
 .modal-overlay {
     position: fixed;
@@ -165,3 +158,4 @@ body {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
