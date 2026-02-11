@@ -322,6 +322,74 @@
         }
     };
 
+    // --- FUNCTION: Submit New Student to Firebase ---
+window.submitStudent = async () => {
+    // Get Form Values
+    const name = document.getElementById('stuName').value.trim();
+    const email = document.getElementById('stuEmail').value.trim();
+    const id = document.getElementById('stuID').value.trim();
+    const course = document.getElementById('stuCourse').value.trim();
+    const year = document.getElementById('stuYear').value;
+    const section = document.getElementById('stuSection').value.trim();
+
+    // Reset Error Messages
+    document.getElementById('error-email').style.display = 'none';
+    document.getElementById('error-name').style.display = 'none';
+    document.getElementById('error-id').style.display = 'none';
+
+    // Validation: Check if empty
+    if (!name || !email || !id || !course || !year || !section) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    // Validation: Gmail format
+    if (!email.toLowerCase().endsWith('@gmail.com')) {
+        document.getElementById('error-email').style.display = 'block';
+        return;
+    }
+
+    try {
+        // Student ID or Name already exists (Uniqueness Check)
+        const studentsRef = ref(db, 'students');
+        const snapshot = await get(studentsRef);
+        
+        if (snapshot.exists()) {
+            const existingData = snapshot.val();
+            for (let key in existingData) {
+                if (existingData[key].studentID === id) {
+                    document.getElementById('error-id').style.display = 'block';
+                    return;
+                }
+                if (existingData[key].fullName.toLowerCase() === name.toLowerCase()) {
+                    document.getElementById('error-name').style.display = 'block';
+                    return;
+                }
+            }
+        }
+
+        // Data to Firebase
+        const newStudentRef = push(ref(db, 'students'));
+        await update(newStudentRef, {
+            fullName: name,
+            email: email,
+            studentID: id,
+            course: course,
+            yearLevel: year,
+            section: section,
+            registeredAt: new Date().toISOString()
+        });
+
+        alert("✅ Student Registered Successfully!");
+        window.clearForm(); 
+        location.reload();   
+
+    } catch (error) {
+        console.error("Submission Error:", error);
+        alert("❌ Error saving student: " + error.message);
+    }
+};
+
     // --- FUNCTION: Close Edit Profile Modal ---
     window.closeEditModal = () => document.getElementById('editProfileModal').style.display = 'none';
 
@@ -337,6 +405,7 @@
     });
 </script>
 </html>
+
 
 
 
