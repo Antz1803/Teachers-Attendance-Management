@@ -70,66 +70,6 @@ body {
 }
 
 /* --- Profile Card --- */
-.profile-card {
-    background: linear-gradient(135deg, #137a7f 0%, #0b5d61 100%);
-    position: relative;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-}
-
-.card-glow {
-    position: absolute;
-    top: -50px; right: -50px;
-    width: 250px; height: 250px;
-    background: rgba(255, 255, 255, 0.1);
-    filter: blur(60px);
-    border-radius: 50%;
-}
-
-.card-header-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.status-badge {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 10px;
-    letter-spacing: 1px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.detail-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255, 255, 255, 0.07);
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.detail-item i {
-    color: #ffce45; /* Accent Gold */
-    font-size: 1.1rem;
-}
-
-.detail-item strong {
-    display: block;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    opacity: 0.8;
-}
-
-.btn-edit-profile {
-    background: #ffce45 !important;
-    color: #0b5d61 !important;
-    box-shadow: 0 4px 15px rgba(255, 206, 69, 0.3);
-}
 
 /* --- Modal Styling --- */
 .modal-overlay {
@@ -228,6 +168,7 @@ body {
             font-size: 12px;
         }
         .btn-upload:hover { background: #e0e0e0; }
+
 
 
 
