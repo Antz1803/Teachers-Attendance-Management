@@ -322,48 +322,55 @@
         }
     };
 
- // --- EVENT LISTENER: Restrict Student ID to Numbers and Symbols Only ---
+// --- EVENT LISTENER: Restrict Student ID to Numbers and Symbols Only ---
 document.getElementById('stuID').addEventListener('input', function(e) {
-    // Keeps numbers (0-9) and symbols (like -, #, etc.)
+    // Removes all letters (a-z, A-Z) instantly
     this.value = this.value.replace(/[a-zA-Z]/g, '');
 });
 
-// --- FUNCTION: Submit New Student to Firebase (Updated Version) ---
+// --- FUNCTION: Submit New Student to Firebase (with Capitalization) ---
 window.submitStudent = async () => {
+    // Get and trim form values
     const name = document.getElementById('stuName').value.trim();
     const email = document.getElementById('stuEmail').value.trim();
     const id = document.getElementById('stuID').value.trim();
-    const course = document.getElementById('stuCourse').value.trim().toUpperCase(); 
+    // Force Course and Section to Uppercase
+    const course = document.getElementById('stuCourse').value.trim().toUpperCase();
     const year = document.getElementById('stuYear').value;
-    const section = document.getElementById('stuSection').value.trim();
+    const section = document.getElementById('stuSection').value.trim().toUpperCase();
 
-    // Reset error displays
+    // UI Feedback: Reset error messages
     document.getElementById('error-email').style.display = 'none';
     document.getElementById('error-id').style.display = 'none';
     document.getElementById('error-name').style.display = 'none';
 
+    // Validation: Check if fields are empty
     if (!name || !email || !id || !course || !year || !section) {
         alert("Please fill in all fields.");
         return;
     }
 
+    // Validation: Enforce @gmail.com
     if (!email.toLowerCase().endsWith('@gmail.com')) {
         document.getElementById('error-email').style.display = 'block';
         return;
     }
 
     try {
+        // Database Check: Prevent duplicate Name or ID
         const studentsRef = ref(db, 'students');
         const snapshot = await get(studentsRef);
         
         if (snapshot.exists()) {
             const existingData = snapshot.val();
             for (let key in existingData) {
+                // Check if studentID matches
                 if (existingData[key].studentID === id) {
                     document.getElementById('error-id').style.display = 'block';
                     return;
                 }
-                const existingName = existingData[key].name || "";
+                // Check if name matches (safety check for undefined names)
+                const existingName = existingData[key].name || ""; 
                 if (existingName.toLowerCase() === name.toLowerCase()) {
                     document.getElementById('error-name').style.display = 'block';
                     return;
@@ -371,6 +378,7 @@ window.submitStudent = async () => {
             }
         }
 
+        // Firebase Save: Push sanitized data to the students node
         const newStudentRef = push(ref(db, 'students'));
         await update(newStudentRef, {
             name: name,
@@ -378,18 +386,35 @@ window.submitStudent = async () => {
             studentID: id,
             stuCourses: course, 
             yearLevel: year,
-            section: section,
+            section: section,   
             createdAt: new Date().toISOString()
         });
 
         alert("✅ Student Registered Successfully!");
-        window.clearForm();
+        window.clearForm(); 
         location.reload();
 
     } catch (error) {
         console.error("Submission Error:", error);
-        alert("❌ Error: " + error.message);
+        alert("❌ Error saving student: " + error.message);
     }
+};
+
+// --- FUNCTION: Close and Clear Student Modal Fields ---
+window.clearForm = () => { 
+    document.getElementById('stuName').value = "";
+    document.getElementById('stuEmail').value = "";
+    document.getElementById('stuID').value = "";
+    document.getElementById('stuCourse').value = "";
+    document.getElementById('stuYear').value = "";
+    document.getElementById('stuSection').value = "";
+    
+    // Hide error messages
+    document.getElementById('error-email').style.display = 'none';
+    document.getElementById('error-name').style.display = 'none';
+    document.getElementById('error-id').style.display = 'none';
+    
+    document.getElementById('studentModal').style.display = 'none'; 
 };
     
     // --- FUNCTION: Close Edit Profile Modal ---
@@ -407,6 +432,7 @@ window.submitStudent = async () => {
     });
 </script>
 </html>
+
 
 
 
