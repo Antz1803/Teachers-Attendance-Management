@@ -3,6 +3,8 @@
     --card-teal: #086b74;
     --white: #ffffff;
     --error-red: #ff4d4d;
+    --card-teal: #137a7f;
+    --accent-gold: #ffce45;
 }
 
 body {
@@ -69,102 +71,84 @@ body {
 
 /* --- Profile Card --- */
 .profile-card {
-    background-color: var(--card-teal);
-    color: white;
-    border-radius: 30px;
-    padding: 40px;
-    max-width: 950px;
-    margin: 20px auto;
-    display: flex; 
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 40px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, var(--card-teal) 0%, #0b5d61 100%);
+    position: relative;
+    overflow: hidden; /* Clips the decorative glow */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.card-content {
-    flex: 1; 
+.profile-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
 }
 
-.card-title {
-    margin-bottom: 30px;
-    font-size: 28px;
-    font-weight: bold;
+/* Decorative Glow Background */
+.card-glow {
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    filter: blur(50px);
+    border-radius: 50%;
+    pointer-events: none;
 }
 
-.admin-label {
-    text-align: center;      
-    width: 100%;            
-    margin: 20px auto;       
-    color: var(--sidebar-teal);
-    font-size: 1.2rem;
-}
-
-.admin-label span {
-    font-weight: bold;       
-}
-
-/* --- Details Grid (Equal Spacing) --- */
-.profile-details {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px 30px; 
-}
-
+/* Detail Items with Icons */
 .detail-item {
-    font-size: 16px;
-    line-height: 1.5;
-    white-space: nowrap; 
-}
-
-.detail-item u {
-    text-underline-offset: 4px;
-}
-
-/* --- Right Column (Photo & Button) --- */
-.photo-column {
-    display: flex;
-    flex-direction: column;
-    align-items: center; 
-    gap: 15px; 
-    margin-top: 65px;
-}
-
-.profile-photo-container {
-    width: 160px;
-    height: 180px;
-    background: white;
-    border-radius: 15px;
-    overflow: hidden;
-    border: 3px solid white;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-.profile-photo-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.btn-edit-profile {
-    background: white;
-    color: var(--card-teal);
-    border: none;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-weight: bold;
-    cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-    width: 100%; /* Matches the photo width */
-    justify-content: center;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.05); /* Soft glass effect */
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-item i {
+    color: var(--accent-gold);
+    font-size: 1.2rem;
+    width: 25px;
+    text-align: center;
+}
+
+.detail-item strong {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.7;
+}
+
+.detail-item span {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Photo Container Polish */
+.profile-photo-container {
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+}
+
+.photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 70%, rgba(0,0,0,0.4));
+}
+
+/* Button with specific "Teacher" theme */
+.btn-edit-profile {
+    background: var(--accent-gold); /* Gold makes it pop against teal */
+    color: #333;
+    box-shadow: 0 4px 15px rgba(255, 206, 69, 0.3);
 }
 
 .btn-edit-profile:hover {
-    background: #f0f0f0;
-    transform: translateY(-2px);
+    background: #fff;
+    color: var(--card-teal);
 }
 /* --- Modal Styling --- */
 .modal-overlay {
@@ -263,6 +247,7 @@ body {
             font-size: 12px;
         }
         .btn-upload:hover { background: #e0e0e0; }
+
 
 
 
