@@ -70,6 +70,7 @@
             <div class="detail-item"><strong>Age:</strong> <u id="display-age">Loading...</u></div>
             <div class="detail-item"><strong>Birthdate:</strong> <u id="display-birthdate">Loading...</u></div>
             <div class="detail-item"><strong>Gender:</strong> <span id="display-gender">Loading...</span></div>
+            <div class="detail-item"><strong>Email:</strong> <u id="display-email">Loading...</u></div>
             <div class="detail-item"><strong>Birthplace:</strong> <u id="display-birthplace">Loading...</u></div>
             <div class="detail-item"><strong>Current Address:</strong> <u id="display-address">Loading...</u></div>
             <div class="detail-item"><strong>Nationality:</strong> <u id="display-nationality">Loading...</u></div>
@@ -177,6 +178,7 @@
                     if (document.getElementById('display-age')) document.getElementById('display-age').innerText = data.age || "N/A";
                     if (document.getElementById('display-birthdate')) document.getElementById('display-birthdate').innerText = data.birthdate || "N/A";
                     if (document.getElementById('display-gender')) document.getElementById('display-gender').innerText = data.gender || "N/A";
+                    if (document.getElementById('display-email')) document.getElementById('display-email').innerText = data.email || "N/A";
                     if (document.getElementById('display-birthplace')) document.getElementById('display-birthplace').innerText = data.birthplace || "N/A";
                     if (document.getElementById('display-address')) document.getElementById('display-address').innerText = data.currentAddress || "N/A";
                     if (document.getElementById('display-nationality')) document.getElementById('display-nationality').innerText = data.nationality || "N/A";
@@ -279,6 +281,7 @@
 </script>
 
 </html>
+
 
 
 
