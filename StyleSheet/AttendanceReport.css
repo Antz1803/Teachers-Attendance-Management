@@ -15,6 +15,15 @@
             background-color: var(--bg-gray);
         }
 
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
 /* Container for positioning */
 .menu-container {
     position: relative;
@@ -170,4 +179,5 @@
         }
 
         .val-blue { color: #0055aa; font-weight: bold; }
+
 
