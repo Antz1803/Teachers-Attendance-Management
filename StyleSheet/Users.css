@@ -69,23 +69,21 @@ body {
 
 /* --- Profile Card --- */
 .profile-card {
-    position: relative; /* Base for the absolute image */
-    overflow: visible; /* Allows image to stay in place */
+    position: relative; 
+    overflow: visible; 
 }
 
 .card-title {
     margin-top: 0;
     font-size: 28px;
-    text-align: left; /* Aligns with the design in image 7 */
+    text-align: left; 
 }
 
-/* Specific styling for the radio-style labels in the card */
 .radio-group label {
     margin-right: 10px;
     font-weight: normal;
 }
 
-/* Correcting the Photo Container position */
 .profile-photo-container {
     top: 40px; 
     right: 40px;
@@ -158,4 +156,5 @@ body {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
 
