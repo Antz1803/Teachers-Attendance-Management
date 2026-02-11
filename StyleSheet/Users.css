@@ -70,6 +70,119 @@ body {
 }
 
 /* --- Profile Card --- */
+/* Container styling */
+.profile-card {
+    display: flex;
+    max-width: 900px;
+    margin: 50px auto;
+    background: #ffffff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Left Content Area */
+.card-content {
+    flex: 2;
+    padding: 40px;
+}
+
+.card-title {
+    font-size: 28px;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    border-bottom: 3px solid #008080; /* Teal accent to match your theme */
+    display: inline-block;
+}
+
+/* Detail Items Grid */
+.profile-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two column layout for details */
+    gap: 20px;
+}
+
+.detail-item {
+    font-size: 15px;
+    color: #555;
+}
+
+.detail-item strong {
+    color: #333;
+    display: block; /* Puts label above the value */
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.detail-item u, .detail-item span {
+    text-decoration: none;
+    font-weight: 500;
+    color: #000;
+    font-size: 16px;
+}
+
+/* Right Photo Sidebar */
+.photo-column {
+    flex: 1;
+    background: linear-gradient(135deg, #008080 0%, #004d4d 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    color: white;
+}
+
+.profile-photo-container {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: 5px solid rgba(255,255,255,0.2);
+    overflow: hidden;
+    margin-bottom: 20px;
+    background: white;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.profile-photo-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Modern Button Styling */
+.btn-edit-profile {
+    background: white;
+    color: #004d4d;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-edit-profile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+    .profile-card {
+        flex-direction: column-reverse; /* Photo on top for mobile */
+        margin: 20px;
+    }
+    .profile-details {
+        grid-template-columns: 1fr;
+    }
+}
 
 /* --- Modal Styling --- */
 .modal-overlay {
@@ -168,6 +281,7 @@ body {
             font-size: 12px;
         }
         .btn-upload:hover { background: #e0e0e0; }
+
 
 
 
