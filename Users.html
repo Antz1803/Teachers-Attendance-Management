@@ -9,41 +9,41 @@
     <link rel="stylesheet" href="StyleSheet/SideBar.css">
 </head>
 <body>
-
-<div class="sidebar">
-    <div class="sidebar-header">
-        <div class="profile-container">
-            <div class="profile-circle">
-                <i class="fas fa-user-tie"></i> </div>
-            <div class="profile-info">
-                <h3>Admin</h3>
-                <span>Authorized</span>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="profile-container">
+                <div class="profile-circle">
+                    <i class="fas fa-user-tie"></i> 
+                </div>
+                <div class="profile-info">
+                    <h3>Admin</h3>
+                    <span>Authorized</span>
+                </div>
             </div>
         </div>
+
+        <ul class="nav-links">
+            <li class="nav-item">
+                <a href="Dashboard.html"><i class="fas fa-chart-line"></i> Attendance Report</a>
+            </li>
+            <li class="nav-item active"> <a href="Users.html"><i class="fas fa-users"></i> Users</a>
+            </li>
+            <li class="nav-item">
+                <a href="Courses.html"><i class="fas fa-book"></i> Courses</a>
+            </li>
+            <li class="nav-item">
+                <a href="Settings.html"><i class="fas fa-cog"></i> Settings</a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <li class="nav-item logout">
+                <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </li>
+        </div>
     </div>
-
-    <ul class="nav-links">
-        <li class="nav-item active">
-            <a href="Dashboard.html"><i class="fas fa-chart-line"></i> Attendance Report</a>
-        </li>
-        <li class="nav-item">
-            <a href="Users.html"><i class="fas fa-users"></i> Users</a>
-        </li>
-        <li class="nav-item">
-            <a href="Courses.html"><i class="fas fa-book"></i> Courses</a>
-        </li>
-        <li class="nav-item">
-            <a href="Settings.html"><i class="fas fa-cog"></i> Settings</a>
-        </li>
-    </ul>
-
-    <div class="sidebar-footer">
-        <li class="nav-item logout">
-            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </li>
-    </div>
-</div>
-
+    
         <div class="main-content">
             <header class="top-header">
                 <span class="page-title">Users</span>
@@ -275,5 +275,6 @@
 </body>
 
 </html>
+
 
 
