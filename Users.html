@@ -45,10 +45,20 @@
     </div>
     
         <div class="main-content">
-            <header class="top-header">
-                <span class="page-title">Users</span>
-                <div class="menu-icon">☰</div>
-            </header>
+             <header>
+            <h1 class="top-header">Users</h1>
+        </div>
+            <div class="menu-container">
+                <button class="menu-button" onclick="toggleMenu()">
+                    &#9776;
+                </button>
+        
+                <div id="myDropdown" class="dropdown-menu">
+                    <a href="AttendanceManagement.html" class="active-link">Attendance Management</a>
+                    <a href="AttendanceReport.html">Attendance Report</a>
+                </div>
+            </div>
+        </header>
 
             <div class="controls-row">
                 <div class="filter-group">
@@ -275,6 +285,7 @@
 </body>
 
 </html>
+
 
 
 
