@@ -186,12 +186,12 @@
 
                 <div class="modal-form-group">
                     <label>Section</label>
-                    <input type="text" id="stuSection" placeholder="e.g. A">
+                    <input type="text" id="stuSection" placeholder="e.g. IT803A">
                 </div>
 
                 <div class="modal-footer">
                     <button class="btn-submit" onclick="submitStudent()">Submit</button>
-                    <button class="btn-clear" onclick="clearForm()">Clear</button>
+                    <button class="btn-clear" onclick="clearForm()">Cancel</button>
                 </div>
             </div>
         </div>
@@ -310,6 +310,7 @@
         document.getElementById('logoutBtn').addEventListener('click', () => { signOut(auth).then(() => window.location.href = 'index.html'); });
     </script>
 </html>
+
 
 
 
