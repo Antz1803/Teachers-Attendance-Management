@@ -2,23 +2,25 @@
     --sidebar-teal: #0c7b84;
     --card-teal: #086b74;
     --white: #ffffff;
+    --error-red: #ff4d4d;
 }
 
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Arial, sans-serif;
     background-color: #f4f7f6;
 }
 
 .dashboard-wrapper {
-    display: flex; /* Keeps sidebar on the left and content on the right */
+    display: flex;
     min-height: 100vh;
 }
 
-/* Main Content Layout */
+/* --- Main Content Layout --- */
 .main-content {
     flex-grow: 1;
     padding: 20px 40px;
+    box-sizing: border-box;
 }
 
 .top-header {
@@ -30,18 +32,7 @@ body {
     margin-bottom: 20px;
 }
 
-.page-title {
-    color: #999;
-    font-size: 14px;
-}
-
-.menu-icon {
-    font-size: 24px;
-    color: var(--sidebar-teal);
-    cursor: pointer;
-}
-
-/* Controls (Courses and Add Student) */
+/* --- Controls Row --- */
 .controls-row {
     display: flex;
     justify-content: space-between;
@@ -53,11 +44,12 @@ body {
     width: 300px;
     height: 40px;
     border: 2px solid var(--sidebar-teal);
-    border-radius: 20px; /* Pill shape */
+    border-radius: 20px;
     display: flex;
     align-items: center;
     padding: 0 15px;
-    margin-top: 5px;
+    background: white;
+    cursor: pointer;
 }
 
 .btn-add-student {
@@ -68,15 +60,14 @@ body {
     border: none;
     font-weight: bold;
     cursor: pointer;
+    transition: opacity 0.2s;
 }
 
-.admin-label {
-    text-align: center;
-    color: var(--sidebar-teal);
-    margin-bottom: 20px;
+.btn-add-student:hover {
+    opacity: 0.9;
 }
 
-/* Profile Card Styling */
+/* --- Profile Card --- */
 .profile-card {
     background-color: var(--card-teal);
     color: white;
@@ -85,12 +76,7 @@ body {
     position: relative;
     max-width: 900px;
     margin: 0 auto;
-}
-
-.card-title {
-    text-align: center;
-    font-size: 32px;
-    margin-bottom: 40px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 .profile-photo-container {
@@ -100,77 +86,30 @@ body {
     border-radius: 15px;
     position: absolute;
     right: 40px;
-    top: 60px; /* Aligns with name fields */
+    top: 100px;
     overflow: hidden;
-}
-
-.profile-photo-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.btn-edit-profile {
-    background: transparent;
-    border: 2px solid white;
-    color: white;
-    padding: 8px 20px;
-    border-radius: 20px;
-    cursor: pointer;
-    margin-bottom: 25px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    border: 3px solid white;
 }
 
 .profile-details {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Two column layout */
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
+    max-width: 70%; 
 }
 
-.detail-item {
-    font-size: 16px;
-}
-
-.detail-item u {
-    text-decoration: underline;
-    margin-left: 5px;
-}
-
-.radio-group label {
-    margin-left: 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-}
-
-/* Modal Background */
+/* --- Modal Styling --- */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Dims the background dashboard */
-    display: flex;
+    background: rgba(0, 0, 0, 0.5);
+    display: none; 
     justify-content: center;
     align-items: center;
     z-index: 1000;
-}
-
-/* Modal Overlay Styling */
-.modal-overlay {
-    display: none; /* Hidden by default */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 999;
-    justify-content: center;
-    align-items: center;
 }
 
 .modal-card {
@@ -179,92 +118,50 @@ body {
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-}
-
-.modal-header {
-    background-color: var(--sidebar-teal);
-    height: 50px;
+    animation: fadeIn 0.3s ease-out;
 }
 
 .modal-body {
-    padding: 20px 30px;
+    padding: 25px 30px;
 }
 
 .modal-form-group {
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-}
-
-.modal-form-group label {
-    width: 100px;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-.modal-form-group input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-/* Modal Buttons */
-.modal-footer {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.btn-submit {
-    flex: 1;
-    background: var(--sidebar-teal);
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 20px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.btn-clear {
-    flex: 1;
-    background: white;
-    color: var(--sidebar-teal);
-    border: 2px solid var(--sidebar-teal);
-    padding: 10px;
-    border-radius: 20px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.modal-form-group {
-    margin-bottom: 18px; 
+    margin-bottom: 15px; 
     display: flex;
     flex-direction: column; 
     align-items: flex-start;
 }
 
 .modal-form-group label {
-    width: 100% !important; 
-    margin-bottom: 5px;
-}
-
-.modal-form-group input, .modal-form-group select {
-    width: 100% !important;
-    box-sizing: border-box;
-}
-
-.error-msg {
-    color: #ff4d4d;
-    font-size: 11px;
-    margin-top: 5px; 
-    margin-bottom: 2px; 
-    display: none;
+    font-size: 14px;
     font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.modal-form-group input, 
+.modal-form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box; 
+}
+
+/* --- Validation & Errors --- */
+.error-msg {
+    color: var(--error-red);
+    font-size: 11px;
+    margin-top: 5px;
+    font-weight: bold;
+    display: none; 
 }
 
 .input-error {
-    border: 1.5px solid #ff4d4d !important;
+    border: 1.5px solid var(--error-red) !important;
+}
 
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
