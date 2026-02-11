@@ -143,7 +143,7 @@
             </div>
 
             <div class="modal-footer">
-                <button class="btn-submit" onclick="saveProfile()">Save Changes</button>
+                <button class="btn-submit" id="saveBtn" onclick="saveProfile()">Save Changes</button>
                 <button class="btn-clear" onclick="closeEditModal()">Cancel</button>
             </div>
         </div>
@@ -317,6 +317,7 @@
         document.getElementById('logoutBtn').addEventListener('click', () => { signOut(auth).then(() => window.location.href = 'index.html'); });
     </script>
 </html>
+
 
 
 
