@@ -27,12 +27,6 @@ body {
     align-items: center;
 }
 
-h1 {
-    font-size: 28px;
-    font-weight: normal;
-    margin-bottom: 30px;
-}
-
 .menu-burger {
     background-color: var(--teal-main);
     color: white;
@@ -363,4 +357,5 @@ background-color: #f9f9f9;
         background-color: #f9f9f9; /* Remove hover effect for future dates */
 
     }
+
 
