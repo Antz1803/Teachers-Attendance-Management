@@ -75,7 +75,7 @@ body {
     padding: 40px;
     max-width: 950px;
     margin: 20px auto;
-    display: flex; /* Creates the two main columns */
+    display: flex; 
     justify-content: space-between;
     align-items: flex-start;
     gap: 40px;
@@ -83,7 +83,7 @@ body {
 }
 
 .card-content {
-    flex: 1; /* Takes up the left side space */
+    flex: 1; 
 }
 
 .card-title {
@@ -95,14 +95,14 @@ body {
 /* --- Details Grid (Equal Spacing) --- */
 .profile-details {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Two equal columns */
-    gap: 20px 40px; /* Vertical and Horizontal spacing */
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 20px 40px; 
 }
 
 .detail-item {
     font-size: 16px;
     line-height: 1.5;
-    white-space: nowrap; /* Prevents text wrapping if space is tight */
+    white-space: nowrap; 
 }
 
 .detail-item u {
@@ -113,8 +113,9 @@ body {
 .photo-column {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centers items horizontally in the column */
-    gap: 15px; /* Space between photo and button */
+    align-items: center; 
+    gap: 15px; 
+    top:25px;
 }
 
 .profile-photo-container {
@@ -220,6 +221,7 @@ body {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
 
 
 
