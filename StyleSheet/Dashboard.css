@@ -1,9 +1,10 @@
-
 :root {
     --primary-teal: #008081;
-    --dark-teal: #006666;
+    --dark-teal: #0d6a72;
     --bg-light: #f4f7f6;
     --white: #ffffff;
+    --text-muted: #7f8c8d;
+    --text-dark: #2c3e50;
 }
 
 body {
@@ -12,80 +13,101 @@ body {
     display: flex;
     height: 100vh;
     background-color: var(--bg-light);
+    color: var(--text-dark);
 }
 
+/* Sidebar Placeholder logic */
+#sidebar-placeholder {
+    width: 250px;
+    min-height: 100vh;
+    background: var(--primary-teal);
+    flex-shrink: 0;
+}
+
+/* Main Content area */
+.main-content {
+    flex-grow: 1;
+    padding: 30px 50px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Top Header */
 .top-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid #ddd;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-}
-
-/* Main Content Styling */
-.main-content {
-    flex-grow: 1;
-    padding: 20px 40px;
-    overflow-y: auto;
-}
-
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 30px;
 }
 
-header h1 {
-    color: #aaa;
-    font-size: 1.5rem;
-    letter-spacing: 1px;
+.top-header h1 {
+    margin: 0;
+    color: #aaa; /* Matches your DASHBOARD grey text */
+    font-size: 1.8rem;
+    font-weight: bold;
+    letter-spacing: 2px;
 }
 
-/* Stats Cards */
+#liveClock {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-top: 5px;
+}
+
+/* Stats Cards Grid */
 .stats-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    gap: 30px;
     margin-bottom: 40px;
 }
 
 .card {
     background-color: var(--primary-teal);
     color: white;
-    padding: 20px;
-    border-radius: 8px;
+    padding: 25px;
+    border-radius: 12px;
     text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .card h2 {
     margin: 0;
-    font-size: 1.8rem;
-    border-bottom: 2px solid white;
-    padding-bottom: 5px;
-    display: inline-block;
-    width: 80%;
+    font-size: 1.6rem;
+    border-bottom: 2px solid rgba(255,255,255,0.4);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    display: block;
+    width: 100%;
 }
 
-.card p {
-    margin-top: 10px;
-    font-size: 0.9rem;
+/* Card Numbers */
+#lateCount, #absentCount, #presentCount {
+    display: block;
+    font-size: 2.8rem;
+    font-weight: bold;
 }
 
-/* Student Table Section */
+#lateCount { color: #f9a825; }    /* Yellow */
+#absentCount { color: #ff5252; }  /* Red */
+#presentCount { color: #55e65c; } /* Green */
+
+/* Table Container */
 .table-container {
     background-color: var(--white);
-    border: 2px solid var(--primary-teal);
+    border: 1px solid var(--primary-teal); /* Thinner border for cleaner look */
     border-radius: 12px;
     overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .table-header {
     background-color: var(--primary-teal);
     color: white;
-    padding: 12px 20px;
+    padding: 15px 20px;
     font-weight: bold;
+    font-size: 1.1rem;
 }
 
 table {
@@ -93,118 +115,56 @@ table {
     border-collapse: collapse;
 }
 
-th, td {
-    text-align: left;
-    padding: 15px 20px;
-    border-bottom: 1px solid #ddd;
-    font-size: 0.85rem;
-}
-
 th {
+    background-color: #fafafa;
     color: #555;
-    text-transform: capitalize;
+    font-weight: 600;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
 }
 
-tr:last-child td {
-    border-bottom: none;
+td {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+    vertical-align: middle;
 }
 
-.status-text {
-    text-transform: uppercase;
-    font-weight: bold;
-    color: #444;
+/* Status Badges */
+.status-present { 
+    color: #2e7d32; 
+    background: #e8f5e9; 
+    padding: 6px 12px; 
+    border-radius: 6px; 
+    font-weight: bold; 
+    font-size: 0.75rem;
+}
+.status-late { 
+    color: #f9a825; 
+    background: #fffde7; 
+    padding: 6px 12px; 
+    border-radius: 6px; 
+    font-weight: bold; 
+    font-size: 0.75rem;
+}
+.status-absent { 
+    color: #c62828; 
+    background: #ffebee; 
+    padding: 6px 12px; 
+    border-radius: 6px; 
+    font-weight: bold; 
+    font-size: 0.75rem;
 }
 
-:root {
-    --primary-teal: #10808a; /* Matching the teal in your image */
-    --white: #ffffff;
-}
-
-/* Container for positioning */
+/* Burger Menu Positioning */
 .menu-container {
     position: relative;
-    display: inline-block;
+    z-index: 1000;
 }
 
-/* The Burger Button */
 .menu-button {
     background-color: var(--primary-teal);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 5px 10px;
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
+    border-radius: 8px;
+    width: 45px;
+    height: 45px;
 }
-
-.menu-button:hover {
-    background-color: #0d6a72;
-}
-
-/* The Dropdown Menu Wrapper */
-.dropdown-menu {
-    display: none; /* Hidden by default */
-    position: absolute;
-    right: 0;
-    top: 45px;
-    background-color: var(--primary-teal);
-    min-width: 220px;
-    border-radius: 12px;
-    overflow: hidden;
-    z-index: 100;
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-}
-
-/* Menu Links */
-.dropdown-menu a {
-    color: white;
-    padding: 12px 20px;
-    text-decoration: none;
-    display: block;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.dropdown-menu a:last-child {
-    border-bottom: none;
-}
-
-.dropdown-menu a:hover {
-    background-color: #0d6a72;
-}
-
-/* Show class for JS */
-.show {
-    display: block;
-}
-
-/* Color the numbers in the dashboard cards */
-#lateCount { 
-    color: #f9a825; 
-    font-weight: bold; 
-    font-size: 2rem; 
-}
-
-#absentCount { 
-    color: #c62828; 
-    font-weight: bold; 
-    font-size: 2rem;
-}
-
-#presentCount { 
-    color: #55e65c; 
-    font-weight: bold; 
-    font-size: 2rem;
-}
-
-.status-present { color: #2e7d32; background: #e8f5e9; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
-.status-late { color: #f9a825; background: #fffde7; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
-
-.status-absent { color: #c62828; background: #ffebee; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
-
-
