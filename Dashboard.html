@@ -68,17 +68,16 @@
 </div>
 
 <div class="sidebar">
- <div class="sidebar-header">
-    <div class="profile-container">
-        <div class="profile-circle" id="profileContainer">
-            <i class="fas fa-user-tie"></i> </div>
-        <div class="profile-info">
-            <h3 id="sidebarName">Loading...</h3>
-            <span id="sidebarRole">Authorized</span>
+<div class="sidebar-header">
+        <div class="profile-container">
+            <div class="profile-circle" id="profileContainer">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div class="profile-info">
+                <h3 id="sidebarName">Loading...</h3>
+                <span id="sidebarRole">Authorized</span>
+            </div>
         </div>
-    </div>
-</div>
-</div>
 
     <ul class="nav-links">
         <li class="nav-item active">
@@ -176,40 +175,29 @@
 
     window.closeLogoutModal = () => document.getElementById('logoutModal').style.display = 'none';
 
+    // --- COMBINED AUTH & PROFILE LOGIC ---
     onAuthStateChanged(auth, (user) => {
-    if (user) {
-        const userRef = ref(db, 'users/' + user.uid);
+        if (user) {
+            // User is logged in, fetch data
+            const userRef = ref(db, 'users/' + user.uid);
+            onValue(userRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    document.getElementById('sidebarName').textContent = data.fullName || "Admin";
+                    document.getElementById('sidebarRole').textContent = data.role || "Teacher";
 
-        onValue(userRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                // 1. Update Name and Role
-                document.getElementById('sidebarName').textContent = data.fullName || "Admin";
-                document.getElementById('sidebarRole').textContent = data.role || "Teacher";
-
-                // 2. Handle Profile Display (Icon vs Photo)
-                const container = document.getElementById('profileContainer');
-                
-                // Check if profilePic exists and isn't just the default string "avatar.png"
-                if (data.profilePic && data.profilePic !== "avatar.png" && data.profilePic !== "N/A") {
-                    // DISPLAY PHOTO
-                    container.innerHTML = `<img src="${data.profilePic}" 
-                        style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" 
-                        id="display-photo">`;
-                } else {
-                    // DISPLAY ICON (If no photo is set)
-                    container.innerHTML = `<i class="fas fa-user-tie"></i>`;
+                    const container = document.getElementById('profileContainer');
+                    if (data.profilePic && data.profilePic !== "avatar.png" && data.profilePic !== "N/A") {
+                        container.innerHTML = `<img src="${data.profilePic}" id="display-photo">`;
+                    } else {
+                        container.innerHTML = `<i class="fas fa-user-tie"></i>`;
+                    }
                 }
-            }
-        });
-    } else {
-        window.location.href = 'index.html';
-    }
-});
-    
-    // --- AUTH ---
-    onAuthStateChanged(auth, (user) => {
-        if (!user) window.location.href = 'index.html';
+            });
+        } else {
+            // No user is signed in, redirect to login
+            window.location.href = 'index.html';
+        }
     });
 
     // --- LOGOUT LOGIC ---
@@ -220,9 +208,9 @@
 
     document.getElementById('confirmLogout').addEventListener('click', () => {
         closeLogoutModal();
-        notify("Logging out... Redirecting", "info");
+        notify("Logging out...", "info");
         signOut(auth).then(() => {
-            setTimeout(() => window.location.href = 'index.html', 2000);
+            window.location.href = 'index.html';
         }).catch(err => notify(err.message, "error"));
     });
 
@@ -260,7 +248,6 @@
         });
     }
 
-    // --- UI HELPERS ---
     window.toggleMenu = () => document.getElementById("myDropdown").classList.toggle("show");
     
     function startLiveClock() {
@@ -276,6 +263,7 @@
 </script>
 </body>
 </html>
+
 
 
 
