@@ -166,17 +166,41 @@
             const response = await fetch('SideBar.html');
             if (!response.ok) throw new Error("Sidebar file not found");
             const html = await response.text();
-            document.getElementById('sidebar-placeholder').innerHTML = html;
+            
+            const placeholder = document.getElementById('sidebar-placeholder');
+            placeholder.innerHTML = html;
 
-            // Set up Logout listener
-            document.getElementById('logoutBtn').addEventListener('click', (e) => {
-                e.preventDefault();
-                document.getElementById('logoutModal').style.display = 'flex';
+            // --- HIGHLIGHT ACTIVE LINK ---
+            // Get current filename (e.g., "AttendanceManagement.html")
+            const currentPage = window.location.pathname.split("/").pop();
+    
+            const navLinks = placeholder.querySelectorAll('.nav-links a');
+            
+            navLinks.forEach(link => {
+                // If the link's href matches our current page, add the 'active' class
+                if (link.getAttribute('href') === currentPage) {
+                    link.parentElement.classList.add('active'); 
+                }
             });
+
+            // --- RE-BIND LOGOUT EVENT ---
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.getElementById('logoutModal').style.display = 'flex';
+                });
+            }
         } catch (err) {
             console.error("Sidebar loading error:", err);
         }
     }
+
+    async function init() {
+        await loadSidebar(); 
+        startAuthObserver(); 
+    }
+    init();
 
     // --- UPDATED AUTH OBSERVER ---
     function startAuthObserver() {
@@ -369,4 +393,5 @@
     </script>
 </body>
 </html>
+
 
