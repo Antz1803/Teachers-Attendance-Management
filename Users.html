@@ -293,7 +293,7 @@
     // --- LOGOUT LOGIC (Combined & Fixed) ---
     document.getElementById('confirmLogout').addEventListener('click', () => {
         document.getElementById('logoutModal').style.display = 'none';
-        notify("Logging out... Redirecting", "info");
+        notify("Logging out Redirecting...", "info");
 
         setTimeout(() => {
             signOut(auth).then(() => {
@@ -481,4 +481,5 @@
         document.getElementById('editAge').value = calculateAge(e.target.value);
     });
 </script>
+
 
