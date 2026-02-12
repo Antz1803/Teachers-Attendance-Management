@@ -68,15 +68,13 @@
 </div>
 
 <div class="sidebar">
-    <div class="sidebar-header">
-        <div class="profile-container">
-            <div class="profile-circle"><i class="fas fa-user-tie"></i> </div>
-            <div class="profile-info">
-                <h3>Admin</h3>
-                <span>Authorized</span>
-            </div>
-        </div>
+  <div class="sidebar-header">
+    <div class="profile-container">
+        <div class="profile-circle"><i class="fas fa-user-tie"></i> </div>
+        <div class="profile-info">
+            <h3 id="sidebarName">Loading...</h3> <span id="sidebarRole">Authorized</span> </div>
     </div>
+</div>
 
     <ul class="nav-links">
         <li class="nav-item active">
@@ -174,6 +172,30 @@
 
     window.closeLogoutModal = () => document.getElementById('logoutModal').style.display = 'none';
 
+        // --- AUTH OBSERVER ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Fetch user details from Database
+                const userRef = ref(db, `users/${user.uid}`);
+                onValue(userRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        // Update Sidebar UI with actual data
+                        document.getElementById('sidebarName').textContent = userData.fullName || "Admin";
+                        document.getElementById('sidebarRole').textContent = userData.role || "Authorized";
+                        
+                        // Optional: If you want to change the icon based on role
+                        const profileIcon = document.querySelector('.profile-circle i');
+                        if (userData.role === 'Teacher') {
+                            profileIcon.className = 'fas fa-chalkboard-teacher';
+                        }
+                    }
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+    
     // --- AUTH ---
     onAuthStateChanged(auth, (user) => {
         if (!user) window.location.href = 'index.html';
@@ -243,4 +265,5 @@
 </script>
 </body>
 </html>
+
 
