@@ -39,16 +39,45 @@ body {
 .top-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center; 
     margin-bottom: 30px;
     width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
-.top-header h1 {
+.header-left, .header-right {
+    flex: 1; 
+}
+
+.header-center {
+    flex: 2; 
+    text-align: center;
+}
+
+.header-right {
+    display: flex;
+    justify-content: flex-end; 
+}
+
+.header-left h1 {
     margin: 0;
-    color: #b0b0b0; /* Light grey 'DASHBOARD' */
-    font-size: 1.8rem;
+    color: #b0b0b0; 
+    font-size: 1.5rem;
+    font-weight: bold;
     letter-spacing: 2px;
+}
+
+#liveClock {
+    color: var(--primary-teal);
+    font-size: 2.2rem; 
+    font-weight: 800;
+    letter-spacing: 1px;
+    background: rgba(0, 128, 129, 0.08);
+    padding: 5px 25px;
+    border-radius: 50px;
+    display: inline-block;
+    line-height: 1.2;
 }
 
 #liveClock {
@@ -187,4 +216,5 @@ th, td {
 .show {
     display: block !important;
 }
+
 
