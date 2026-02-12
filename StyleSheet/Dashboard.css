@@ -1,123 +1,208 @@
+
 :root {
-    --primary-teal: #008081;
-    --dark-teal: #0d6a72;
-    --bg-light: #f4f7f6;
-    --white: #ffffff;
+    --primary-teal: #008081;
+    --dark-teal: #006666;
+    --bg-light: #f4f7f6;
+    --white: #ffffff;
 }
 
-/* 1. LAYOUT FIX: Ensure Body doesn't collapse */
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex; /* Keeps Sidebar and Content side-by-side */
-    width: 100%;
-    min-height: 100vh;
-    background-color: var(--bg-light);
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    height: 100vh;
+    background-color: var(--bg-light);
 }
 
-/* 2. SIDEBAR SPACE: Match your sidebar width */
-#sidebar-placeholder {
-    width: 240px; /* Adjust this to match your SideBar.html width */
-    flex-shrink: 0;
-    background-color: var(--primary-teal);
-}
-
-/* 3. MAIN CONTENT: Fills the remaining space */
-.main-content {
-    flex-grow: 1;
-    padding: 30px;
-    overflow-y: auto;
-}
-
-/* 4. HEADER: Fixes the grey text look */
 .top-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
 }
 
-.top-header h1 {
-    color: #b0b0b0; /* Light grey title from your image */
-    font-size: 1.6rem;
-    font-weight: bold;
-    letter-spacing: 2px;
-    margin: 0;
+/* Main Content Styling */
+.main-content {
+    flex-grow: 1;
+    padding: 20px 40px;
+    overflow-y: auto;
 }
 
-/* 5. STATS CARDS: Centered grid */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    color: #aaa;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+/* Stats Cards */
 .stats-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    margin-bottom: 30px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 40px;
 }
 
 .card {
-    background-color: var(--primary-teal);
-    color: white;
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    background-color: var(--primary-teal);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
 }
 
 .card h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    border-bottom: 2px solid rgba(255,255,255,0.3);
-    padding-bottom: 10px;
-    margin-bottom: 15px;
+    margin: 0;
+    font-size: 1.8rem;
+    border-bottom: 2px solid white;
+    padding-bottom: 5px;
+    display: inline-block;
+    width: 80%;
 }
 
-/* Count Colors */
-#lateCount { color: #f9a825; font-size: 2.2rem; font-weight: bold; }
-#absentCount { color: #ff5252; font-size: 2.2rem; font-weight: bold; }
-#presentCount { color: #4caf50; font-size: 2.2rem; font-weight: bold; }
+.card p {
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
 
-/* 6. TABLE: Border and header colors */
+/* Student Table Section */
 .table-container {
-    background-color: var(--white);
-    border: 2px solid var(--primary-teal);
-    border-radius: 12px;
-    overflow: hidden;
+    background-color: var(--white);
+    border: 2px solid var(--primary-teal);
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 .table-header {
-    background-color: var(--primary-teal);
-    color: white;
-    padding: 12px 20px;
-    font-weight: bold;
+    background-color: var(--primary-teal);
+    color: white;
+    padding: 12px 20px;
+    font-weight: bold;
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 th, td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-    font-size: 0.9rem;
+    text-align: left;
+    padding: 15px 20px;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.85rem;
 }
 
-/* Status Badges */
-.status-present { color: #2e7d32; background: #e8f5e9; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
-.status-late { color: #f9a825; background: #fffde7; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
-.status-absent { color: #c62828; background: #ffebee; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+th {
+    color: #555;
+    text-transform: capitalize;
+}
 
-/* Burger Menu Dropdown Fix */
-.menu-container { position: relative; }
+tr:last-child td {
+    border-bottom: none;
+}
+
+.status-text {
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #444;
+}
+
+:root {
+    --primary-teal: #10808a; /* Matching the teal in your image */
+    --white: #ffffff;
+}
+
+/* Container for positioning */
+.menu-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* The Burger Button */
+.menu-button {
+    background-color: var(--primary-teal);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.menu-button:hover {
+    background-color: #0d6a72;
+}
+
+/* The Dropdown Menu Wrapper */
 .dropdown-menu {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 40px;
-    background: var(--primary-teal);
-    border-radius: 8px;
-    min-width: 180px;
-    z-index: 1000;
+    display: none; /* Hidden by default */
+    position: absolute;
+    right: 0;
+    top: 45px;
+    background-color: var(--primary-teal);
+    min-width: 220px;
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: 100;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
 }
-.show { display: block; }
+
+/* Menu Links */
+.dropdown-menu a {
+    color: white;
+    padding: 12px 20px;
+    text-decoration: none;
+    display: block;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-menu a:last-child {
+    border-bottom: none;
+}
+
+.dropdown-menu a:hover {
+    background-color: #0d6a72;
+}
+
+/* Show class for JS */
+.show {
+    display: block;
+}
+
+/* Color the numbers in the dashboard cards */
+#lateCount { 
+    color: #f9a825; 
+    font-weight: bold; 
+    font-size: 2rem; 
+}
+
+#absentCount { 
+    color: #c62828; 
+    font-weight: bold; 
+    font-size: 2rem;
+}
+
+#presentCount { 
+    color: #55e65c; 
+    font-weight: bold; 
+    font-size: 2rem;
+}
+
+.status-present { color: #2e7d32; background: #e8f5e9; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
+.status-late { color: #f9a825; background: #fffde7; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
+
+.status-absent { color: #c62828; background: #ffebee; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
