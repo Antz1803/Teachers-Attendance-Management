@@ -305,32 +305,52 @@
     });
 
     // --- AUTH & PROFILE LOGIC ---
-    function startAuthObserver() {
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const userRef = ref(db, 'users/' + user.uid);
-                onValue(userRef, (snapshot) => {
-                    if (snapshot.exists()) {
-                        const data = snapshot.val();
-                        document.getElementById('display-admin-name').innerText = data.fullName || "Admin";
-                        document.getElementById('display-name').innerText = data.fullName || "N/A";
-                        document.getElementById('display-age').innerText = data.age || "N/A";
-                        document.getElementById('display-birthdate').innerText = data.birthdate || "N/A";
-                        document.getElementById('display-gender').innerText = data.gender || "N/A";
-                        document.getElementById('display-email').innerText = data.email || user.email;
-                        document.getElementById('display-birthplace').innerText = data.birthplace || "N/A";
-                        document.getElementById('display-address').innerText = data.currentAddress || "N/A";
-                        document.getElementById('display-nationality').innerText = data.nationality || "N/A";
-                        document.getElementById('display-status').innerText = data.status || "N/A";
-                        if (data.profilePic) document.getElementById('display-photo').src = data.profilePic;
-                    }
-                });
-            } else {
-                window.location.href = 'index.html';
-            }
-        });
-    }
+   function startAuthObserver() {
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const userRef = ref(db, 'users/' + user.uid);
+            onValue(userRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    
+                    // --- Update Main Page Profile ---
+                    document.getElementById('display-admin-name').innerText = data.fullName || "Admin";
+                    document.getElementById('display-name').innerText = data.fullName || "N/A";
+                    document.getElementById('display-age').innerText = data.age || "N/A";
+                    document.getElementById('display-birthdate').innerText = data.birthdate || "N/A";
+                    document.getElementById('display-gender').innerText = data.gender || "N/A";
+                    document.getElementById('display-email').innerText = data.email || user.email;
+                    document.getElementById('display-birthplace').innerText = data.birthplace || "N/A";
+                    document.getElementById('display-address').innerText = data.currentAddress || "N/A";
+                    document.getElementById('display-nationality').innerText = data.nationality || "N/A";
+                    document.getElementById('display-status').innerText = data.status || "N/A";
+                    if (data.profilePic) document.getElementById('display-photo').src = data.profilePic;
 
+                    // --- Update Sidebar Profile (The Fix) ---
+                    const updateSidebarUI = () => {
+                        const sbName = document.getElementById('sidebarName');
+                        const sbRole = document.getElementById('sidebarRole');
+                        const sbPic = document.getElementById('profileContainer');
+
+                        if (sbName) sbName.textContent = data.fullName || "Admin";
+                        if (sbRole) sbRole.textContent = data.role || "Teacher";
+                        if (sbPic) {
+                            if (data.profilePic && data.profilePic !== "avatar.png") {
+                                sbPic.innerHTML = `<img src="${data.profilePic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                            } else {
+                                sbPic.innerHTML = `<i class="fas fa-user-tie"></i>`;
+                            }
+                        }
+                    };
+                    updateSidebarUI();
+                    setTimeout(updateSidebarUI, 500); 
+                }
+            });
+        } else {
+            window.location.href = 'index.html';
+        }
+    });
+}
     // --- TEACHER PROFILE UTILITIES ---
     function calculateAge(birthdateString) {
         if (!birthdateString || birthdateString === "N/A") return "";
@@ -461,3 +481,4 @@
         document.getElementById('editAge').value = calculateAge(e.target.value);
     });
 </script>
+
