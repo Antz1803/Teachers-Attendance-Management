@@ -155,7 +155,6 @@
             const html = await response.text();
             document.getElementById('sidebar-placeholder').innerHTML = html;
 
-            // Highlight Dashboard since Report is a sub-page of Attendance
             const currentPage = window.location.pathname.split("/").pop();
             document.querySelectorAll('.nav-item').forEach(item => {
                 const link = item.querySelector('a');
@@ -164,7 +163,6 @@
                 }
             });
 
-            // Bind Logout
             const logoutBtn = document.getElementById('logoutBtn');
             if(logoutBtn) {
                 logoutBtn.addEventListener('click', (e) => {
@@ -198,13 +196,12 @@
         }
     });
 
-    // --- LOGOUT HELPERS ---
     window.closeLogoutModal = () => document.getElementById('logoutModal').style.display = 'none';
     document.getElementById('confirmLogout').addEventListener('click', () => {
         signOut(auth).then(() => window.location.href = 'index.html');
     });
 
-    // --- REPORT LOGIC ---
+    // --- AUTOMATIC REPORT LOGIC ---
     async function populateFilters() {
         const studentRef = ref(db, 'students');
         const snapshot = await get(studentRef);
@@ -228,6 +225,7 @@
         const selectedCourse = document.getElementById('courseFilter').value;
         const selectedRange = document.getElementById('dateFilter').value;
         const tbody = document.getElementById('reportTableBody');
+        
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Analyzing Records...</td></tr>';
 
         const snapshot = await get(ref(db, 'attendance'));
@@ -244,11 +242,11 @@
             const recordDate = new Date(dateStr);
             const diffDays = Math.floor((now - recordDate) / (1000 * 60 * 60 * 24));
 
+            // Logic to skip dates outside the filter range
             if (selectedRange === 'weekly' && diffDays > 7) return;
             if (selectedRange === 'monthly' && diffDays > 30) return;
 
             Object.values(allDates[dateStr]).forEach(record => {
-                // If filtering by course, check if student course matches
                 if (selectedCourse !== 'all' && record.course !== selectedCourse) return;
 
                 const id = record.studentID;
@@ -292,15 +290,25 @@
         document.getElementById('avgAbsentCount').textContent = totalStudents > 0 ? Math.round((totalDaysCount - grandPresent) / totalStudents) : 0;
     }
 
+    // --- EVENT LISTENERS FOR AUTO-GENERATION ---
+    document.getElementById('dateFilter').onchange = () => {
+        window.generateReport();
+    };
+
+    document.getElementById('courseFilter').onchange = () => {
+        window.generateReport();
+    };
+
     document.querySelector('.btn-generate').onclick = window.generateReport;
     window.toggleMenu = () => document.getElementById("myDropdown").classList.toggle("show");
     
-    // Init
+    // Init Sidebar
     loadSidebar();
 </script>
 </body>
 
 </html>
+
 
 
 
