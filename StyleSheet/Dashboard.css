@@ -4,7 +4,7 @@
     --white: #ffffff;
 }
 
-/* 1. RESET & BASE STRUCTURE */
+/* RESET & BASE STRUCTURE */
 * {
     box-sizing: border-box;
 }
@@ -19,7 +19,7 @@ body {
     width: 100%;
 }
 
-/* 2. SIDEBAR STYLING */
+/* SIDEBAR STYLING */
 #sidebar-placeholder {
     width: 250px;
     background-color: var(--primary-teal);
@@ -27,7 +27,7 @@ body {
     min-height: 100vh;
 }
 
-/* 3. MAIN DASHBOARD AREA */
+/* MAIN DASHBOARD AREA */
 .main-content {
     flex-grow: 1; /* Makes this take up all remaining space */
     padding: 30px;
@@ -35,7 +35,7 @@ body {
     display: block;
 }
 
-/* 4. HEADER SECTION */
+/* HEADER SECTION */
 .top-header {
     display: flex;
     justify-content: space-between;
@@ -51,7 +51,7 @@ body {
     letter-spacing: 2px;
 }
 
-/* 5. CARDS GRID */
+/* CARDS GRID */
 .stats-container {
     display: flex;
     gap: 20px;
@@ -87,7 +87,7 @@ body {
 #absentCount { color: #ff5252; }
 #presentCount { color: #55e65c; }
 
-/* 6. TABLE SECTION */
+/* TABLE SECTION */
 .table-container {
     background: white;
     border: 2px solid var(--primary-teal);
@@ -117,3 +117,61 @@ th, td {
 .status-present { color: #2e7d32; background: #e8f5e9; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
 .status-late { color: #f9a825; background: #fffde7; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
 .status-absent { color: #c62828; background: #ffebee; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
+
+.menu-container {
+    position: relative;
+    display: inline-block;
+    align-self: flex-start; 
+}
+
+.menu-button {
+    background-color: var(--primary-teal);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    width: 40px; 
+    height: 40px; 
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    margin-left: auto; 
+}
+
+.dropdown-menu {
+    display: none; 
+    position: absolute;
+    right: 0;
+    top: 50px; 
+    background-color: var(--primary-teal);
+    min-width: 200px;
+    border-radius: 8px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 1000; 
+    padding: 5px 0;
+}
+
+.dropdown-menu a {
+    color: white !important;
+    padding: 12px 20px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    white-space: nowrap; 
+}
+
+.dropdown-menu a:last-child {
+    border-bottom: none;
+}
+
+.dropdown-menu a:hover {
+    background-color: var(--dark-teal);
+}
+
+/* Show class for JS */
+.show {
+    display: block !important;
+}
