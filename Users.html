@@ -241,37 +241,41 @@
     const db = getDatabase(app);
     const storage = getStorage(app);
 
-    // --- SIDEBAR LOADER ---
-    async function loadSidebar() {
-        try {
-            const response = await fetch('SideBar.html');
-            if (!response.ok) throw new Error("Failed to fetch sidebar");
-            const html = await response.text();
-            document.getElementById('sidebar-placeholder').innerHTML = html;
+// --- SIDEBAR LOADER ---
+async function loadSidebar() {
+    try {
+        const response = await fetch('SideBar.html');
+        if (!response.ok) throw new Error("Failed to fetch sidebar");
+        const html = await response.text();
+        document.getElementById('sidebar-placeholder').innerHTML = html;
 
-            // --- LOGOUT LISTENER ---
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const modal = document.getElementById('logoutModal');
-                    if (modal) modal.style.display = 'flex';
-                });
+        // Get the current page filename
+        const currentPage = window.location.pathname.split("/").pop() || "index.html";
+
+        // Remove "active" from ALL links first to clear any hardcoded highlights
+        document.querySelectorAll('.nav-links li').forEach(li => {
+            li.classList.remove('active');
+        });
+
+        // "active" ONLY to the link that matches the current page
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            if (link.getAttribute('href') === currentPage) {
+                link.parentElement.classList.add('active');
             }
+        });
 
-            // Active Link Highlighting
-            const currentPage = window.location.pathname.split("/").pop() || "Users.html";
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                if (link.getAttribute('href') === currentPage) {
-                    link.parentElement.classList.add('active');
-                }
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('logoutModal').style.display = 'flex';
             });
-
-        } catch (error) {
-            console.error("Sidebar Error:", error);
         }
+    } catch (error) {
+        console.error("Sidebar Error:", error);
     }
-
+}
+           
     // --- AUTH & PROFILE LOGIC ---
     function startAuthObserver() {
         onAuthStateChanged(auth, async (user) => {
@@ -457,6 +461,7 @@
 </script>
 </body>
 </html>
+
 
 
 
