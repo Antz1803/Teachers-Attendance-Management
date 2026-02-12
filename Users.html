@@ -52,41 +52,9 @@
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
     </style>
 </head>
-<body style="display: flex; margin: 0;"> <div class="sidebar">
-       <div class="sidebar">
-<div class="sidebar-header">
-        <div class="profile-container">
-            <div class="profile-circle" id="profileContainer">
-                <i class="fas fa-user-tie"></i>
-            </div>
-            <div class="profile-info">
-                <h3 id="sidebarName">Loading...</h3>
-                <span id="sidebarRole">Authorized</span>
-            </div>
-         </div>
-    </div>
-
-        <ul class="nav-links">
-            <li class="nav-item">
-                <a href="Dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a>
-            </li>
-            <li class="nav-item active"> 
-                <a href="Users.html"><i class="fas fa-users"></i> Users</a>
-            </li>
-            <li class="nav-item">
-                <a href="Courses.html"><i class="fas fa-book"></i> Courses</a>
-            </li>
-            <li class="nav-item">
-                <a href="Settings.html"><i class="fas fa-cog"></i> Settings</a>
-            </li>
-        </ul>
-
-       <div class="sidebar-footer">
-        <li class="nav-item logout">
-            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </li>
-    </div>
-    </div>
+<body style="display: flex; margin: 0;"> 
+    
+    <div id="sidebar-placeholder"></div>
     
       <div class="main-content">
         <header class="top-header">
@@ -240,11 +208,10 @@
             </div>
         </div>
     </div>
-</body>
-<script type="module">
+          <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-    import { getDatabase, ref, push, get, query, orderByChild, equalTo, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { getDatabase, ref, push, get, onValue, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
     import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
     const firebaseConfig = {
@@ -262,49 +229,98 @@
     const db = getDatabase(app);
     const storage = getStorage(app);
 
-    // --- FUNCTION: Calculate Age Based on Birthdate String ---
+    // --- SIDEBAR LOADER ---
+    async function loadSidebar() {
+        try {
+            const response = await fetch('SideBar.html');
+            if (!response.ok) throw new Error("Failed to fetch sidebar");
+            const html = await response.text();
+            document.getElementById('sidebar-placeholder').innerHTML = html;
+
+            // Active Link Highlighting
+            const currentPage = window.location.pathname.split("/").pop() || "Dashboard.html";
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                if (link.getAttribute('href') === currentPage) {
+                    link.parentElement.classList.add('active');
+                }
+            });
+
+            // Re-attach Logout Listener
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.getElementById('logoutModal').style.display = 'flex';
+                });
+            }
+        } catch (error) {
+            console.error("Sidebar Error:", error);
+        }
+    }
+
+    // --- AUTH & PROFILE LOGIC ---
+    function startAuthObserver() {
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userRef = ref(db, 'users/' + user.uid);
+                
+                // Real-time update for Sidebar and Dashboard Profile
+                onValue(userRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        
+                        // Update Main Dashboard Profile Display
+                        document.getElementById('display-admin-name').innerText = data.fullName || "Admin";
+                        document.getElementById('display-name').innerText = data.fullName || "N/A";
+                        document.getElementById('display-age').innerText = data.age || "N/A";
+                        document.getElementById('display-birthdate').innerText = data.birthdate || "N/A";
+                        document.getElementById('display-gender').innerText = data.gender || "N/A";
+                        document.getElementById('display-email').innerText = data.email || user.email;
+                        document.getElementById('display-birthplace').innerText = data.birthplace || "N/A";
+                        document.getElementById('display-address').innerText = data.currentAddress || "N/A";
+                        document.getElementById('display-nationality').innerText = data.nationality || "N/A";
+                        document.getElementById('display-status').innerText = data.status || "N/A";
+                        if (data.profilePic) document.getElementById('display-photo').src = data.profilePic;
+
+                        // Update Sidebar Display
+                        const sbName = document.getElementById('sidebarName');
+                        const sbRole = document.getElementById('sidebarRole');
+                        const sbPic = document.getElementById('profileContainer');
+
+                        if (sbName) sbName.textContent = data.fullName || "Admin";
+                        if (sbRole) sbRole.textContent = data.role || "Teacher";
+                        if (sbPic) {
+                            if (data.profilePic && data.profilePic !== "avatar.png" && data.profilePic !== "N/A") {
+                                sbPic.innerHTML = `<img src="${data.profilePic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                            } else {
+                                sbPic.innerHTML = `<i class="fas fa-user-tie"></i>`;
+                            }
+                        }
+                    }
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+    }
+
+    // --- TEACHER PROFILE UTILITIES ---
     function calculateAge(birthdateString) {
         if (!birthdateString || birthdateString === "N/A") return "";
         const today = new Date();
         const birthDate = new Date(birthdateString);
         let age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
-        
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
         return age >= 0 ? age : 0;
     }
 
-    // --- FUNCTION: Preview Selected Profile Image ---
     window.previewImage = (event) => {
         const reader = new FileReader();
         reader.onload = () => { document.getElementById('edit-preview').src = reader.result; };
         if(event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
     };
 
-    // --- AUTH OBSERVER: Monitor Login State and Load Dashboard Data ---
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            const snapshot = await get(ref(db, 'users/' + user.uid));
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                document.getElementById('display-admin-name').innerText = data.fullName || "Admin";
-                document.getElementById('display-name').innerText = data.fullName || "N/A";
-                document.getElementById('display-age').innerText = data.age || "N/A";
-                document.getElementById('display-birthdate').innerText = data.birthdate || "N/A";
-                document.getElementById('display-gender').innerText = data.gender || "N/A";
-                document.getElementById('display-email').innerText = data.email || user.email;
-                document.getElementById('display-birthplace').innerText = data.birthplace || "N/A";
-                document.getElementById('display-address').innerText = data.currentAddress || "N/A";
-                document.getElementById('display-nationality').innerText = data.nationality || "N/A";
-                document.getElementById('display-status').innerText = data.status || "N/A";
-                if (data.profilePic) document.getElementById('display-photo').src = data.profilePic;
-            }
-        } else { window.location.href = 'index.html'; }
-    });
-
-    // --- FUNCTION: Open Teacher Edit Modal and Populate Fields ---
     window.openEditModal = async () => {
         const user = auth.currentUser;
         const snapshot = await get(ref(db, 'users/' + user.uid));
@@ -319,67 +335,18 @@
             document.getElementById('editNationality').value = data.nationality !== "N/A" ? data.nationality : "";
             document.getElementById('editStatus').value = data.status || "SINGLE";
             document.getElementById('edit-preview').src = data.profilePic || "avatar.png";
-            
-            // Set initial age calculation
             document.getElementById('editAge').value = calculateAge(data.birthdate);
-            
             document.getElementById('editProfileModal').style.display = 'flex';
         }
     };
 
-    // --- EVENT LISTENER: Auto-Update Age when Birthdate changes ---
-    document.getElementById('editBirthdate').addEventListener('change', (e) => {
-        document.getElementById('editAge').value = calculateAge(e.target.value);
-    });
-
-// --- COMBINED AUTH & PROFILE LOGIC ---
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            // User is logged in, fetch data
-            const userRef = ref(db, 'users/' + user.uid);
-            onValue(userRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    document.getElementById('sidebarName').textContent = data.fullName || "Admin";
-                    document.getElementById('sidebarRole').textContent = data.role || "Teacher";
-
-                    const container = document.getElementById('profileContainer');
-                    if (data.profilePic && data.profilePic !== "avatar.png" && data.profilePic !== "N/A") {
-                        container.innerHTML = `<img src="${data.profilePic}" id="display-photo">`;
-                    } else {
-                        container.innerHTML = `<i class="fas fa-user-tie"></i>`;
-                    }
-                }
-            });
-        } else {
-            // No user is signed in, redirect to login
-            window.location.href = 'index.html';
-        }
-    });
-
-    // --- LOGOUT LOGIC ---
-    document.getElementById('logoutBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        document.getElementById('logoutModal').style.display = 'flex';
-    });
-
-    document.getElementById('confirmLogout').addEventListener('click', () => {
-        closeLogoutModal();
-        notify("Logging out...", "info");
-        signOut(auth).then(() => {
-            window.location.href = 'index.html';
-        }).catch(err => notify(err.message, "error"));
-    });
-    
-    // --- FUNCTION: Save Updated Profile Data to Firebase ---
     window.saveProfile = async () => {
         const user = auth.currentUser;
         const saveBtn = document.getElementById('saveBtn');
-        
         saveBtn.innerText = "Saving...";
         saveBtn.disabled = true;
         const photoBase64 = document.getElementById('edit-preview').src;
-    
+
         try {
             const updatedData = {
                 fullName: document.getElementById('editName').value,
@@ -393,128 +360,85 @@
                 status: document.getElementById('editStatus').value,
                 profilePic: photoBase64 
             };
-    
             await update(ref(db, 'users/' + user.uid), updatedData);
             alert("✅ Profile Updated Successfully!");
-            location.reload();
+            document.getElementById('editProfileModal').style.display = 'none';
         } catch (error) {
-            console.error(error);
             alert("❌ Error: " + error.message);
+        } finally {
             saveBtn.innerText = "Save Changes";
             saveBtn.disabled = false;
         }
     };
 
-// --- EVENT LISTENER: Restrict Student ID to Numbers and Symbols Only ---
-document.getElementById('stuID').addEventListener('input', function(e) {
-    // Removes all letters (a-z, A-Z) instantly
-    this.value = this.value.replace(/[a-zA-Z]/g, '');
-});
+    // --- STUDENT MANAGEMENT ---
+    window.submitStudent = async () => {
+        const name = document.getElementById('stuName').value.trim();
+        const email = document.getElementById('stuEmail').value.trim();
+        const id = document.getElementById('stuID').value.trim();
+        const course = document.getElementById('stuCourse').value.trim().toUpperCase();
+        const year = document.getElementById('stuYear').value;
+        const section = document.getElementById('stuSection').value.trim().toUpperCase();
 
-// --- FUNCTION: Submit New Student to Firebase (with Capitalization) ---
-window.submitStudent = async () => {
-    // Get and trim form values
-    const name = document.getElementById('stuName').value.trim();
-    const email = document.getElementById('stuEmail').value.trim();
-    const id = document.getElementById('stuID').value.trim();
-    // Force Course and Section to Uppercase
-    const course = document.getElementById('stuCourse').value.trim().toUpperCase();
-    const year = document.getElementById('stuYear').value;
-    const section = document.getElementById('stuSection').value.trim().toUpperCase();
-
-    // UI Feedback: Reset error messages
-    document.getElementById('error-email').style.display = 'none';
-    document.getElementById('error-id').style.display = 'none';
-    document.getElementById('error-name').style.display = 'none';
-
-    // Validation: Check if fields are empty
-    if (!name || !email || !id || !course || !year || !section) {
-        alert("Please fill in all fields.");
-        return;
-    }
-
-    // Validation: Enforce @gmail.com
-    if (!email.toLowerCase().endsWith('@gmail.com')) {
-        document.getElementById('error-email').style.display = 'block';
-        return;
-    }
-
-    try {
-        // Database Check: Prevent duplicate Name or ID
-        const studentsRef = ref(db, 'students');
-        const snapshot = await get(studentsRef);
-        
-        if (snapshot.exists()) {
-            const existingData = snapshot.val();
-            for (let key in existingData) {
-                // Check if studentID matches
-                if (existingData[key].studentID === id) {
-                    document.getElementById('error-id').style.display = 'block';
-                    return;
-                }
-                // Check if name matches (safety check for undefined names)
-                const existingName = existingData[key].name || ""; 
-                if (existingName.toLowerCase() === name.toLowerCase()) {
-                    document.getElementById('error-name').style.display = 'block';
-                    return;
-                }
-            }
+        if (!name || !email || !id || !course || !year || !section) {
+            alert("Please fill in all fields.");
+            return;
         }
 
-        // Firebase Save: Push sanitized data to the students node
-        const newStudentRef = push(ref(db, 'students'));
-        await update(newStudentRef, {
-            name: name,
-            email: email,
-            studentID: id,
-            stuCourses: course, 
-            yearLevel: year,
-            section: section,   
-            createdAt: new Date().toISOString()
-        });
+        try {
+            const studentsRef = ref(db, 'students');
+            const snapshot = await get(studentsRef);
+            if (snapshot.exists()) {
+                const existingData = snapshot.val();
+                for (let key in existingData) {
+                    if (existingData[key].studentID === id) {
+                        document.getElementById('error-id').style.display = 'block';
+                        return;
+                    }
+                }
+            }
 
-        alert("✅ Student Registered Successfully!");
-        window.clearForm(); 
-        location.reload();
+            const newStudentRef = push(ref(db, 'students'));
+            await update(newStudentRef, {
+                name, email, studentID: id, stuCourses: course, yearLevel: year, section,
+                createdAt: new Date().toISOString()
+            });
 
-    } catch (error) {
-        console.error("Submission Error:", error);
-        alert("❌ Error saving student: " + error.message);
+            alert("✅ Student Registered Successfully!");
+            clearForm();
+        } catch (error) {
+            alert("❌ Error: " + error.message);
+        }
+    };
+
+    window.clearForm = () => { 
+        document.querySelectorAll('#studentModal input, #studentModal select').forEach(i => i.value = "");
+        document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+        document.getElementById('studentModal').style.display = 'none'; 
+    };
+
+    // --- INITIALIZATION ---
+    async function init() {
+        await loadSidebar();
+        startAuthObserver();
     }
-};
 
-// --- FUNCTION: Close and Clear Student Modal Fields ---
-window.clearForm = () => { 
-    document.getElementById('stuName').value = "";
-    document.getElementById('stuEmail').value = "";
-    document.getElementById('stuID').value = "";
-    document.getElementById('stuCourse').value = "";
-    document.getElementById('stuYear').value = "";
-    document.getElementById('stuSection').value = "";
-    
-    // Hide error messages
-    document.getElementById('error-email').style.display = 'none';
-    document.getElementById('error-name').style.display = 'none';
-    document.getElementById('error-id').style.display = 'none';
-    
-    document.getElementById('studentModal').style.display = 'none'; 
-};
-    
-    // --- FUNCTION: Close Edit Profile Modal ---
+    init();
+
+    // Global UI handlers
+    window.closeLogoutModal = () => document.getElementById('logoutModal').style.display = 'none';
     window.closeEditModal = () => document.getElementById('editProfileModal').style.display = 'none';
-
-    // --- FUNCTION: Open Student Registration Modal ---
     window.openModal = () => document.getElementById('studentModal').style.display = 'flex';
-
-    // --- FUNCTION: Close/Clear Student Modal ---
-    window.clearForm = () => { document.getElementById('studentModal').style.display = 'none'; };
-
-    // --- EVENT LISTENER: Logout from System ---
-    document.getElementById('logoutBtn').addEventListener('click', () => { 
-        signOut(auth).then(() => window.location.href = 'index.html'); 
+    document.getElementById('confirmLogout').addEventListener('click', () => {
+        signOut(auth).then(() => window.location.href = 'index.html');
+    });
+    document.getElementById('editBirthdate').addEventListener('change', (e) => {
+        document.getElementById('editAge').value = calculateAge(e.target.value);
     });
 </script>
+</body>
 </html>
+
 
 
 
