@@ -145,9 +145,8 @@
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            notify('✅ Login Successful! Redirecting...', 'success');
+            notify('Login Successful! Redirecting...', 'success');
             
-            // Short delay so the user can see the toast
             setTimeout(() => {
                 window.location.href = 'Dashboard.html';
             }, 1500);
@@ -155,7 +154,7 @@
         } catch (error) {
             let msg = error.message;
             if (error.code === 'auth/invalid-credential') msg = "Invalid email or password.";
-            notify('❌ Error: ' + msg, 'error');
+            notify('Error: ' + msg, 'error');
         }
     });
 
@@ -172,3 +171,4 @@
 
 </body>
 </html>
+
