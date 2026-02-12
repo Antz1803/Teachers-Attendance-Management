@@ -215,32 +215,61 @@
         }).catch(err => notify(err.message, "error"));
     });
 
-    function loadTodayAttendance() {
-        const today = new Date().toISOString().split('T')[0];
-        onValue(ref(db, `attendance/${today}`), (snap) => {
+  function loadTodayAttendance() {
+        // Formats date as YYYY-MM-DD to match common Firebase keys
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const today = `${year}-${month}-${day}`;
+
+        console.log("Fetching attendance for:", today);
+
+        const attendanceRef = ref(db, `attendance/${today}`);
+        
+        onValue(attendanceRef, (snap) => {
             const tbody = document.getElementById('studentTableBody');
+            const lateEl = document.getElementById('lateCount');
+            const absentEl = document.getElementById('absentCount');
+            const presentEl = document.getElementById('presentCount');
+            
             let [l, a, p] = [0, 0, 0];
+            
             if (snap.exists()) {
                 let html = '';
-                Object.values(snap.val()).forEach(d => {
-                    const status = d.status || "ABSENT";
-                    if (status === "PRESENT") p++; else if (status === "LATE") l++; else a++;
-                    html += `<tr>
-                        <td>${d.name}</td>
-                        <td>${d.email || 'N/A'}</td>
-                        <td>${d.studentID}</td>
-                        <td>${d.yearLevel || 'N/A'}</td>
-                        <td>${d.section || 'N/A'}</td>
-                        <td><span class="status-${status.toLowerCase()}">${status}</span></td>
-                    </tr>`;
+                const data = snap.val();
+                
+                // Iterating through student records under today's date
+                Object.values(data).forEach(record => {
+                    const status = (record.status || "ABSENT").toUpperCase();
+                    
+                    // Update counters
+                    if (status === "PRESENT") p++; 
+                    else if (status === "LATE") l++; 
+                    else a++;
+
+                    html += `
+                        <tr>
+                            <td>${record.name || 'Unknown'}</td>
+                            <td>${record.email || 'N/A'}</td>
+                            <td>${record.studentID || 'N/A'}</td>
+                            <td>${record.yearLevel || 'N/A'}</td>
+                            <td>${record.section || 'N/A'}</td>
+                            <td><span class="status-${status.toLowerCase()}">${status}</span></td>
+                        </tr>`;
                 });
                 tbody.innerHTML = html;
             } else {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No records found for today.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px;">No attendance has been recorded yet for today (${today}).</td></tr>`;
             }
-            document.getElementById('lateCount').textContent = l;
-            document.getElementById('absentCount').textContent = a;
-            document.getElementById('presentCount').textContent = p;
+
+            // Update UI Cards
+            lateEl.textContent = l;
+            absentEl.textContent = a;
+            presentEl.textContent = p;
+        }, (error) => {
+            console.error("Firebase Read Error:", error);
+            notify("Failed to load today's data", "error");
         });
     }
 
@@ -267,6 +296,7 @@
 </script>
 </body>
 </html>
+
 
 
 
