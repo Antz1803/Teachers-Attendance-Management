@@ -68,12 +68,16 @@
 </div>
 
 <div class="sidebar">
-  <div class="sidebar-header">
+ <div class="sidebar-header">
     <div class="profile-container">
-        <div class="profile-circle"><i class="fas fa-user-tie"></i> </div>
+        <div class="profile-circle" id="profileContainer">
+            <i class="fas fa-user-tie"></i> </div>
         <div class="profile-info">
-            <h3 id="sidebarName">Loading...</h3> <span id="sidebarRole">Authorized</span> </div>
+            <h3 id="sidebarName">Loading...</h3>
+            <span id="sidebarRole">Authorized</span>
+        </div>
     </div>
+</div>
 </div>
 
     <ul class="nav-links">
@@ -172,29 +176,36 @@
 
     window.closeLogoutModal = () => document.getElementById('logoutModal').style.display = 'none';
 
-        // --- AUTH OBSERVER ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // Fetch user details from Database
-                const userRef = ref(db, `users/${user.uid}`);
-                onValue(userRef, (snapshot) => {
-                    if (snapshot.exists()) {
-                        const userData = snapshot.val();
-                        // Update Sidebar UI with actual data
-                        document.getElementById('sidebarName').textContent = userData.fullName || "Admin";
-                        document.getElementById('sidebarRole').textContent = userData.role || "Authorized";
-                        
-                        // Optional: If you want to change the icon based on role
-                        const profileIcon = document.querySelector('.profile-circle i');
-                        if (userData.role === 'Teacher') {
-                            profileIcon.className = 'fas fa-chalkboard-teacher';
-                        }
-                    }
-                });
-            } else {
-                window.location.href = 'index.html';
+    onAuthStateChanged(auth, (user) => {
+    if (user) {
+        const userRef = ref(db, 'users/' + user.uid);
+
+        onValue(userRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // 1. Update Name and Role
+                document.getElementById('sidebarName').textContent = data.fullName || "Admin";
+                document.getElementById('sidebarRole').textContent = data.role || "Teacher";
+
+                // 2. Handle Profile Display (Icon vs Photo)
+                const container = document.getElementById('profileContainer');
+                
+                // Check if profilePic exists and isn't just the default string "avatar.png"
+                if (data.profilePic && data.profilePic !== "avatar.png" && data.profilePic !== "N/A") {
+                    // DISPLAY PHOTO
+                    container.innerHTML = `<img src="${data.profilePic}" 
+                        style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" 
+                        id="display-photo">`;
+                } else {
+                    // DISPLAY ICON (If no photo is set)
+                    container.innerHTML = `<i class="fas fa-user-tie"></i>`;
+                }
             }
         });
+    } else {
+        window.location.href = 'index.html';
+    }
+});
     
     // --- AUTH ---
     onAuthStateChanged(auth, (user) => {
@@ -265,5 +276,6 @@
 </script>
 </body>
 </html>
+
 
 
