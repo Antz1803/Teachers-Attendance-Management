@@ -452,7 +452,7 @@ async function loadSidebar() {
     window.closeEditModal = () => document.getElementById('editProfileModal').style.display = 'none';
     window.openModal = () => document.getElementById('studentModal').style.display = 'flex';
 
-    // Fixed: Confirm Logout Logic
+    // Confirm Logout Logic
     document.getElementById('confirmLogout').addEventListener('click', () => {
         signOut(auth)
             .then(() => {
@@ -511,5 +511,4 @@ async function loadSidebar() {
 
 
 
-
-correct this code
+why the toast is not working when the logout is confirm
