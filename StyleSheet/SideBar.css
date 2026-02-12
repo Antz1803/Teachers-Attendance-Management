@@ -32,6 +32,13 @@
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
+    overflow: hidden;
+}
+
+.profile-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .profile-info h3 {
