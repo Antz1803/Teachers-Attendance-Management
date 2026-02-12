@@ -67,39 +67,7 @@
     </div>
 </div>
 
-<div class="sidebar">
-<div class="sidebar-header">
-        <div class="profile-container">
-            <div class="profile-circle" id="profileContainer">
-                <i class="fas fa-user-tie"></i>
-            </div>
-            <div class="profile-info">
-                <h3 id="sidebarName">Loading...</h3>
-                <span id="sidebarRole">Authorized</span>
-            </div>
-         </div>
-    </div>
-    <ul class="nav-links">
-        <li class="nav-item active">
-            <a href="Dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a>
-        </li>
-        <li class="nav-item">
-            <a href="Users.html"><i class="fas fa-users"></i> Users</a>
-        </li>
-        <li class="nav-item">
-            <a href="Courses.html"><i class="fas fa-book"></i> Courses</a>
-        </li>
-        <li class="nav-item">
-            <a href="Settings.html"><i class="fas fa-cog"></i> Settings</a>
-        </li>
-    </ul>
-
-    <div class="sidebar-footer">
-        <li class="nav-item logout">
-            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </li>
-    </div>
-</div>
+<div id="sidebar-container"></div>
 
 <div class="main-content">
     <header class="top-header">
@@ -147,6 +115,7 @@
     import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
+    // --- FIREBASE CONFIGURATION ---
     const firebaseConfig = {
         apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
         authDomain: "attendancesystem-cb683.firebaseapp.com",
@@ -161,7 +130,61 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    // --- UTILITIES ---
+    // --- 1. SIDEBAR LOADER ---
+    // This fetches the external HTML and injects it into your placeholder
+    async function loadSidebar() {
+        try {
+            const response = await fetch('SideBar.html');
+            if (!response.ok) throw new Error("Failed to fetch sidebar");
+            const html = await response.text();
+            document.getElementById('sidebar-placeholder').innerHTML = html;
+
+            // Highlight active link based on current URL
+            const currentPage = window.location.pathname.split("/").pop() || "Dashboard.html";
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                if (link.getAttribute('href') === currentPage) {
+                    link.parentElement.classList.add('active');
+                }
+            });
+
+            // Re-attach Logout Listener (important since the button is new)
+            document.getElementById('logoutBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('logoutModal').style.display = 'flex';
+            });
+
+        } catch (error) {
+            console.error("Sidebar Error:", error);
+        }
+    }
+
+    // --- 2. AUTH & PROFILE LOGIC ---
+    function startAuthObserver() {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const userRef = ref(db, 'users/' + user.uid);
+                onValue(userRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        // These elements now exist because we awaited loadSidebar()
+                        document.getElementById('sidebarName').textContent = data.fullName || "Admin";
+                        document.getElementById('sidebarRole').textContent = data.role || "Authorized";
+
+                        const container = document.getElementById('profileContainer');
+                        if (data.profilePic && data.profilePic !== "avatar.png" && data.profilePic !== "N/A") {
+                            container.innerHTML = `<img src="${data.profilePic}" id="display-photo" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                        } else {
+                            container.innerHTML = `<i class="fas fa-user-tie"></i>`;
+                        }
+                    }
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+    }
+
+    // --- 3. UTILITIES & DATA ---
     const notify = (msg, type = 'success') => {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
@@ -175,37 +198,6 @@
 
     window.closeLogoutModal = () => document.getElementById('logoutModal').style.display = 'none';
 
-    // --- COMBINED AUTH & PROFILE LOGIC ---
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            // User is logged in, fetch data
-            const userRef = ref(db, 'users/' + user.uid);
-            onValue(userRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    document.getElementById('sidebarName').textContent = data.fullName || "Admin";
-                    document.getElementById('sidebarRole').textContent = data.role || "Teacher";
-
-                    const container = document.getElementById('profileContainer');
-                    if (data.profilePic && data.profilePic !== "avatar.png" && data.profilePic !== "N/A") {
-                        container.innerHTML = `<img src="${data.profilePic}" id="display-photo">`;
-                    } else {
-                        container.innerHTML = `<i class="fas fa-user-tie"></i>`;
-                    }
-                }
-            });
-        } else {
-            // No user is signed in, redirect to login
-            window.location.href = 'index.html';
-        }
-    });
-
-    // --- LOGOUT LOGIC ---
-    document.getElementById('logoutBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        document.getElementById('logoutModal').style.display = 'flex';
-    });
-
     document.getElementById('confirmLogout').addEventListener('click', () => {
         closeLogoutModal();
         notify("Logging out...", "info");
@@ -214,14 +206,9 @@
         }).catch(err => notify(err.message, "error"));
     });
 
-    // --- DATA LOADING ---
-    function getTodayDate() {
-        const d = new Date();
-        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    }
-
     function loadTodayAttendance() {
-        onValue(ref(db, `attendance/${getTodayDate()}`), (snap) => {
+        const today = new Date().toISOString().split('T')[0];
+        onValue(ref(db, `attendance/${today}`), (snap) => {
             const tbody = document.getElementById('studentTableBody');
             let [l, a, p] = [0, 0, 0];
             if (snap.exists()) {
@@ -248,8 +235,6 @@
         });
     }
 
-    window.toggleMenu = () => document.getElementById("myDropdown").classList.toggle("show");
-    
     function startLiveClock() {
         const el = document.getElementById('liveClock');
         setInterval(() => {
@@ -258,11 +243,22 @@
         }, 1000);
     }
 
-    loadTodayAttendance();
-    startLiveClock();
+    // --- 4. THE MASTER INITIALIZER ---
+    async function initializeDashboard() {
+        await loadSidebar();      // Wait for the physical sidebar to exist
+        startAuthObserver();      // Start checking user and filling profile
+        loadTodayAttendance();    // Load data
+        startLiveClock();         // Start clock
+    }
+
+    initializeDashboard();
+    
+    // Globally expose dropdown toggle
+    window.toggleMenu = () => document.getElementById("myDropdown").classList.toggle("show");
 </script>
 </body>
 </html>
+
 
 
 
