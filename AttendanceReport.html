@@ -210,6 +210,45 @@
         renderTable(studentStats);
     }
 
+// --- COMBINED AUTH & PROFILE LOGIC ---
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // User is logged in, fetch data
+            const userRef = ref(db, 'users/' + user.uid);
+            onValue(userRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    document.getElementById('sidebarName').textContent = data.fullName || "Admin";
+                    document.getElementById('sidebarRole').textContent = data.role || "Teacher";
+
+                    const container = document.getElementById('profileContainer');
+                    if (data.profilePic && data.profilePic !== "avatar.png" && data.profilePic !== "N/A") {
+                        container.innerHTML = `<img src="${data.profilePic}" id="display-photo">`;
+                    } else {
+                        container.innerHTML = `<i class="fas fa-user-tie"></i>`;
+                    }
+                }
+            });
+        } else {
+            // No user is signed in, redirect to login
+            window.location.href = 'index.html';
+        }
+    });
+
+    // --- LOGOUT LOGIC ---
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('logoutModal').style.display = 'flex';
+    });
+
+    document.getElementById('confirmLogout').addEventListener('click', () => {
+        closeLogoutModal();
+        notify("Logging out...", "info");
+        signOut(auth).then(() => {
+            window.location.href = 'index.html';
+        }).catch(err => notify(err.message, "error"));
+    });
+    
     function renderTable(stats) {
         const tbody = document.getElementById('reportTableBody');
         let html = '';
@@ -260,6 +299,7 @@
 </body>
 
 </html>
+
 
 
 
