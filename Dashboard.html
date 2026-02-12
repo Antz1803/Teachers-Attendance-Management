@@ -130,8 +130,7 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    // --- 1. SIDEBAR LOADER ---
-    // This fetches the external HTML and injects it into your placeholder
+    // --- SIDEBAR LOADER ---
     async function loadSidebar() {
         try {
             const response = await fetch('SideBar.html');
@@ -139,15 +138,12 @@
             const html = await response.text();
             document.getElementById('sidebar-placeholder').innerHTML = html;
 
-            // Highlight active link based on current URL
             const currentPage = window.location.pathname.split("/").pop() || "Dashboard.html";
             document.querySelectorAll('.nav-links a').forEach(link => {
                 if (link.getAttribute('href') === currentPage) {
                     link.parentElement.classList.add('active');
                 }
             });
-
-            // Re-attach Logout Listener (important since the button is new)
             document.getElementById('logoutBtn').addEventListener('click', (e) => {
                 e.preventDefault();
                 document.getElementById('logoutModal').style.display = 'flex';
@@ -158,7 +154,7 @@
         }
     }
 
-    // --- 2. AUTH & PROFILE LOGIC ---
+    // --- AUTH & PROFILE LOGIC ---
     function startAuthObserver() {
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -166,7 +162,7 @@
                 onValue(userRef, (snapshot) => {
                     const data = snapshot.val();
                     if (data) {
-                        // These elements now exist because we awaited loadSidebar()
+         
                         document.getElementById('sidebarName').textContent = data.fullName || "Admin";
                         document.getElementById('sidebarRole').textContent = data.role || "Authorized";
 
@@ -184,7 +180,7 @@
         });
     }
 
-    // --- 3. UTILITIES & DATA ---
+    // --- UTILITIES & DATA ---
     const notify = (msg, type = 'success') => {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
@@ -243,12 +239,12 @@
         }, 1000);
     }
 
-    // --- 4. THE MASTER INITIALIZER ---
+    // --- THE MASTER INITIALIZER ---
     async function initializeDashboard() {
-        await loadSidebar();      // Wait for the physical sidebar to exist
-        startAuthObserver();      // Start checking user and filling profile
-        loadTodayAttendance();    // Load data
-        startLiveClock();         // Start clock
+        await loadSidebar();     
+        startAuthObserver();      
+        loadTodayAttendance();   
+        startLiveClock();       
     }
 
     initializeDashboard();
@@ -258,6 +254,7 @@
 </script>
 </body>
 </html>
+
 
 
 
