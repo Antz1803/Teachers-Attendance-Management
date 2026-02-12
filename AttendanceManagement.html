@@ -10,17 +10,18 @@
     <link rel="stylesheet" href="StyleSheet/SideBar.css">
 </head>
 <body style="display: flex; margin: 0;"> <div class="sidebar">
-        <div class="sidebar-header">
-            <div class="profile-container">
-                <div class="profile-circle">
-                    <i class="fas fa-user-tie"></i> 
-                </div>
-                <div class="profile-info">
-                    <h3>Admin</h3>
-                    <span>Authorized</span>
-                </div>
+      <div class="sidebar">
+<div class="sidebar-header">
+        <div class="profile-container">
+            <div class="profile-circle" id="profileContainer">
+                <i class="fas fa-user-tie"></i>
             </div>
-        </div>
+            <div class="profile-info">
+                <h3 id="sidebarName">Loading...</h3>
+                <span id="sidebarRole">Authorized</span>
+            </div>
+         </div>
+    </div>
 
         <ul class="nav-links">
             <li class="nav-item">
@@ -272,6 +273,45 @@
         const d = String(date.getDate()).padStart(2, '0');
         return `${y}-${m}-${d}`;
     }
+
+        // --- COMBINED AUTH & PROFILE LOGIC ---
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // User is logged in, fetch data
+            const userRef = ref(db, 'users/' + user.uid);
+            onValue(userRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    document.getElementById('sidebarName').textContent = data.fullName || "Admin";
+                    document.getElementById('sidebarRole').textContent = data.role || "Teacher";
+
+                    const container = document.getElementById('profileContainer');
+                    if (data.profilePic && data.profilePic !== "avatar.png" && data.profilePic !== "N/A") {
+                        container.innerHTML = `<img src="${data.profilePic}" id="display-photo">`;
+                    } else {
+                        container.innerHTML = `<i class="fas fa-user-tie"></i>`;
+                    }
+                }
+            });
+        } else {
+            // No user is signed in, redirect to login
+            window.location.href = 'index.html';
+        }
+    });
+
+    // --- LOGOUT LOGIC ---
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('logoutModal').style.display = 'flex';
+    });
+
+    document.getElementById('confirmLogout').addEventListener('click', () => {
+        closeLogoutModal();
+        notify("Logging out...", "info");
+        signOut(auth).then(() => {
+            window.location.href = 'index.html';
+        }).catch(err => notify(err.message, "error"));
+    });
 </script>
 
     <!-- Separate script for UI interactions (non-module) -->
@@ -435,6 +475,7 @@
 </body>
 
 </html>
+
 
 
 
