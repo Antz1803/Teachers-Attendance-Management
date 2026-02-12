@@ -143,7 +143,7 @@
             } catch (error) { console.error("Sidebar Error:", error); }
         }
 
-        // --- LOGOUT LOGIC (FIXED) ---
+        // --- LOGOUT LOGIC ---
         document.getElementById('confirmLogout').addEventListener('click', () => {
             document.getElementById('logoutModal').style.display = 'none';
             notify("Logging out... Redirecting", "info");
@@ -152,7 +152,7 @@
                 signOut(auth).then(() => {
                     window.location.href = 'index.html';
                 }).catch(err => notify(err.message, "error"));
-            }, 1000); 
+            }, 2000); 
         });
 
         // --- AUTH OBSERVER ---
@@ -189,3 +189,4 @@
     </script>
 </body>
 </html>
+
