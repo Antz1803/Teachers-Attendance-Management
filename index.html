@@ -4,11 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance System - Login & Register</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="StyleSheet/index.css">
+    <style>
+        /* Toast Notification - Upper Right */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
+        .toast { 
+            padding: 12px 20px; border-radius: 8px; color: #fff; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 10px; font-family: sans-serif;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); animation: slideIn 0.3s forwards;
+        }
+        .success { background: #008080; }
+        .error { background: #e74c3c; }
+        .info { background: #3498db; }
+
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
+    </style>
 </head>
 <body>
 
-    <!-- LOGIN FORM -->
+    <div id="toast-container"></div>
+
     <div class="login-card" id="loginForm">
         <div class="card-header"></div>
         <div class="card-body">
@@ -37,7 +54,6 @@
         </div>
     </div>
 
-    <!-- REGISTRATION FORM -->
     <div class="login-card" id="registerForm" style="display: none;">
         <div class="card-header"></div>
         <div class="card-body">
@@ -63,24 +79,11 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
- <script type="module">
-    // Import Firebase modules
+<script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { 
-        getAuth, 
-        createUserWithEmailAndPassword, 
-        signInWithEmailAndPassword 
-    } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getDatabase, ref, set } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-    // 👉 Realtime Database imports
-    import { 
-        getDatabase, 
-        ref, 
-        set 
-    } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-
-    // Firebase configuration
     const firebaseConfig = {
         apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
         authDomain: "attendancesystem-cb683.firebaseapp.com",
@@ -91,97 +94,81 @@
         appId: "1:975901701661:web:f8ccfbafd8e6c6e9c3f8f4"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
 
+    // --- TOAST NOTIFICATION UTILITY ---
+    const notify = (msg, type = 'success') => {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle"></i> ${msg}`;
+        document.getElementById('toast-container').appendChild(toast);
+        setTimeout(() => {
+            toast.style.animation = 'fadeOut 0.5s forwards';
+            setTimeout(() => toast.remove(), 500);
+        }, 3000);
+    };
+
     // ===== REGISTRATION =====
     document.getElementById('regForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const fullName = document.getElementById('regFullName').value;
         const email = document.getElementById('regEmail').value;
         const password = document.getElementById('regPassword').value;
 
         try {
-            // Create user account
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // Save user data to Realtime Database
             await set(ref(db, 'users/' + user.uid), {
                 fullName: fullName,
                 email: email,
                 role: 'Teacher',
-                age: "N/A",
-                birthdate: "N/A",
-                gender: "N/A",
-                birthplace: "N/A",
-                currentAddress: "N/A",
-                nationality: "N/A",
-                status: "N/A",
-                profilePic: "avatar.png",
                 createdAt: new Date().toISOString()
             });
 
-            alert('✅ User Registered Successfully!');
+            notify('✅ Registration Successful!', 'success');
             document.getElementById('regForm').reset();
-            showLogin();
+            setTimeout(showLogin, 1500);
 
         } catch (error) {
-            let errorMessage = error.message;
-
-            if (error.code === 'auth/email-already-in-use') {
-                errorMessage = 'This email is already registered!';
-            } else if (error.code === 'auth/weak-password') {
-                errorMessage = 'Password should be at least 6 characters!';
-            }
-
-            alert('❌ Error: ' + errorMessage);
+            notify('❌ ' + error.message, 'error');
         }
     });
 
     // ===== LOGIN =====
     document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            alert('✅ Login Successful!');
-            window.location.href = 'Dashboard.html';
+            notify('✅ Login Successful! Redirecting...', 'success');
+            
+            // Short delay so the user can see the toast
+            setTimeout(() => {
+                window.location.href = 'Dashboard.html';
+            }, 1500);
 
         } catch (error) {
-            let errorMessage = error.message;
-
-            if (error.code === 'auth/user-not-found') {
-                errorMessage = 'No account found with this email!';
-            } else if (error.code === 'auth/wrong-password') {
-                errorMessage = 'Incorrect password!';
-            }
-
-            alert('❌ Error: ' + errorMessage);
+            let msg = error.message;
+            if (error.code === 'auth/invalid-credential') msg = "Invalid email or password.";
+            notify('❌ Error: ' + msg, 'error');
         }
     });
 
-    // Toggle forms
-    window.showRegister = function() {
+    window.showRegister = () => {
         document.getElementById('loginForm').style.display = 'none';
         document.getElementById('registerForm').style.display = 'block';
     }
 
-    window.showLogin = function() {
+    window.showLogin = () => {
         document.getElementById('registerForm').style.display = 'none';
         document.getElementById('loginForm').style.display = 'block';
     }
 </script>
 
 </body>
-
 </html>
-
-
-
