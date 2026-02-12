@@ -70,19 +70,22 @@
 <div id="sidebar-placeholder"></div>
 
 <div class="main-content">
-    <header class="top-header">
+<header class="top-header">
+    <div>
         <h1>DASHBOARD</h1>
-        <div id="liveClock" style="font-size: 1rem; color: #555; font-weight: 500; margin-top: -10px;">
-            Loading date and time...
+        <div id="liveClock">Friday, February 13, 2026 | 7:43 AM</div>
+    </div>
+    
+    <div class="menu-container">
+        <button class="menu-button" onclick="toggleMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div id="myDropdown" class="dropdown-menu">
+            <a href="AttendanceManagement.html">Attendance Management</a>
+            <a href="AttendanceReport.html">Attendance Report</a>
         </div>
-        <div class="menu-container">
-            <button class="menu-button" onclick="toggleMenu()">&#9776;</button>
-            <div id="myDropdown" class="dropdown-menu">
-                <a href="AttendanceManagement.html" class="active-link">Attendance Management</a>
-                <a href="AttendanceReport.html">Attendance Report</a>
-            </div>
-        </div>
-    </header>
+    </div>
+</header>
 
     <div class="stats-container">
         <div class="card"><h2>Late</h2><p id="lateCount">0</p></div>
@@ -296,6 +299,7 @@
 </script>
 </body>
 </html>
+
 
 
 
