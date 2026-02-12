@@ -52,42 +52,49 @@
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
     </style>
 </head>
-<body style="display: flex; margin: 0;"> <div class="sidebar">
-      <div class="sidebar">
-<div class="sidebar-header">
-        <div class="profile-container">
-            <div class="profile-circle" id="profileContainer">
-                <i class="fas fa-user-tie"></i>
+<body style="display: flex; margin: 0;"> 
+    <div id="toast-container"></div>
+
+    <div id="logoutModal" class="logout-modal">
+        <div class="modal-content">
+            <i class="fas fa-sign-out-alt" style="font-size: 3rem; color: #e74c3c;"></i>
+            <h3>Ready to Leave?</h3>
+            <p>Confirm if you want to log out of your admin session.</p>
+            <div class="modal-btns">
+                <button class="btn-confirm" id="confirmLogout">Yes, Log out</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Cancel</button>
             </div>
-            <div class="profile-info">
-                <h3 id="sidebarName">Loading...</h3>
-                <span id="sidebarRole">Authorized</span>
-            </div>
-         </div>
+        </div>
     </div>
 
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="profile-container">
+                <div class="profile-circle" id="profileContainer">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="profile-info">
+                    <h3 id="sidebarName">Loading...</h3>
+                    <span id="sidebarRole">Authorized</span>
+                </div>
+            </div>
+        </div>
+
         <ul class="nav-links">
-            <li class="nav-item">
-                <a href="Dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a>
-            </li>
-            <li class="nav-item"> 
-                <a href="Users.html"><i class="fas fa-users"></i> Users</a>
-            </li>
-            <li class="nav-item">
-                <a href="Courses.html"><i class="fas fa-book"></i> Courses</a>
-            </li>
-            <li class="nav-item">
-                <a href="Settings.html"><i class="fas fa-cog"></i> Settings</a>
-            </li>
+            <li class="nav-item"><a href="Dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="Users.html"><i class="fas fa-users"></i> Users</a></li>
+            <li class="nav-item"><a href="Courses.html"><i class="fas fa-book"></i> Courses</a></li>
+            <li class="nav-item"><a href="Settings.html"><i class="fas fa-cog"></i> Settings</a></li>
         </ul>
 
         <div class="sidebar-footer">
-        <li class="nav-item logout">
-            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </li>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                <li class="nav-item logout">
+                    <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
+            </ul>
+        </div>
     </div>
-    </div>
-
 <div class="content">
      <header class="top-header">
         <h1 style="text-decoration:bold;">Attendance Management</h1>
@@ -518,6 +525,7 @@
 </body>
 
 </html>
+
 
 
 
