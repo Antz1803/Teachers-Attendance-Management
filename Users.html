@@ -55,8 +55,8 @@
 <body style="display: flex; margin: 0;"> 
     
     <div id="sidebar-placeholder"></div>
-    <div id="toast-container"></div>
-    
+    <div id="toast-container"></div>
+    
       <div class="main-content">
         <header class="top-header">
             <h1>Users</h1>       
@@ -221,245 +221,283 @@
         </div>
     </div>
           
-      <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-    import { getDatabase, ref, push, get, onValue, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-    import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+       <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getDatabase, ref, push, get, onValue, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
-        authDomain: "attendancesystem-cb683.firebaseapp.com",
-        databaseURL: "https://attendancesystem-cb683-default-rtdb.firebaseio.com",
-        projectId: "attendancesystem-cb683",
-        storageBucket: "attendancesystem-cb683.appspot.com",
-        messagingSenderId: "975901701661",
-        appId: "1:975901701661:web:f8ccfbafd8e6c6e9c3f8f4"
-    };
+    const firebaseConfig = {
+        apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
+        authDomain: "attendancesystem-cb683.firebaseapp.com",
+        databaseURL: "https://attendancesystem-cb683-default-rtdb.firebaseio.com",
+        projectId: "attendancesystem-cb683",
+        storageBucket: "attendancesystem-cb683.appspot.com",
+        messagingSenderId: "975901701661",
+        appId: "1:975901701661:web:f8ccfbafd8e6c6e9c3f8f4"
+    };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    const storage = getStorage(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const storage = getStorage(app);
 
-    // --- TOAST NOTIFICATION SYSTEM ---
-    function notify(message, type = "info") {
-        const container = document.getElementById('toast-container');
-        if (!container) return;
-        
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        
-        const icon = type === 'success' ? 'fa-check-circle' : 
-                     type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
-                     
-        toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
-        container.appendChild(toast);
+// --- SIDEBAR LOADER ---
+async function loadSidebar() {
+    try {
+        const response = await fetch('SideBar.html');
+        if (!response.ok) throw new Error("Failed to fetch sidebar");
+        const html = await response.text();
+        document.getElementById('sidebar-placeholder').innerHTML = html;
 
-        setTimeout(() => {
-            toast.style.animation = "fadeOut 0.5s forwards";
-            setTimeout(() => toast.remove(), 500);
-        }, 3000);
-    }
+        // Get the current page filename
+        const currentPage = window.location.pathname.split("/").pop() || "index.html";
 
-    // --- SIDEBAR LOADER ---
-    async function loadSidebar() {
-        try {
-            const response = await fetch('SideBar.html');
-            if (!response.ok) throw new Error("Failed to fetch sidebar");
-            const html = await response.text();
-            document.getElementById('sidebar-placeholder').innerHTML = html;
+        // Remove "active" from ALL links first to clear any hardcoded highlights
+        document.querySelectorAll('.nav-links li').forEach(li => {
+            li.classList.remove('active');
+        });
 
-            const currentPage = window.location.pathname.split("/").pop() || "index.html";
-            document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                if (link.getAttribute('href') === currentPage) {
-                    link.parentElement.classList.add('active');
-                }
-            });
+        // "active" ONLY to the link that matches the current page
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            if (link.getAttribute('href') === currentPage) {
+                link.parentElement.classList.add('active');
+            }
+        });
 
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.getElementById('logoutModal').style.display = 'flex';
-                });
-            }
-        } catch (error) {
-            console.error("Sidebar Error:", error);
-        }
-    }
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('logoutModal').style.display = 'flex';
+            });
+        }
+    } catch (error) {
+        console.error("Sidebar Error:", error);
+    }
+}
+         // HE NOTIFY FUNCTION (The missing piece)
+function notify(message, type = "info") {
+    const container = document.getElementById('toast-container');
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    // Set the icon based on type
+    const icon = type === 'success' ? 'fa-check-circle' : 
+                 type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+                 
+    toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+    
+    container.appendChild(toast);
 
-    // --- LOGOUT LOGIC (Combined & Fixed) ---
-    document.getElementById('confirmLogout').addEventListener('click', () => {
-        document.getElementById('logoutModal').style.display = 'none';
-        notify("Logging out... Redirecting", "info");
+    setTimeout(() => {
+        toast.style.animation = "fadeOut 0.5s forwards";
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}
 
-        setTimeout(() => {
-            signOut(auth).then(() => {
-                window.location.href = 'index.html';
-            }).catch(err => {
-                notify(err.message, "error");
-            });
-        }, 1500); 
-    });
+//THE UPDATED LOGOUT LISTENER
+document.getElementById('confirmLogout').addEventListener('click', () => {
+    // Hide the modal immediately
+    document.getElementById('logoutModal').style.display = 'none';
 
-    // --- AUTH & PROFILE LOGIC ---
-    function startAuthObserver() {
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const userRef = ref(db, 'users/' + user.uid);
-                onValue(userRef, (snapshot) => {
-                    if (snapshot.exists()) {
-                        const data = snapshot.val();
-                        document.getElementById('display-admin-name').innerText = data.fullName || "Admin";
-                        document.getElementById('display-name').innerText = data.fullName || "N/A";
-                        document.getElementById('display-age').innerText = data.age || "N/A";
-                        document.getElementById('display-birthdate').innerText = data.birthdate || "N/A";
-                        document.getElementById('display-gender').innerText = data.gender || "N/A";
-                        document.getElementById('display-email').innerText = data.email || user.email;
-                        document.getElementById('display-birthplace').innerText = data.birthplace || "N/A";
-                        document.getElementById('display-address').innerText = data.currentAddress || "N/A";
-                        document.getElementById('display-nationality').innerText = data.nationality || "N/A";
-                        document.getElementById('display-status').innerText = data.status || "N/A";
-                        if (data.profilePic) document.getElementById('display-photo').src = data.profilePic;
-                    }
-                });
-            } else {
-                window.location.href = 'index.html';
-            }
-        });
-    }
+    // Show the toast
+    notify("Logging out... Redirecting to Login Page", "info");
 
-    // --- TEACHER PROFILE UTILITIES ---
-    function calculateAge(birthdateString) {
-        if (!birthdateString || birthdateString === "N/A") return "";
-        const today = new Date();
-        const birthDate = new Date(birthdateString);
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
-        return age >= 0 ? age : 0;
-    }
+    setTimeout(() => {
+        signOut(auth).then(() => {
+            window.location.href = 'index.html';
+        }).catch(err => {
+            notify(err.message, "error");
+        });
+    }, 2000); 
+});
+           
+    // --- AUTH & PROFILE LOGIC ---
+    function startAuthObserver() {
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userRef = ref(db, 'users/' + user.uid);
+                onValue(userRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        document.getElementById('display-admin-name').innerText = data.fullName || "Admin";
+                        document.getElementById('display-name').innerText = data.fullName || "N/A";
+                        document.getElementById('display-age').innerText = data.age || "N/A";
+                        document.getElementById('display-birthdate').innerText = data.birthdate || "N/A";
+                        document.getElementById('display-gender').innerText = data.gender || "N/A";
+                        document.getElementById('display-email').innerText = data.email || user.email;
+                        document.getElementById('display-birthplace').innerText = data.birthplace || "N/A";
+                        document.getElementById('display-address').innerText = data.currentAddress || "N/A";
+                        document.getElementById('display-nationality').innerText = data.nationality || "N/A";
+                        document.getElementById('display-status').innerText = data.status || "N/A";
+                        if (data.profilePic) document.getElementById('display-photo').src = data.profilePic;
 
-    window.previewImage = (event) => {
-        const reader = new FileReader();
-        reader.onload = () => { document.getElementById('edit-preview').src = reader.result; };
-        if(event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
-    };
+                        // Update Sidebar Display
+                        const sbName = document.getElementById('sidebarName');
+                        const sbRole = document.getElementById('sidebarRole');
+                        const sbPic = document.getElementById('profileContainer');
 
-    window.openEditModal = async () => {
-        const user = auth.currentUser;
-        const snapshot = await get(ref(db, 'users/' + user.uid));
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            document.getElementById('editName').value = data.fullName || "";
-            document.getElementById('editEmail').value = data.email || user.email || "";
-            document.getElementById('editBirthdate').value = data.birthdate !== "N/A" ? data.birthdate : "";
-            document.getElementById('editGender').value = data.gender || "MALE";
-            document.getElementById('editBirthplace').value = data.birthplace !== "N/A" ? data.birthplace : "";
-            document.getElementById('editAddress').value = data.currentAddress !== "N/A" ? data.currentAddress : "";
-            document.getElementById('editNationality').value = data.nationality !== "N/A" ? data.nationality : "";
-            document.getElementById('editStatus').value = data.status || "SINGLE";
-            document.getElementById('edit-preview').src = data.profilePic || "avatar.png";
-            document.getElementById('editAge').value = calculateAge(data.birthdate);
-            document.getElementById('editProfileModal').style.display = 'flex';
-        }
-    };
+                        if (sbName) sbName.textContent = data.fullName || "Admin";
+                        if (sbRole) sbRole.textContent = data.role || "Teacher";
+                        if (sbPic) {
+                            if (data.profilePic && data.profilePic !== "avatar.png" && data.profilePic !== "N/A") {
+                                sbPic.innerHTML = `<img src="${data.profilePic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                            } else {
+                                sbPic.innerHTML = `<i class="fas fa-user-tie"></i>`;
+                            }
+                        }
+                    }
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+    }
 
-    window.saveProfile = async () => {
-        const user = auth.currentUser;
-        const saveBtn = document.getElementById('saveBtn');
-        saveBtn.innerText = "Saving...";
-        saveBtn.disabled = true;
-        const photoBase64 = document.getElementById('edit-preview').src;
+    // --- TEACHER PROFILE UTILITIES ---
+    function calculateAge(birthdateString) {
+        if (!birthdateString || birthdateString === "N/A") return "";
+        const today = new Date();
+        const birthDate = new Date(birthdateString);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
+        return age >= 0 ? age : 0;
+    }
 
-        try {
-            const updatedData = {
-                fullName: document.getElementById('editName').value,
-                email: document.getElementById('editEmail').value,
-                age: document.getElementById('editAge').value || "N/A",
-                birthdate: document.getElementById('editBirthdate').value || "N/A",
-                gender: document.getElementById('editGender').value,
-                birthplace: document.getElementById('editBirthplace').value || "N/A",
-                currentAddress: document.getElementById('editAddress').value || "N/A",
-                nationality: document.getElementById('editNationality').value || "N/A",
-                status: document.getElementById('editStatus').value,
-                profilePic: photoBase64 
-            };
-            await update(ref(db, 'users/' + user.uid), updatedData);
-            notify("Profile Updated Successfully!", "success"); // TOAST APPLIED
-            document.getElementById('editProfileModal').style.display = 'none';
-        } catch (error) {
-            notify(error.message, "error"); // TOAST APPLIED
-        } finally {
-            saveBtn.innerText = "Save Changes";
-            saveBtn.disabled = false;
-        }
-    };
+    window.previewImage = (event) => {
+        const reader = new FileReader();
+        reader.onload = () => { document.getElementById('edit-preview').src = reader.result; };
+        if(event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
+    };
 
-    // --- STUDENT MANAGEMENT ---
-    window.submitStudent = async () => {
-        const name = document.getElementById('stuName').value.trim();
-        const email = document.getElementById('stuEmail').value.trim();
-        const id = document.getElementById('stuID').value.trim();
-        const course = document.getElementById('stuCourse').value.trim().toUpperCase();
-        const year = document.getElementById('stuYear').value;
-        const section = document.getElementById('stuSection').value.trim().toUpperCase();
+    window.openEditModal = async () => {
+        const user = auth.currentUser;
+        const snapshot = await get(ref(db, 'users/' + user.uid));
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            document.getElementById('editName').value = data.fullName || "";
+            document.getElementById('editEmail').value = data.email || user.email || "";
+            document.getElementById('editBirthdate').value = data.birthdate !== "N/A" ? data.birthdate : "";
+            document.getElementById('editGender').value = data.gender || "MALE";
+            document.getElementById('editBirthplace').value = data.birthplace !== "N/A" ? data.birthplace : "";
+            document.getElementById('editAddress').value = data.currentAddress !== "N/A" ? data.currentAddress : "";
+            document.getElementById('editNationality').value = data.nationality !== "N/A" ? data.nationality : "";
+            document.getElementById('editStatus').value = data.status || "SINGLE";
+            document.getElementById('edit-preview').src = data.profilePic || "avatar.png";
+            document.getElementById('editAge').value = calculateAge(data.birthdate);
+            document.getElementById('editProfileModal').style.display = 'flex';
+        }
+    };
 
-        if (!name || !email || !id || !course || !year || !section) {
-            notify("Please fill in all fields.", "error"); // TOAST APPLIED
-            return;
-        }
+    window.saveProfile = async () => {
+        const user = auth.currentUser;
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.innerText = "Saving...";
+        saveBtn.disabled = true;
+        const photoBase64 = document.getElementById('edit-preview').src;
 
-        try {
-            const studentsRef = ref(db, 'students');
-            const snapshot = await get(studentsRef);
-            if (snapshot.exists()) {
-                const existingData = snapshot.val();
-                for (let key in existingData) {
-                    if (existingData[key].studentID === id) {
-                        document.getElementById('error-id').style.display = 'block';
-                        return;
-                    }
-                }
-            }
+        try {
+            const updatedData = {
+                fullName: document.getElementById('editName').value,
+                email: document.getElementById('editEmail').value,
+                age: document.getElementById('editAge').value || "N/A",
+                birthdate: document.getElementById('editBirthdate').value || "N/A",
+                gender: document.getElementById('editGender').value,
+                birthplace: document.getElementById('editBirthplace').value || "N/A",
+                currentAddress: document.getElementById('editAddress').value || "N/A",
+                nationality: document.getElementById('editNationality').value || "N/A",
+                status: document.getElementById('editStatus').value,
+                profilePic: photoBase64 
+            };
+            await update(ref(db, 'users/' + user.uid), updatedData);
+            alert("✅ Profile Updated Successfully!");
+            document.getElementById('editProfileModal').style.display = 'none';
+        } catch (error) {
+            alert("❌ Error: " + error.message);
+        } finally {
+            saveBtn.innerText = "Save Changes";
+            saveBtn.disabled = false;
+        }
+    };
 
-            const newStudentRef = push(ref(db, 'students'));
-            await update(newStudentRef, {
-                name, email, studentID: id, stuCourses: course, yearLevel: year, section,
-                createdAt: new Date().toISOString()
-            });
+    // --- STUDENT MANAGEMENT ---
+    window.submitStudent = async () => {
+        const name = document.getElementById('stuName').value.trim();
+        const email = document.getElementById('stuEmail').value.trim();
+        const id = document.getElementById('stuID').value.trim();
+        const course = document.getElementById('stuCourse').value.trim().toUpperCase();
+        const year = document.getElementById('stuYear').value;
+        const section = document.getElementById('stuSection').value.trim().toUpperCase();
 
-            notify("Student Registered Successfully!", "success"); // TOAST APPLIED
-            clearForm();
-        } catch (error) {
-            notify(error.message, "error"); // TOAST APPLIED
-        }
-    };
+        if (!name || !email || !id || !course || !year || !section) {
+            alert("Please fill in all fields.");
+            return;
+        }
 
-    window.clearForm = () => { 
-        document.querySelectorAll('#studentModal input, #studentModal select').forEach(i => i.value = "");
-        document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
-        document.getElementById('studentModal').style.display = 'none'; 
-    };
+        try {
+            const studentsRef = ref(db, 'students');
+            const snapshot = await get(studentsRef);
+            if (snapshot.exists()) {
+                const existingData = snapshot.val();
+                for (let key in existingData) {
+                    if (existingData[key].studentID === id) {
+                        document.getElementById('error-id').style.display = 'block';
+                        return;
+                    }
+                }
+            }
 
-    // --- INITIALIZATION ---
-    async function init() {
-        await loadSidebar();
-        startAuthObserver();
-    }
+            const newStudentRef = push(ref(db, 'students'));
+            await update(newStudentRef, {
+                name, email, studentID: id, stuCourses: course, yearLevel: year, section,
+                createdAt: new Date().toISOString()
+            });
 
-    init();
+            alert("✅ Student Registered Successfully!");
+            clearForm();
+        } catch (error) {
+            alert("❌ Error: " + error.message);
+        }
+    };
 
-    // Global UI handlers
-    window.closeLogoutModal = () => document.getElementById('logoutModal').style.display = 'none';
-    window.closeEditModal = () => document.getElementById('editProfileModal').style.display = 'none';
-    window.openModal = () => document.getElementById('studentModal').style.display = 'flex';
+    window.clearForm = () => { 
+        document.querySelectorAll('#studentModal input, #studentModal select').forEach(i => i.value = "");
+        document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+        document.getElementById('studentModal').style.display = 'none'; 
+    };
 
-    document.getElementById('editBirthdate').addEventListener('change', (e) => {
-        document.getElementById('editAge').value = calculateAge(e.target.value);
-    });
+    // --- INITIALIZATION ---
+    async function init() {
+        await loadSidebar();
+        startAuthObserver();
+    }
+
+    init();
+
+    // Global UI handlers
+    window.closeLogoutModal = () => document.getElementById('logoutModal').style.display = 'none';
+    window.closeEditModal = () => document.getElementById('editProfileModal').style.display = 'none';
+    window.openModal = () => document.getElementById('studentModal').style.display = 'flex';
+
+    // Confirm Logout Logic
+    document.getElementById('confirmLogout').addEventListener('click', () => {
+        signOut(auth)
+            .then(() => {
+                window.location.href = 'index.html';
+            })
+            .catch((error) => {
+                console.error("Logout Error:", error);
+            });
+    });
+
+    document.getElementById('editBirthdate').addEventListener('change', (e) => {
+        document.getElementById('editAge').value = calculateAge(e.target.value);
+    });
 </script>
 </body>
 </html>
+
+apply that to my code
