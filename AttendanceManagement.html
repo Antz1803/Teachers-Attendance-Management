@@ -1,310 +1,526 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Management</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="StyleSheet/AttendanceManagement.css">
-    <link rel="stylesheet" href="StyleSheet/SideBar.css">
-    <style>
-        body { display: flex; margin: 0; background-color: #f4f7f6; font-family: sans-serif; height: 100vh; overflow: hidden; }
-        
-        /* Ensure sidebar stays fixed while content scrolls */
-        .sidebar { flex-shrink: 0; }
-        .content { flex-grow: 1; padding: 25px; overflow-y: auto; height: 100vh; box-sizing: border-box; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="StyleSheet/AttendanceManagement.css">
+    <link rel="stylesheet" href="StyleSheet/SideBar.css">
+     <style>
+        /* Toast Notification - Upper Right */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
+        .toast { 
+            padding: 12px 20px; border-radius: 8px; color: #fff; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 10px; font-family: sans-serif;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); animation: slideIn 0.3s forwards;
+        }
+        .success { background: #008080; }
+        .error { background: #e74c3c; }
+        .info { background: #3498db; }
 
-        /* Calendar & UI Styles */
-        .disabled-day { color: #ccc; cursor: not-allowed; pointer-events: none; }
-        .is-today { background: #008080 !important; color: white !important; border-radius: 50%; }
-        #display-photo { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-        
-        /* Modal and Toast */
-        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
-        .toast { padding: 12px 20px; border-radius: 8px; color: #fff; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); animation: slideIn 0.3s forwards; }
-        .success { background: #008080; } .error { background: #e74c3c; }
+        /* Custom Logout Modal */
+        .logout-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); 
+            display: none; align-items: center; justify-content: center; z-index: 9999;
+        }
+        .modal-content {
+            background: white; padding: 30px; border-radius: 15px;
+            width: 350px; text-align: center; box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .modal-btns { display: flex; gap: 15px; margin-top: 20px; }
+        
+        .btn-confirm { 
+            background: #e74c3c; color: white; flex: 1; padding: 12px; border: none; 
+            border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s;
+        }
+        /* Interactive Shake Animation */
+        .btn-confirm:hover { 
+            background: #c0392b; 
+            animation: shake 0.5s ease; 
+        }
+        .btn-cancel { background: #f0f0f0; flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; }
 
-        .logout-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; }
-        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 350px; text-align: center; }
-        .btn-confirm { background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
-        .btn-cancel { background: #eee; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; }
-        
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-    </style>
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
+    </style>
 </head>
-<body>
+<body style="display: flex; margin: 0;"> 
+    <div id="toast-container"></div>
 
-    <div id="sidebar-placeholder"></div>
+    <div id="logoutModal" class="logout-modal">
+        <div class="modal-content">
+            <i class="fas fa-sign-out-alt" style="font-size: 3rem; color: #e74c3c;"></i>
+            <h3>Ready to Leave?</h3>
+            <p>Confirm if you want to log out of your admin session.</p>
+            <div class="modal-btns">
+                <button class="btn-confirm" id="confirmLogout">Yes, Log out</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
 
-    <div id="toast-container"></div>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="profile-container">
+                <div class="profile-circle" id="profileContainer">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="profile-info">
+                    <h3 id="sidebarName">Loading...</h3>
+                    <span id="sidebarRole">Authorized</span>
+                </div>
+            </div>
 
-    <div id="logoutModal" class="logout-modal">
-        <div class="modal-content">
-            <i class="fas fa-sign-out-alt" style="font-size: 3rem; color: #e74c3c; margin-bottom: 15px;"></i>
-            <h3>Sign Out?</h3>
-            <p>Are you sure you want to log out?</p>
-            <div style="margin-top: 20px;">
-                <button class="btn-confirm" id="confirmLogout">Logout</button>
-                <button class="btn-cancel" onclick="document.getElementById('logoutModal').style.display='none'">Cancel</button>
-            </div>
-        </div>
-    </div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="Dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="Users.html"><i class="fas fa-users"></i> Users</a></li>
+            <li class="nav-item"><a href="Courses.html"><i class="fas fa-book"></i> Courses</a></li>
+            <li class="nav-item"><a href="Settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+        </ul>
 
-    <div class="content">
-        <header class="top-header">
-            <h1>Attendance Management</h1>
-            <div class="menu-container">
-                <button class="menu-button" onclick="toggleMenu()">&#9776;</button>
-                <div id="myDropdown" class="dropdown-menu">
-                    <a href="AttendanceManagement.html" class="active-link">Management</a>
-                    <a href="AttendanceReport.html">Reports</a>
-                </div>
-            </div>
-        </header>
+        <div class="sidebar-footer">
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                <li class="nav-item logout">
+                    <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+<div class="content">
+     <header class="top-header">
+        <h1 style="text-decoration:bold;">Attendance Management</h1>
+        <div class="menu-container">
+            <button class="menu-button" onclick="toggleMenu()">
+                &#9776;
+            </button>
+            <div id="myDropdown" class="dropdown-menu">
+                <a href="AttendanceManagement.html" class="active-link">Attendance Management</a>
+                <a href="AttendanceReport.html">Attendance Report</a>
+            </div>
+        </div>
+    </header>
+        <div class="filters">
+            <div class="filter-group" style="position: relative;">
+                <label style="display: block; margin-bottom: 5px;">Courses</label>
+                <div class="course-input-box" id="courseBox">
+                    <span id="coursePillText" style="color: #666;">Select Course</span>
+                    <span class="pill-arrow">▼</span>
+                </div>
+                <div id="courseDropdown" class="dropdown-menu" style="display: none;">
+                    <a href="javascript:void(0)" onclick="setCourse('IT')">IT</a>
+                    <a href="javascript:void(0)" onclick="setCourse('CS')">CS</a>
+                    <a href="javascript:void(0)" onclick="setCourse('IS')">IS</a>
+                </div>
+            </div>
 
-        <div class="filters">
-            <div class="filter-group">
-                <label>Course</label>
-                <div class="course-input-box" id="courseBox">
-                    <span id="coursePillText">Select Course</span>
-                    <span class="pill-arrow">▼</span>
-                </div>
-                <div id="courseDropdown" class="dropdown-menu" style="display: none;">
-                    <a href="javascript:void(0)" onclick="setCourse('IT')">IT</a>
-                    <a href="javascript:void(0)" onclick="setCourse('CS')">CS</a>
-                    <a href="javascript:void(0)" onclick="setCourse('IS')">IS</a>
-                </div>
-            </div>
+            <div class="filter-group" style="position: relative; cursor: pointer;">
+                <label style="display: block; margin-bottom: 5px;">Date</label>
+                <div class="calendar-input-box" id="calendarBox">
+                    <span id="selectedDateText" style="color: #666;">Select Date</span>
+                    <span class="pill-arrow">▼</span>
+                </div>
 
-            <div class="filter-group">
-                <label>Date</label>
-                <div class="calendar-input-box" id="calendarBox">
-                    <span id="selectedDateText">Select Date</span>
-                    <span class="pill-arrow">▼</span>
-                </div>
-                <div id="calendarWrapper" style="display: none; position: absolute; z-index: 999;">
-                    <div class="calendar-container">
-                        <div class="cal-header">
-                            <span onclick="moveMonth(-1)">&laquo;</span>
-                            <span id="currentMonthYear"></span>
-                            <span onclick="moveMonth(1)">&raquo;</span>
-                        </div>
-                        <div class="day-labels">
-                            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-                        </div>
-                        <div id="calendarDays" class="days-grid"></div>
-                    </div>
-                </div>
-            </div>
-            <button class="btn-search" onclick="fetchStudents()">Search</button>
-        </div>
+                <div id="calendarWrapper" style="display: none; position: absolute; top: 100%; left: 0; z-index: 999; margin-top: 5px;">
+                    <div class="calendar-container">
+                        <div class="cal-header">
+                            <span id="prevMonth">&laquo;</span>
+                            <span id="currentMonthYear" class="month-name">AUGUST</span>
+                            <span id="nextMonth">&raquo;</span>
+                        </div>
+                        <div class="day-labels">
+                            <div class="weekend-label">Sun</div>
+                            <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div>
+                            <div class="weekend-label">Sat</div>
+                        </div>
+                        <div id="calendarDays" class="days-grid"></div>
+                    </div>
+                </div>
+            </div>
 
-        <div class="table-box">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Student ID</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="studentTableBody">
-                    <tr><td colspan="3" style="text-align: center; color: #999; padding: 20px;">Search to display students</td></tr>
-                </tbody>
-            </table>
-            <div class="footer-actions">
-                <button class="btn-save" onclick="saveAttendance()">Save Attendance</button>
-            </div>
-        </div>
-    </div>
+            <button class="btn-search" onclick="fetchStudents()">Search</button>
+        </div>
 
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getDatabase, ref, get, set, query, orderByChild, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        <div class="table-box">
+            <table>
+                <thead class="table-header">
+                    <tr>
+                        <th style="width: 40%; color:white;">Name</th>
+                        <th style="width: 30%; color:white;">Student ID</th>
+                        <th style="width: 30%; color:white;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTableBody">
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: #666;">Select a course and date, then click Search</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="footer-actions">
+                <button class="btn-save" onclick="saveAttendance()">Save All</button>
+            </div>
+        </div>
+    </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
-            authDomain: "attendancesystem-cb683.firebaseapp.com",
-            databaseURL: "https://attendancesystem-cb683-default-rtdb.firebaseio.com",
-            projectId: "attendancesystem-cb683",
-            storageBucket: "attendancesystem-cb683.firebasestorage.app",
-            messagingSenderId: "975901701661",
-            appId: "1:975901701661:web:f8ccfbafd8e6c6e9c3f8f4",
-        };
+    <!-- IMPORTANT: type="module" is required for ES6 imports -->
+    <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getDatabase, ref, get, set, query, orderByChild } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const auth = getAuth(app);
+    const firebaseConfig = {
+        apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
+        authDomain: "attendancesystem-cb683.firebaseapp.com",
+        databaseURL: "https://attendancesystem-cb683-default-rtdb.firebaseio.com",
+        projectId: "attendancesystem-cb683",
+        storageBucket: "attendancesystem-cb683.firebasestorage.app",
+        messagingSenderId: "975901701661",
+        appId: "1:975901701661:web:f8ccfbafd8e6c6e9c3f8f4",
+    };
 
-        // --- 1. Load Sidebar & Auth ---
-        async function loadSidebar() {
-            const resp = await fetch('sidebar.html');
-            const html = await resp.text();
-            document.getElementById('sidebar-placeholder').innerHTML = html;
-            
-            // Set active class
-            document.getElementById('nav-Attendance')?.classList.add('active');
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
 
-            // Setup Logout in injected sidebar
-            document.getElementById('logoutBtn').addEventListener('click', (e) => {
-                e.preventDefault();
-                document.getElementById('logoutModal').style.display = 'flex';
-            });
-        }
+    onAuthStateChanged(auth, (user) => {
+        if (!user) window.location.href = 'index.html';
+    });
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                loadSidebar().then(() => {
-                    const userRef = ref(db, 'users/' + user.uid);
-                    onValue(userRef, (snapshot) => {
-                        const data = snapshot.val();
-                        if (data) {
-                            document.getElementById('sidebarName').textContent = data.fullName || "Admin";
-                            document.getElementById('sidebarRole').textContent = data.role || "Teacher";
-                            const container = document.getElementById('profileContainer');
-                            if (data.profilePic && data.profilePic !== "avatar.png") {
-                                container.innerHTML = `<img src="${data.profilePic}" id="display-photo">`;
-                            }
-                        }
-                    });
-                });
-            } else {
-                window.location.href = 'index.html';
-            }
-        });
+    window.fetchStudents = async function() {
+        const tableBody = document.getElementById("studentTableBody");
+        const selectedCourse = document.getElementById("coursePillText").innerText;
+        const selectedDate = document.getElementById("selectedDateText").innerText;
 
-        // --- 2. Attendance Logic ---
-        window.fetchStudents = async function() {
-            const course = document.getElementById("coursePillText").innerText;
-            const dateStr = document.getElementById("selectedDateText").innerText;
-            if (course === "Select Course" || dateStr === "Select Date") return alert("Select filters first!");
+        if (selectedCourse === "Select Course" || selectedDate === "Select Date") {
+            alert("Please select both a Course and a Date first!");
+            return;
+        }
 
-            const dateKey = formatDateForFirebase(dateStr);
-            const tableBody = document.getElementById("studentTableBody");
-            tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Loading...</td></tr>";
+        const dateKey = formatDateForFirebase(selectedDate);
+        tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Fetching master list...</td></tr>";
 
-            try {
-                const [attendanceSnap, studentsSnap] = await Promise.all([
-                    get(ref(db, `attendance/${dateKey}`)),
-                    get(query(ref(db, 'students'), orderByChild('name')))
-                ]);
+        try {
+            // 1. Fetch any existing attendance for this specific date
+            const attendanceSnapshot = await get(ref(db, `attendance/${dateKey}`));
+            const savedAttendance = attendanceSnapshot.exists() ? attendanceSnapshot.val() : {};
 
-                const existingData = attendanceSnap.val() || {};
-                tableBody.innerHTML = "";
-                
-                studentsSnap.forEach((child) => {
-                    const s = child.val();
-                    if (s.stuCourses === course) {
-                        const status = existingData[child.key]?.status || "PRESENT";
-                        const row = document.createElement("tr");
-                        row.setAttribute('data-id', child.key);
-                        row.setAttribute('data-name', s.name);
-                        row.setAttribute('data-sid', s.studentID);
-                        row.innerHTML = `
-                            <td>${s.name}</td>
-                            <td>${s.studentID}</td>
-                            <td>
-                                <select class="status-dropdown">
-                                    <option value="PRESENT" ${status === 'PRESENT' ? 'selected' : ''}>PRESENT</option>
-                                    <option value="LATE" ${status === 'LATE' ? 'selected' : ''}>LATE</option>
-                                    <option value="ABSENT" ${status === 'ABSENT' ? 'selected' : ''}>ABSENT</option>
-                                </select>
-                            </td>`;
-                        tableBody.appendChild(row);
-                    }
-                });
-            } catch (e) { console.error(e); }
-        };
+            // 2. Fetch ALL registered students (The Master List)
+            const studentsRef = ref(db, 'students');
+            const studentSnapshot = await get(query(studentsRef, orderByChild('name')));
 
-        window.saveAttendance = async function() {
-            const rows = document.querySelectorAll("#studentTableBody tr[data-id]");
-            const dateStr = document.getElementById("selectedDateText").innerText;
-            const dateKey = formatDateForFirebase(dateStr);
+            if (studentSnapshot.exists()) {
+                tableBody.innerHTML = "";
+                let found = false;
 
-            const promises = Array.from(rows).map(row => {
-                return set(ref(db, `attendance/${dateKey}/${row.dataset.id}`), {
-                    name: row.dataset.name,
-                    studentID: row.dataset.sid,
-                    status: row.querySelector('.status-dropdown').value,
-                    timestamp: new Date().toISOString()
-                });
-            });
+                studentSnapshot.forEach((childSnapshot) => {
+                    const data = childSnapshot.val();
+                    const userId = childSnapshot.key;
+                    
+                    // Filter only by course
+                    if (data.stuCourses === selectedCourse) {
+                        found = true;
+                        
+                        // If record exists for this date, use its status. Otherwise, default to PRESENT.
+                        const existingStatus = savedAttendance[userId] ? savedAttendance[userId].status : "PRESENT";
 
-            await Promise.all(promises);
-            showToast("Success! Attendance saved.");
-        };
+                        const row = document.createElement("tr");
+                        row.setAttribute('data-user-id', userId);
+                        row.setAttribute('data-student-id', data.studentID);
+                        row.setAttribute('data-name', data.name);
+                        row.setAttribute('data-section', data.section || "N/A"); 
+                        row.setAttribute('data-email', data.email || "No Email");
+                        row.setAttribute('data-year', data.yearLevel || "N/A");
+                        
+                        row.innerHTML = `
+                            <td>${data.name}</td>
+                            <td>${data.studentID}</td>
+                            <td>
+                                <select class="status-dropdown">
+                                    <option value="PRESENT" ${existingStatus === 'PRESENT' ? 'selected' : ''}>PRESENT</option>
+                                    <option value="LATE" ${existingStatus === 'LATE' ? 'selected' : ''}>LATE</option>
+                                    <option value="ABSENT" ${existingStatus === 'ABSENT' ? 'selected' : ''}>ABSENT</option>
+                                </select>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    }
+                });
 
-        function formatDateForFirebase(str) {
-            const d = new Date(str);
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        }
+                if (!found) {
+                    tableBody.innerHTML = `<tr><td colspan='3' style='text-align:center;'>No students registered in ${selectedCourse}</td></tr>`;
+                }
+            }
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            alert("Permission error or database failure.");
+        }
+    };
 
-        function showToast(msg) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast success';
-            toast.innerText = msg;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
+   window.saveAttendance = async function() {
+    const tableBody = document.getElementById("studentTableBody");
+    const rows = tableBody.querySelectorAll("tr[data-user-id]");
+    
+    if (rows.length === 0) {
+        alert("Nothing to save!");
+        return;
+    }
 
-        document.getElementById('confirmLogout').onclick = () => signOut(auth);
-    </script>
+    const selectedDate = document.getElementById("selectedDateText").innerText;
+    const selectedCourse = document.getElementById("coursePillText").innerText;
+    const dateKey = formatDateForFirebase(selectedDate);
 
-    <script>
-        // --- 3. UI Interactions ---
-        function toggleMenu() { document.getElementById("myDropdown").classList.toggle("show"); }
-        function setCourse(c) { document.getElementById("coursePillText").innerText = c; document.getElementById("courseDropdown").style.display = "none"; }
+    try {
+        const savePromises = [];
 
-        let calDate = new Date();
-        const today = new Date(); today.setHours(0,0,0,0);
+        rows.forEach((row) => {
+            const userId = row.getAttribute('data-user-id');
+            const studentName = row.getAttribute('data-name');
+            const studentID = row.getAttribute('data-student-id');
+            const studentSection = row.getAttribute('data-section');
+            
+            // PULL THE NEW ATTRIBUTES:
+            const studentEmail = row.getAttribute('data-email');
+            const studentYear = row.getAttribute('data-year');
+            
+            const status = row.querySelector('.status-dropdown').value;
 
-        function renderCalendar() {
-            const daysGrid = document.getElementById('calendarDays');
-            const monthYear = document.getElementById('currentMonthYear');
-            const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-            
-            monthYear.innerText = `${months[calDate.getMonth()]} ${calDate.getFullYear()}`;
-            const first = new Date(calDate.getFullYear(), calDate.getMonth(), 1).getDay();
-            const last = new Date(calDate.getFullYear(), calDate.getMonth() + 1, 0).getDate();
-            
-            let html = "";
-            for (let i = 0; i < first; i++) html += "<div></div>";
-            for (let i = 1; i <= last; i++) {
-                const cur = new Date(calDate.getFullYear(), calDate.getMonth(), i);
-                let cls = cur > today ? "disabled-day" : "";
-                if (cur.getTime() === today.getTime()) cls += " is-today";
-                html += `<div class="${cls}" onclick="selectDate(${i})">${i}</div>`;
-            }
-            daysGrid.innerHTML = html;
-        }
+            const attendanceRef = ref(db, `attendance/${dateKey}/${userId}`);
+            
+            // SAVE EVERYTHING TO FIREBASE:
+            savePromises.push(set(attendanceRef, {
+                name: studentName,
+                studentID: studentID,
+                email: studentEmail, 
+                year: studentYear,   
+                section: studentSection,
+                course: selectedCourse,
+                status: status,
+                date: selectedDate,
+                timestamp: new Date().toISOString()
+            }));
+        });
 
-        window.selectDate = function(day) {
-            const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-            document.getElementById("selectedDateText").innerText = `${months[calDate.getMonth()]} ${day}, ${calDate.getFullYear()}`;
-            document.getElementById("calendarWrapper").style.display = "none";
-        };
+        await Promise.all(savePromises);
+        alert(`✓ Saved ${rows.length} records successfully!`);
+    } catch (error) {
+        console.error("Save Error:", error);
+        alert("Error: " + error.message);
+    }
+};
 
-        window.moveMonth = function(dir) { calDate.setMonth(calDate.getMonth() + dir); renderCalendar(); };
+    function formatDateForFirebase(dateString) {
+        const date = new Date(dateString);
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
 
-        document.getElementById('calendarBox').onclick = (e) => {
-            e.stopPropagation();
-            const w = document.getElementById('calendarWrapper');
-            w.style.display = w.style.display === "block" ? "none" : "block";
-            renderCalendar();
-        };
+        // --- COMBINED AUTH & PROFILE LOGIC ---
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // User is logged in, fetch data
+            const userRef = ref(db, 'users/' + user.uid);
+            onValue(userRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    document.getElementById('sidebarName').textContent = data.fullName || "Admin";
+                    document.getElementById('sidebarRole').textContent = data.role || "Teacher";
 
-        document.getElementById('courseBox').onclick = (e) => {
-            e.stopPropagation();
-            const d = document.getElementById('courseDropdown');
-            d.style.display = d.style.display === "block" ? "none" : "block";
-        };
+                    const container = document.getElementById('profileContainer');
+                    if (data.profilePic && data.profilePic !== "avatar.png" && data.profilePic !== "N/A") {
+                        container.innerHTML = `<img src="${data.profilePic}" id="display-photo">`;
+                    } else {
+                        container.innerHTML = `<i class="fas fa-user-tie"></i>`;
+                    }
+                }
+            });
+        } else {
+            // No user is signed in, redirect to login
+            window.location.href = 'index.html';
+        }
+    });
 
-        window.onclick = () => {
-            document.getElementById('courseDropdown').style.display = "none";
-            document.getElementById('calendarWrapper').style.display = "none";
-        };
-    </script>
+    // --- LOGOUT LOGIC ---
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('logoutModal').style.display = 'flex';
+    });
+
+    document.getElementById('confirmLogout').addEventListener('click', () => {
+        closeLogoutModal();
+        notify("Logging out...", "info");
+        signOut(auth).then(() => {
+            window.location.href = 'index.html';
+        }).catch(err => notify(err.message, "error"));
+    });
+</script>
+
+    <!-- Separate script for UI interactions (non-module) -->
+    <script>
+        // --- Menu Toggle ---
+        function toggleMenu() {
+            document.getElementById("myDropdown").classList.toggle("show");
+        }
+
+        // --- UI Logic: Course Dropdown ---
+        let selectedCourse = null;
+
+        // Add click event to course box
+        document.addEventListener('DOMContentLoaded', function() {
+            const courseBox = document.getElementById('courseBox');
+            courseBox.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const dd = document.getElementById("courseDropdown");
+                const isVisible = dd.style.display === "block";
+                
+                // Close calendar if open
+                document.getElementById("calendarWrapper").style.display = "none";
+                
+                dd.style.display = isVisible ? "none" : "block";
+            });
+        });
+
+        window.setCourse = function(course) {
+            const pill = document.getElementById("coursePillText");
+            pill.innerText = course;
+            pill.style.color = "#000";
+            selectedCourse = course;
+            document.getElementById("courseDropdown").style.display = "none";
+        }
+
+        // --- UI Logic: Calendar & Date ---
+     let date = new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time for accurate comparison
+
+    function renderCalendar() {
+        const monthYearElement = document.getElementById('currentMonthYear');
+        const daysElement = document.getElementById('calendarDays');
+        const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", 
+                            "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+        
+        monthYearElement.innerText = monthNames[date.getMonth()] + " " + date.getFullYear();
+        const firstDayIndex = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+        
+        let days = "";
+        for (let x = firstDayIndex; x > 0; x--) { 
+            days += `<div></div>`; 
+        }
+        
+        for (let i = 1; i <= lastDay; i++) {
+            const currentIterDate = new Date(date.getFullYear(), date.getMonth(), i);
+            const currentDayOfWeek = currentIterDate.getDay();
+            
+            let className = (currentDayOfWeek === 0 || currentDayOfWeek === 6) ? "sun-col" : "";
+            
+            // Highlight Today
+            if (i === today.getDate() && 
+                date.getMonth() === today.getMonth() && 
+                date.getFullYear() === today.getFullYear()) {
+                className += " is-today";
+            }
+
+            // RESTRICTION: Check if the date is in the future
+            if (currentIterDate > today) {
+                className += " disabled-day";
+                days += `<div class="${className}">${i}</div>`;
+            } else {
+                days += `<div class="${className}" onclick="selectDate(${i})">${i}</div>`;
+            }
+        }
+        daysElement.innerHTML = days;
+    }
+
+    window.selectDate = function(day) {
+        const selectedDateObj = new Date(date.getFullYear(), date.getMonth(), day);
+        
+        // Final safety check against future dates
+        if (selectedDateObj > today) {
+            alert("You cannot mark attendance for future dates.");
+            return;
+        }
+
+        const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", 
+                            "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+        const selectedDateText = `${monthNames[date.getMonth()]} ${day}, ${date.getFullYear()}`;
+        
+        document.getElementById("selectedDateText").innerText = selectedDateText;
+        document.getElementById("selectedDateText").style.color = "#000";
+        document.getElementById("calendarWrapper").style.display = "none";
+    }
+
+        window.moveMonth = function(dir) {
+            date.setMonth(date.getMonth() + dir);
+            renderCalendar();
+        }
+
+        // Add click events for calendar
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarBox = document.getElementById('calendarBox');
+            calendarBox.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const wrapper = document.getElementById('calendarWrapper');
+                const isVisible = wrapper.style.display === "block";
+                
+                // Close course dropdown if open
+                document.getElementById("courseDropdown").style.display = "none";
+                
+                wrapper.style.display = isVisible ? "none" : "block";
+                if (wrapper.style.display === "block") {
+                    renderCalendar();
+                }
+            });
+
+            // Month navigation
+            document.getElementById('prevMonth').addEventListener('click', function(e) {
+                e.stopPropagation();
+                moveMonth(-1);
+            });
+
+            document.getElementById('nextMonth').addEventListener('click', function(e) {
+                e.stopPropagation();
+                moveMonth(1);
+            });
+
+            // Prevent calendar from closing when clicking inside it
+            document.getElementById('calendarWrapper').addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+
+        // Global click to close menus
+        document.addEventListener('click', function(e) {
+            // Close course dropdown
+            if (!e.target.closest('#courseBox')) {
+                document.getElementById("courseDropdown").style.display = "none";
+            }
+            
+            // Close calendar
+            if (!e.target.closest('#calendarBox') && !e.target.closest('#calendarWrapper')) {
+                document.getElementById("calendarWrapper").style.display = "none";
+            }
+
+            // Close main menu
+            if (!e.target.closest('.menu-container')) {
+                const dropdown = document.getElementById('myDropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
+
+        // Initialize calendar on page load
+        renderCalendar();
+    </script>
 </body>
+
 </html>
+
