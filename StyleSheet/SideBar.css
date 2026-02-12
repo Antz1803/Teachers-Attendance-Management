@@ -1,17 +1,4 @@
 /* Sidebar Style */
-:root {
-    --primary-teal: #008080;
-    --dark-teal: #004d4d;
-    --white: #ffffff;
-}
-
-/* Ensure the sidebar placeholder doesn't collapse */
-#sidebar-placeholder {
-    min-width: 240px;
-    height: 100vh;
-    background-color: var(--primary-teal);
-}
-
 .sidebar {
     width: 240px; /* Slightly wider for better text flow */
     background: linear-gradient(180deg, var(--primary-teal) 0%, var(--dark-teal) 100%);
