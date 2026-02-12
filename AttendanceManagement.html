@@ -160,21 +160,13 @@
     const db = getDatabase(app);
     const auth = getAuth(app);
 
-    // --- 2. SIDEBAR LOADER FUNCTION ---
+    // --- SIDEBAR LOADER FUNCTION ---
     async function loadSidebar() {
         try {
             const response = await fetch('SideBar.html');
             if (!response.ok) throw new Error("Sidebar file not found");
             const html = await response.text();
             document.getElementById('sidebar-placeholder').innerHTML = html;
-
-            // Highlight active link
-            const currentPage = window.location.pathname.split("/").pop() || "Dashboard.html";
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                if (link.getAttribute('href') === currentPage) {
-                    link.parentElement.classList.add('active');
-                }
-            });
 
             // Set up Logout listener
             document.getElementById('logoutBtn').addEventListener('click', (e) => {
@@ -186,7 +178,7 @@
         }
     }
 
-    // --- 3. UPDATED AUTH OBSERVER ---
+    // --- UPDATED AUTH OBSERVER ---
     function startAuthObserver() {
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -377,3 +369,4 @@
     </script>
 </body>
 </html>
+
