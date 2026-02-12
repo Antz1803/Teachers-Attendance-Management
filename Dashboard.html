@@ -8,26 +8,69 @@
     <link rel="stylesheet" href="StyleSheet/Dashboard.css">
     <link rel="stylesheet" href="StyleSheet/SideBar.css">
     <style>
-    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
-    .toast { 
-        padding: 12px 20px; border-radius: 8px; color: #fff; margin-bottom: 10px;
-        display: flex; align-items: center; gap: 10px; font-family: sans-serif;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2); animation: slideIn 0.3s forwards;
-    }
-    .success { background: #008080; }
-    .error { background: #e74c3c; }
-    .info { background: #3498db; }
-    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-    @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
-</style>
+        /* Toast Notification - Upper Right */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
+        .toast { 
+            padding: 12px 20px; border-radius: 8px; color: #fff; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 10px; font-family: sans-serif;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); animation: slideIn 0.3s forwards;
+        }
+        .success { background: #008080; }
+        .error { background: #e74c3c; }
+        .info { background: #3498db; }
+
+        /* Custom Logout Modal */
+        .logout-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); 
+            display: none; align-items: center; justify-content: center; z-index: 9999;
+        }
+        .modal-content {
+            background: white; padding: 30px; border-radius: 15px;
+            width: 350px; text-align: center; box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .modal-btns { display: flex; gap: 15px; margin-top: 20px; }
+        
+        .btn-confirm { 
+            background: #e74c3c; color: white; flex: 1; padding: 12px; border: none; 
+            border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s;
+        }
+        /* Interactive Shake Animation */
+        .btn-confirm:hover { 
+            background: #c0392b; 
+            animation: shake 0.5s ease; 
+        }
+        .btn-cancel { background: #f0f0f0; flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
+    </style>
 </head>
 <body>
+
 <div id="toast-container"></div>
-   <div class="sidebar">
+
+<div id="logoutModal" class="logout-modal">
+    <div class="modal-content">
+        <i class="fas fa-sign-out-alt" style="font-size: 3rem; color: #e74c3c;"></i>
+        <h3>Ready to Leave?</h3>
+        <p>Confirm if you want to log out of your admin session.</p>
+        <div class="modal-btns">
+            <button class="btn-confirm" id="confirmLogout">Yes, Log out</button>
+            <button class="btn-cancel" onclick="closeLogoutModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar">
     <div class="sidebar-header">
         <div class="profile-container">
-            <div class="profile-circle">
-                <i class="fas fa-user-tie"></i> </div>
+            <div class="profile-circle"><i class="fas fa-user-tie"></i> </div>
             <div class="profile-info">
                 <h3>Admin</h3>
                 <span>Authorized</span>
@@ -57,62 +100,47 @@
     </div>
 </div>
 
-    <div class="main-content">
-        <header class="top-header">
-            <h1>DASHBOARD</h1>
-            <div id="liveClock" style="font-size: 1rem; color: #555; font-weight: 500; margin-top: -10px;">
+<div class="main-content">
+    <header class="top-header">
+        <h1>DASHBOARD</h1>
+        <div id="liveClock" style="font-size: 1rem; color: #555; font-weight: 500; margin-top: -10px;">
             Loading date and time...
         </div>
-            <div class="menu-container">
-                <button class="menu-button" onclick="toggleMenu()">
-                    &#9776;
-                </button>
-        
-                <div id="myDropdown" class="dropdown-menu">
-                    <a href="AttendanceManagement.html" class="active-link">Attendance Management</a>
-                    <a href="AttendanceReport.html">Attendance Report</a>
-                </div>
-            </div>
-        </header>
-
-        <div class="stats-container">
-            <div class="card">
-                <h2>Late</h2>
-                <p id="lateCount">0</p>
-            </div>
-            <div class="card">
-                <h2>Absent</h2>
-                <p id="absentCount">0</p>
-            </div>
-            <div class="card">
-                <h2>Present</h2>
-                <p id="presentCount">0</p>
+        <div class="menu-container">
+            <button class="menu-button" onclick="toggleMenu()">&#9776;</button>
+            <div id="myDropdown" class="dropdown-menu">
+                <a href="AttendanceManagement.html" class="active-link">Attendance Management</a>
+                <a href="AttendanceReport.html">Attendance Report</a>
             </div>
         </div>
+    </header>
 
-        <div class="table-container">
-            <div class="table-header">Student List</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Student ID</th>
-                        <th>Year Level</th>
-                        <th>Section</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="studentTableBody">
-                    <!-- Data will load here from Firebase -->
-                    <tr>
-                        <td colspan="6" style="text-align:center;">Loading...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="stats-container">
+        <div class="card"><h2>Late</h2><p id="lateCount">0</p></div>
+        <div class="card"><h2>Absent</h2><p id="absentCount">0</p></div>
+        <div class="card"><h2>Present</h2><p id="presentCount">0</p></div>
     </div>
-    
+
+    <div class="table-container">
+        <div class="table-header">Student List</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Student ID</th>
+                    <th>Year Level</th>
+                    <th>Section</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="studentTableBody">
+                <tr><td colspan="6" style="text-align:center;">Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
     import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
@@ -132,11 +160,11 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    // --- NEW: TOAST NOTIFICATION UTILITY ---
+    // --- UTILITIES ---
     const notify = (msg, type = 'success') => {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-        toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle"></i> ${msg}`;
+        toast.innerHTML = `<i class="fas fa-${type === 'info' ? 'info' : (type === 'success' ? 'check' : 'exclamation')}-circle"></i> ${msg}`;
         document.getElementById('toast-container').appendChild(toast);
         setTimeout(() => {
             toast.style.animation = 'fadeOut 0.5s forwards';
@@ -144,27 +172,28 @@
         }, 3000);
     };
 
-    // --- AUTH OBSERVER ---
+    window.closeLogoutModal = () => document.getElementById('logoutModal').style.display = 'none';
+
+    // --- AUTH ---
     onAuthStateChanged(auth, (user) => {
         if (!user) window.location.href = 'index.html';
     });
 
-    // --- UPDATED: LOGOUT WITH TOAST ---
-    const handleLogout = () => {
-        if (confirm("Are you sure you want to log out?")) {
-            signOut(auth).then(() => {
-                notify("Logging out... Redirecting", "info");
-                setTimeout(() => window.location.href = 'index.html', 1500);
-            }).catch(err => notify(err.message, "error"));
-        }
-    };
-
+    // --- LOGOUT LOGIC ---
     document.getElementById('logoutBtn').addEventListener('click', (e) => {
         e.preventDefault();
-        handleLogout();
+        document.getElementById('logoutModal').style.display = 'flex';
     });
 
-    // --- ATTENDANCE & CLOCK LOGIC (Keeping your existing logic) ---
+    document.getElementById('confirmLogout').addEventListener('click', () => {
+        closeLogoutModal();
+        notify("Logging out... Redirecting", "info");
+        signOut(auth).then(() => {
+            setTimeout(() => window.location.href = 'index.html', 1500);
+        }).catch(err => notify(err.message, "error"));
+    });
+
+    // --- DATA LOADING ---
     function getTodayDate() {
         const d = new Date();
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -177,12 +206,20 @@
             if (snap.exists()) {
                 let html = '';
                 Object.values(snap.val()).forEach(d => {
-                    if (d.status === "PRESENT") p++; else if (d.status === "LATE") l++; else a++;
-                    html += `<tr><td>${d.name}</td><td>${d.email || 'N/A'}</td><td>${d.studentID}</td><td>${d.yearLevel || 'N/A'}</td><td>${d.section || 'N/A'}</td><td><span class="status-${d.status.toLowerCase()}">${d.status}</span></td></tr>`;
+                    const status = d.status || "ABSENT";
+                    if (status === "PRESENT") p++; else if (status === "LATE") l++; else a++;
+                    html += `<tr>
+                        <td>${d.name}</td>
+                        <td>${d.email || 'N/A'}</td>
+                        <td>${d.studentID}</td>
+                        <td>${d.yearLevel || 'N/A'}</td>
+                        <td>${d.section || 'N/A'}</td>
+                        <td><span class="status-${status.toLowerCase()}">${status}</span></td>
+                    </tr>`;
                 });
                 tbody.innerHTML = html;
             } else {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No records for today.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No records found for today.</td></tr>`;
             }
             document.getElementById('lateCount').textContent = l;
             document.getElementById('absentCount').textContent = a;
@@ -190,6 +227,9 @@
         });
     }
 
+    // --- UI HELPERS ---
+    window.toggleMenu = () => document.getElementById("myDropdown").classList.toggle("show");
+    
     function startLiveClock() {
         const el = document.getElementById('liveClock');
         setInterval(() => {
@@ -198,16 +238,8 @@
         }, 1000);
     }
 
-    // INITIALIZE
-    window.toggleMenu = () => document.getElementById("myDropdown").classList.toggle("show");
     loadTodayAttendance();
     startLiveClock();
 </script>
 </body>
-
 </html>
-
-
-
-
-
