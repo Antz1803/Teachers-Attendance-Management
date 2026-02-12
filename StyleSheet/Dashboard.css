@@ -51,6 +51,18 @@ body {
     letter-spacing: 2px;
 }
 
+#liveClock {
+    color: #008081; 
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 5px;
+    letter-spacing: 0.5px;
+    background: rgba(0, 128, 129, 0.05); 
+    padding: 4px 15px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
 /* CARDS GRID */
 .stats-container {
     display: flex;
@@ -175,3 +187,4 @@ th, td {
 .show {
     display: block !important;
 }
+
