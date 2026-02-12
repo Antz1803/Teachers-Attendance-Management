@@ -10,17 +10,18 @@
     <link rel="stylesheet" href="StyleSheet/SideBar.css">
 </head>
 <body style="display: flex; margin: 0;"> <div class="sidebar">
-        <div class="sidebar-header">
-            <div class="profile-container">
-                <div class="profile-circle">
-                    <i class="fas fa-user-tie"></i> 
-                </div>
-                <div class="profile-info">
-                    <h3>Admin</h3>
-                    <span>Authorized</span>
-                </div>
+       <div class="sidebar">
+<div class="sidebar-header">
+        <div class="profile-container">
+            <div class="profile-circle" id="profileContainer">
+                <i class="fas fa-user-tie"></i>
             </div>
-        </div>
+            <div class="profile-info">
+                <h3 id="sidebarName">Loading...</h3>
+                <span id="sidebarRole">Authorized</span>
+            </div>
+         </div>
+    </div>
 
         <ul class="nav-links">
             <li class="nav-item">
@@ -432,6 +433,7 @@ window.clearForm = () => {
     });
 </script>
 </html>
+
 
 
 
