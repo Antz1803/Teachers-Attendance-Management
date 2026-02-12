@@ -67,7 +67,7 @@
     </div>
 </div>
 
-<div id="sidebar-placeholder"></div>
+<div style="display: flex;"> <div id="sidebar-placeholder"></div>
 
 <div class="main-content">
     <header class="top-header">
@@ -132,28 +132,41 @@
 
     // --- SIDEBAR LOADER ---
     async function loadSidebar() {
-        try {
-            const response = await fetch('SideBar.html');
-            if (!response.ok) throw new Error("Failed to fetch sidebar");
-            const html = await response.text();
-            document.getElementById('sidebar-placeholder').innerHTML = html;
+    try {
+        const response = await fetch('SideBar.html');
+        if (!response.ok) throw new Error("Failed to fetch sidebar");
+        const html = await response.text();
+        document.getElementById('sidebar-placeholder').innerHTML = html;
 
-            const currentPage = window.location.pathname.split("/").pop() || "Dashboard.html";
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                if (link.getAttribute('href') === currentPage) {
-                    link.parentElement.classList.add('active');
-                }
-            });
-            document.getElementById('logoutBtn').addEventListener('click', (e) => {
-                e.preventDefault();
-                document.getElementById('logoutModal').style.display = 'flex';
-            });
+        // Get the current file name accurately
+        const path = window.location.pathname;
+        const currentPage = path.split("/").pop() || "index.html";
 
-        } catch (error) {
-            console.error("Sidebar Error:", error);
-        }
+        // Remove 'active' from all first, then add to the specific one
+        const navLinks = document.querySelectorAll('.nav-links a');
+        navLinks.forEach(link => {
+            const linkHref = link.getAttribute('href');
+            
+            // Remove active class from parent nav-item to be safe
+            link.parentElement.classList.remove('active');
+
+            // Exact match check
+            if (linkHref === currentPage) {
+                link.parentElement.classList.add('active');
+            }
+        });
+
+        // Re-bind logout
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('logoutModal').style.display = 'flex';
+        });
+
+    } catch (error) {
+        console.error("Sidebar Error:", error);
     }
-
+}
+    
     // --- AUTH & PROFILE LOGIC ---
     function startAuthObserver() {
         onAuthStateChanged(auth, (user) => {
@@ -254,6 +267,7 @@
 </script>
 </body>
 </html>
+
 
 
 
