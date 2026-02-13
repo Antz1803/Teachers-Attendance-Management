@@ -33,8 +33,10 @@ body {
 /* --- Main Content Layout --- */
 .main-content {
     flex-grow: 1;
-    padding: 20px 40px;
-    box-sizing: border-box;
+    padding: 30px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .top-header {
@@ -499,6 +501,7 @@ body {
             font-size: 12px;
         }
         .btn-upload:hover { background: #e0e0e0; }
+
 
 
 
