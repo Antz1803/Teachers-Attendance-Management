@@ -52,10 +52,10 @@
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
     </style>
 </head>
-<body style="display: flex;"> 
-    <div id="sidebar-placeholder"></div>
-    <div id="toast-container"></div>
-      <div class="main-content">
+<body class="dashboard-wrapper"> 
+    <aside id="sidebar-placeholder"></aside>
+
+    <main class="main-content">
         <header class="top-header">
             <h1>Users</h1>       
         </header>
@@ -64,8 +64,8 @@
             <button class="btn-add-student" onclick="openModal()">+ Student</button>
         </div>
         
-     <h3 class="admin-label">Hello! <span id="display-admin-name">Loading...</span></h3>
-
+        <h3 class="admin-label">Hello! <span id="display-admin-name">Loading...</span></h3>
+        
 <div class="profile-card">
     <div class="card-content">
         <h2 class="card-title">Teacher's Profile</h2>
@@ -489,6 +489,7 @@
         document.getElementById('editAge').value = calculateAge(e.target.value);
     });
 </script>
+
 
 
 
