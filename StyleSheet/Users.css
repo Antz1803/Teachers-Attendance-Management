@@ -8,11 +8,9 @@
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
-    min-height: 100vh;
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f4f7f6;
 }
 
 /* SIDEBAR STYLING */
@@ -23,16 +21,14 @@ body {
 /* MAIN CONTENT AREA */
 .main-content {
     flex: 1;
-    padding: 40px;
-    background: #f5f7fa;
-    min-height: 100vh;
+    padding: 30px 40px;
+    box-sizing: border-box;
 }
 
 .dashboard-wrapper {
-    display: flex;
-    min-height: 100vh;
+    display: flex;
+    min-height: 100vh;
 }
-
 
 .top-header {
     display: flex;
@@ -611,3 +607,4 @@ this is my sidebar.html and sidebar.css
 .nav-item.logout:hover {
     background-color: #c62828; /* Red hover for logout */
 }
+
