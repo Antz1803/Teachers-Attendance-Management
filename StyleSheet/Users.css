@@ -8,30 +8,30 @@
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-light);
-    display: flex;
-    min-height: 100vh;
-    width: 100%;
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f4f7f6;
 }
 
-/* SIDEBAR STYLING */
-#sidebar-placeholder {
-    width: 250px;
-    background-color: var(--primary-teal);
-    flex-shrink: 0;
-    min-height: 100vh;
+.dashboard-wrapper {
+    display: flex;
+    min-height: 100vh;
 }
 
-/* MAIN CONTENT AREA */
+/* --- Main Content Layout --- */
 .main-content {
-    flex-grow: 1;
-    padding: 30px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
+    flex-grow: 1;
+    padding: 20px 40px;
+    box-sizing: border-box;
+}
+
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
 }
 
 /* --- Controls Row --- */
@@ -344,7 +344,7 @@ body {
 #studentModal .modal-card {
     background: #ffffff;
     width: 95%;
-    max-width: 500px; 
+    max-width: 500px; /* Slimmer than the teacher profile for a focused feel */
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 25px 50px rgba(0,0,0,0.3);
@@ -476,31 +476,3 @@ body {
             padding: 10px;
             border-bottom: 1px solid #eee;
         }
-        #editPhoto { display: none; }
-        .btn-upload {
-            margin-top: 10px;
-            padding: 5px 15px;
-            background: #f0f0f0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .btn-upload:hover { background: #e0e0e0; }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-is this correct
-
