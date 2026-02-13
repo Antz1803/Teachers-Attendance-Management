@@ -25,7 +25,6 @@
     flex-grow: 1;
     height: 100vh;
     overflow-y: auto;
-    /* ADD THESE LINES */
     padding: 30px; 
     box-sizing: border-box; 
     background-color: #f4f7f6;
@@ -219,6 +218,7 @@
         }
 
         .val-blue { color: #0055aa; font-weight: bold; }
+
 
 
 
