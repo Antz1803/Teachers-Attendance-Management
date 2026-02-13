@@ -7,29 +7,25 @@
             --bg-gray: #f9f9f9;
         }
 
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            display: flex;
-            height: 100vh;
-            background-color: var(--bg-gray);
-        }
-
-/* Ensure the sidebar container has a fixed width */
-#sidebar-placeholder {
-    width: 250px; 
-    min-width: 250px;
+      body {
+    margin: 0;
+    display: flex; /* Ensures sidebar and main content sit side-by-side */
     height: 100vh;
-    background-color: #10808a; /* Match your theme teal */
-    flex-shrink: 0; /* Prevents the main content from pushing it out */
+    overflow: hidden; /* Prevents double scrollbars */
 }
 
-/* Ensure the main content takes up the remaining space */
-.main-content {
-    flex-grow: 1;
-    width: calc(100% - 250px);
+#sidebar-placeholder {
+    width: 250px;      /* Fixed width for the sidebar */
+    min-width: 250px;  /* Prevents shrinking */
     height: 100vh;
-    overflow-y: auto;
+    background-color: #008081; /* Matches your teal theme */
+    flex-shrink: 0;    /* IMPORTANT: Stops main-content from squashing it */
+}
+
+.main-content {
+    flex-grow: 1;      /* Takes up all remaining space */
+    height: 100vh;
+    overflow-y: auto;  /* Allows report to scroll independently */
 }
 
 .top-header {
@@ -196,6 +192,7 @@
         }
 
         .val-blue { color: #0055aa; font-weight: bold; }
+
 
 
 
