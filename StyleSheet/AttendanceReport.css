@@ -15,17 +15,15 @@
 }
 
 #sidebar-placeholder {
-    width: 250px;      /* Fixed width for the sidebar */
-    min-width: 250px;  /* Prevents shrinking */
-    height: 100vh;
-    background-color: #008081; /* Matches your teal theme */
-    flex-shrink: 0;    /* IMPORTANT: Stops main-content from squashing it */
+    display: block !important;
+    visibility: visible !important;
+    z-index: 10;
 }
 
+/* Ensure the main content doesn't overlap the sidebar */
 .main-content {
-    flex-grow: 1;      /* Takes up all remaining space */
-    height: 100vh;
-    overflow-y: auto;  /* Allows report to scroll independently */
+    margin-left: 0; 
+    flex: 1;
 }
 
 .top-header {
@@ -192,6 +190,7 @@
         }
 
         .val-blue { color: #0055aa; font-weight: bold; }
+
 
 
 
