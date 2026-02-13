@@ -7,32 +7,32 @@
 }
 
 body {
-    display: flex;
     margin: 0;
-    width: 100%;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-light);
+    display: flex;
     min-height: 100vh;
-    background-color: #f4f7f6; 
-    overflow-x: hidden;
+    width: 100%;
 }
 
+/* SIDEBAR STYLING */
 #sidebar-placeholder {
-    width: 280px;         
-    min-width: 280px;    
-    height: 100vh;
-    background-color: var(--teal-main);
-    position: sticky;
-    top: 0;
-    flex-shrink: 0;     
+    width: 250px;
+    background-color: var(--primary-teal);
+    flex-shrink: 0;
+    min-height: 100vh;
 }
 
+/* MAIN CONTENT AREA */
 .main-content {
     flex-grow: 1;
-    padding: 40px 60px;  
-    background-color: #f4f7f6;
+    padding: 30px;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 20px;            
 }
+
 
 .profile-icon {
     width: 60px;
@@ -395,5 +395,6 @@ background-color: #f9f9f9;
     .days-grid div.disabled-day:hover {
         background-color: #f9f9f9; /* Remove hover effect for future dates */
     }
+
 
 
