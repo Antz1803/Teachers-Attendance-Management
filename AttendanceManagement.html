@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="StyleSheet/AttendanceManagement.css">
     <link rel="stylesheet" href="StyleSheet/SideBar.css">
     <style>
+        /* CRITICAL LAYOUT FIX */
         body {
             display: flex; /* Sidebar and Content side-by-side */
             margin: 0;
@@ -94,7 +95,11 @@
                     <span id="coursePillText" style="color: #666;">Select Course</span>
                     <span class="pill-arrow">▼</span>
                 </div>
-                <div id="courseDropdown" class="dropdown-menu" style="display: none;"></div>
+                <div id="courseDropdown" class="dropdown-menu" style="display: none;">
+                    <a href="javascript:void(0)" onclick="setCourse('IT')">IT</a>
+                    <a href="javascript:void(0)" onclick="setCourse('CS')">CS</a>
+                    <a href="javascript:void(0)" onclick="setCourse('IS')">IS</a>
+                </div>
             </div>
 
             <div class="filter-group" style="position: relative; cursor: pointer;">
@@ -120,6 +125,8 @@
                     </div>
                 </div>
             </div>
+
+            <button class="btn-search" onclick="fetchStudents()">Search</button>
         </div>
 
         <div class="table-box">
@@ -143,253 +150,227 @@
         </div>
     </div>
 
-<script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-    import { getDatabase, ref, get, set, query, orderByChild, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getDatabase, ref, get, set, query, orderByChild, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
-        authDomain: "attendancesystem-cb683.firebaseapp.com",
-        databaseURL: "https://attendancesystem-cb683-default-rtdb.firebaseio.com",
-        projectId: "attendancesystem-cb683",
-        storageBucket: "attendancesystem-cb683.firebasestorage.app",
-        messagingSenderId: "975901701661",
-        appId: "1:975901701661:web:f8ccfbafd8e6c6e9c3f8f4",
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
+            authDomain: "attendancesystem-cb683.firebaseapp.com",
+            databaseURL: "https://attendancesystem-cb683-default-rtdb.firebaseio.com",
+            projectId: "attendancesystem-cb683",
+            storageBucket: "attendancesystem-cb683.firebasestorage.app",
+            messagingSenderId: "975901701661",
+            appId: "1:975901701661:web:f8ccfbafd8e6c6e9c3f8f4",
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const auth = getAuth(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
 
-    // --- DYNAMIC COURSE LOADER ---
-    async function populateCourseDropdown() {
-        const dropdown = document.getElementById('courseDropdown');
-        try {
-            const snapshot = await get(ref(db, 'students'));
-            if (snapshot.exists()) {
-                const courses = new Set();
-                snapshot.forEach(child => {
-                    const data = child.val();
-                    if (data.stuCourses) courses.add(data.stuCourses);
+        // --- SIDEBAR LOADER WITH HIGHLIGHT FIX ---
+        async function loadSidebar() {
+            try {
+                const response = await fetch('SideBar.html');
+                if (!response.ok) throw new Error("Sidebar file not found");
+                const html = await response.text();
+                document.getElementById('sidebar-placeholder').innerHTML = html;
+
+                // Precision Highlighting: Only highlight the current page
+                const currentPage = window.location.pathname.split("/").pop() || "Dashboard.html";
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    const link = item.querySelector('a');
+                    if (link && link.getAttribute('href') === currentPage) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
                 });
 
-                dropdown.innerHTML = ""; 
-                courses.forEach(courseName => {
-                    const a = document.createElement('a');
-                    a.href = "javascript:void(0)";
-                    a.textContent = courseName;
-                    a.onclick = () => window.setCourse(courseName);
-                    dropdown.appendChild(a);
-                });
+                // Re-bind Logout Button
+                const logoutBtn = document.getElementById('logoutBtn');
+                if(logoutBtn) {
+                    logoutBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        document.getElementById('logoutModal').style.display = 'flex';
+                    });
+                }
+            } catch (err) {
+                console.error("Sidebar load failed:", err);
             }
-        } catch (err) {
-            console.error("Error loading courses:", err);
         }
-    }
 
-    // --- AUTOMATIC FETCH CHECK ---
-    window.checkAndAutoFetch = function() {
-        const selectedCourse = document.getElementById("coursePillText").innerText;
-        const selectedDate = document.getElementById("selectedDateText").innerText;
-        
-        if (selectedCourse !== "Select Course" && selectedDate !== "Select Date") {
-            window.fetchStudents();
-        }
-    };
-
-    // --- SIDEBAR LOADER ---
-    async function loadSidebar() {
-        try {
-            const response = await fetch('SideBar.html');
-            if (!response.ok) throw new Error("Sidebar file not found");
-            const html = await response.text();
-            document.getElementById('sidebar-placeholder').innerHTML = html;
-
-            const currentPage = window.location.pathname.split("/").pop() || "Dashboard.html";
-            document.querySelectorAll('.nav-item').forEach(item => {
-                const link = item.querySelector('a');
-                if (link && link.getAttribute('href') === currentPage) {
-                    item.classList.add('active');
+        // --- AUTH & PROFILE ---
+        function startAuthObserver() {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    const userRef = ref(db, 'users/' + user.uid);
+                    onValue(userRef, (snapshot) => {
+                        const data = snapshot.val();
+                        if (data && document.getElementById('sidebarName')) {
+                            document.getElementById('sidebarName').textContent = data.fullName || "Admin";
+                            document.getElementById('sidebarRole').textContent = data.role || "Teacher";
+                            
+                            const container = document.getElementById('profileContainer');
+                            if (container) {
+                                if (data.profilePic && data.profilePic !== "avatar.png") {
+                                    container.innerHTML = `<img src="${data.profilePic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                                } else {
+                                    container.innerHTML = `<i class="fas fa-user-tie"></i>`;
+                                }
+                            }
+                        }
+                    });
                 } else {
-                    item.classList.remove('active');
+                    window.location.href = 'index.html';
                 }
             });
+        }
 
-            const logoutBtn = document.getElementById('logoutBtn');
-            if(logoutBtn) {
-                logoutBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.getElementById('logoutModal').style.display = 'flex';
-                });
-            }
-        } catch (err) { console.error("Sidebar load failed:", err); }
-    }
-
-    // --- AUTH OBSERVER ---
-    function startAuthObserver() {
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                const userRef = ref(db, 'users/' + user.uid);
-                onValue(userRef, (snapshot) => {
-                    const data = snapshot.val();
-                    if (data && document.getElementById('sidebarName')) {
-                        document.getElementById('sidebarName').textContent = data.fullName || "Admin";
-                        document.getElementById('sidebarRole').textContent = data.role || "Teacher";
-                        const container = document.getElementById('profileContainer');
-                        if (container) {
-                            container.innerHTML = (data.profilePic && data.profilePic !== "avatar.png") 
-                                ? `<img src="${data.profilePic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`
-                                : `<i class="fas fa-user-tie"></i>`;
-                        }
-                    }
-                });
-            } else { window.location.href = 'index.html'; }
+        // --- UTILS ---
+        window.closeLogoutModal = () => document.getElementById('logoutModal').style.display = 'none';
+        document.getElementById('confirmLogout').addEventListener('click', () => {
+            signOut(auth).then(() => window.location.href = 'index.html');
         });
-    }
 
-    // --- ATTENDANCE LOGIC ---
-    window.fetchStudents = async function() {
-        const tableBody = document.getElementById("studentTableBody");
-        const selectedCourse = document.getElementById("coursePillText").innerText;
-        const selectedDate = document.getElementById("selectedDateText").innerText;
+        // --- ATTENDANCE LOGIC ---
+        window.fetchStudents = async function() {
+            const tableBody = document.getElementById("studentTableBody");
+            const selectedCourse = document.getElementById("coursePillText").innerText;
+            const selectedDate = document.getElementById("selectedDateText").innerText;
 
-        const dateKey = formatDateForFirebase(selectedDate);
-        tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Fetching Students...</td></tr>";
-
-        try {
-            const attendanceSnapshot = await get(ref(db, `attendance/${dateKey}`));
-            const savedAttendance = attendanceSnapshot.exists() ? attendanceSnapshot.val() : {};
-            const studentSnapshot = await get(query(ref(db, 'students'), orderByChild('name')));
-
-            if (studentSnapshot.exists()) {
-                tableBody.innerHTML = "";
-                let found = false;
-                studentSnapshot.forEach((child) => {
-                    const data = child.val();
-                    if (data.stuCourses === selectedCourse) {
-                        found = true;
-                        const existingStatus = savedAttendance[child.key] ? savedAttendance[child.key].status : "PRESENT";
-                        const row = document.createElement("tr");
-                        row.setAttribute('data-user-id', child.key);
-                        row.setAttribute('data-name', data.name);
-                        row.setAttribute('data-student-id', data.studentID);
-                        
-                        row.innerHTML = `
-                            <td>${data.name}</td>
-                            <td>${data.studentID}</td>
-                            <td>
-                                <select class="status-dropdown">
-                                    <option value="PRESENT" ${existingStatus === 'PRESENT' ? 'selected' : ''}>PRESENT</option>
-                                    <option value="LATE" ${existingStatus === 'LATE' ? 'selected' : ''}>LATE</option>
-                                    <option value="ABSENT" ${existingStatus === 'ABSENT' ? 'selected' : ''}>ABSENT</option>
-                                </select>
-                            </td>`;
-                        tableBody.appendChild(row);
-                    }
-                });
-                if (!found) tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No students found in this course.</td></tr>";
+            if (selectedCourse === "Select Course" || selectedDate === "Select Date") {
+                alert("Please select both a Course and a Date!");
+                return;
             }
-        } catch (error) { console.error(error); }
-    };
 
-    window.saveAttendance = async function() {
-        const rows = document.querySelectorAll("#studentTableBody tr[data-user-id]");
-        const selectedDate = document.getElementById("selectedDateText").innerText;
-        const dateKey = formatDateForFirebase(selectedDate);
+            const dateKey = formatDateForFirebase(selectedDate);
+            tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Fetching...</td></tr>";
 
-        const savePromises = Array.from(rows).map(row => {
-            const userId = row.getAttribute('data-user-id');
-            const status = row.querySelector('.status-dropdown').value;
-            return set(ref(db, `attendance/${dateKey}/${userId}`), {
-                name: row.getAttribute('data-name'),
-                studentID: row.getAttribute('data-student-id'),
-                status: status,
-                date: selectedDate,
-                timestamp: new Date().toISOString()
+            try {
+                const attendanceSnapshot = await get(ref(db, `attendance/${dateKey}`));
+                const savedAttendance = attendanceSnapshot.exists() ? attendanceSnapshot.val() : {};
+                const studentSnapshot = await get(query(ref(db, 'students'), orderByChild('name')));
+
+                if (studentSnapshot.exists()) {
+                    tableBody.innerHTML = "";
+                    let found = false;
+                    studentSnapshot.forEach((child) => {
+                        const data = child.val();
+                        if (data.stuCourses === selectedCourse) {
+                            found = true;
+                            const existingStatus = savedAttendance[child.key] ? savedAttendance[child.key].status : "PRESENT";
+                            const row = document.createElement("tr");
+                            row.setAttribute('data-user-id', child.key);
+                            row.setAttribute('data-name', data.name);
+                            row.setAttribute('data-student-id', data.studentID);
+                            
+                            row.innerHTML = `
+                                <td>${data.name}</td>
+                                <td>${data.studentID}</td>
+                                <td>
+                                    <select class="status-dropdown">
+                                        <option value="PRESENT" ${existingStatus === 'PRESENT' ? 'selected' : ''}>PRESENT</option>
+                                        <option value="LATE" ${existingStatus === 'LATE' ? 'selected' : ''}>LATE</option>
+                                        <option value="ABSENT" ${existingStatus === 'ABSENT' ? 'selected' : ''}>ABSENT</option>
+                                    </select>
+                                </td>`;
+                            tableBody.appendChild(row);
+                        }
+                    });
+                    if (!found) tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No students in this course.</td></tr>";
+                }
+            } catch (error) { console.error(error); }
+        };
+
+        window.saveAttendance = async function() {
+            const rows = document.querySelectorAll("#studentTableBody tr[data-user-id]");
+            const selectedDate = document.getElementById("selectedDateText").innerText;
+            const dateKey = formatDateForFirebase(selectedDate);
+
+            const savePromises = Array.from(rows).map(row => {
+                const userId = row.getAttribute('data-user-id');
+                const status = row.querySelector('.status-dropdown').value;
+                return set(ref(db, `attendance/${dateKey}/${userId}`), {
+                    name: row.getAttribute('data-name'),
+                    studentID: row.getAttribute('data-student-id'),
+                    status: status,
+                    date: selectedDate,
+                    timestamp: new Date().toISOString()
+                });
+            });
+            await Promise.all(savePromises);
+            alert("✓ Attendance Saved!");
+        };
+
+        function formatDateForFirebase(dateString) {
+            const date = new Date(dateString);
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        }
+
+        // --- MASTER INIT ---
+        async function init() {
+            await loadSidebar();
+            startAuthObserver();
+        }
+        init();
+    </script>
+
+    <script>
+        // UI Toggles
+        function toggleMenu() { document.getElementById("myDropdown").classList.toggle("show"); }
+        let date = new Date();
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
+        function renderCalendar() {
+            const daysElement = document.getElementById('calendarDays');
+            document.getElementById('currentMonthYear').innerText = date.toLocaleString('default', { month: 'long', year: 'numeric' }).toUpperCase();
+            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+            const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+            let days = "";
+            for (let x = firstDay; x > 0; x--) days += `<div></div>`;
+            for (let i = 1; i <= lastDay; i++) {
+                const cur = new Date(date.getFullYear(), date.getMonth(), i);
+                let cls = cur > today ? "disabled-day" : (cur.getTime() === today.getTime() ? "is-today" : "");
+                days += `<div class="${cls}" onclick="${cur <= today ? `selectDate(${i})` : ''}">${i}</div>`;
+            }
+            daysElement.innerHTML = days;
+        }
+
+        window.selectDate = (day) => {
+            const sel = new Date(date.getFullYear(), date.getMonth(), day);
+            document.getElementById("selectedDateText").innerText = sel.toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' });
+            document.getElementById("selectedDateText").style.color = "#000";
+            document.getElementById("calendarWrapper").style.display = "none";
+        };
+
+        window.setCourse = (course) => {
+            document.getElementById("coursePillText").innerText = course;
+            document.getElementById("coursePillText").style.color = "#000";
+            document.getElementById("courseDropdown").style.display = "none";
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('courseBox').onclick = (e) => {
+                e.stopPropagation();
+                document.getElementById("courseDropdown").style.display = "block";
+                document.getElementById("calendarWrapper").style.display = "none";
+            };
+            document.getElementById('calendarBox').onclick = (e) => {
+                e.stopPropagation();
+                document.getElementById("calendarWrapper").style.display = "block";
+                document.getElementById("courseDropdown").style.display = "none";
+                renderCalendar();
+            };
+            document.getElementById('prevMonth').onclick = (e) => { e.stopPropagation(); date.setMonth(date.getMonth()-1); renderCalendar(); };
+            document.getElementById('nextMonth').onclick = (e) => { e.stopPropagation(); date.setMonth(date.getMonth()+1); renderCalendar(); };
+            document.addEventListener('click', () => {
+                document.getElementById("courseDropdown").style.display = "none";
+                document.getElementById("calendarWrapper").style.display = "none";
             });
         });
-        await Promise.all(savePromises);
-        alert("✓ Attendance Saved!");
-    };
-
-    function formatDateForFirebase(dateString) {
-        const date = new Date(dateString);
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    }
-
-    // --- MASTER INIT ---
-    async function init() {
-        await loadSidebar();
-        await populateCourseDropdown();
-        startAuthObserver();
-    }
-    init();
-
-    // UI Logic (Moved into window scope for the HTML clicks)
-    window.closeLogoutModal = () => document.getElementById('logoutModal').style.display = 'none';
-    document.getElementById('confirmLogout').addEventListener('click', () => {
-        signOut(auth).then(() => window.location.href = 'index.html');
-    });
-</script>
-
-<script>
-    // --- UI TOGGLES ---
-    let date = new Date();
-    const today = new Date();
-    today.setHours(0,0,0,0);
-
-    function toggleMenu() { document.getElementById("myDropdown").classList.toggle("show"); }
-
-    window.setCourse = (course) => {
-        document.getElementById("coursePillText").innerText = course;
-        document.getElementById("coursePillText").style.color = "#000";
-        document.getElementById("courseDropdown").style.display = "none";
-        if (window.checkAndAutoFetch) window.checkAndAutoFetch();
-    };
-
-    window.selectDate = (day) => {
-        const sel = new Date(date.getFullYear(), date.getMonth(), day);
-        document.getElementById("selectedDateText").innerText = sel.toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' });
-        document.getElementById("selectedDateText").style.color = "#000";
-        document.getElementById("calendarWrapper").style.display = "none";
-        if (window.checkAndAutoFetch) window.checkAndAutoFetch();
-    };
-
-    function renderCalendar() {
-        const daysElement = document.getElementById('calendarDays');
-        document.getElementById('currentMonthYear').innerText = date.toLocaleString('default', { month: 'long', year: 'numeric' }).toUpperCase();
-        const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-        let days = "";
-        for (let x = firstDay; x > 0; x--) days += `<div></div>`;
-        for (let i = 1; i <= lastDay; i++) {
-            const cur = new Date(date.getFullYear(), date.getMonth(), i);
-            let cls = cur > today ? "disabled-day" : (cur.getTime() === today.getTime() ? "is-today" : "");
-            days += `<div class="${cls}" onclick="${cur <= today ? `selectDate(${i})` : ''}">${i}</div>`;
-        }
-        daysElement.innerHTML = days;
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('courseBox').onclick = (e) => {
-            e.stopPropagation();
-            document.getElementById("courseDropdown").style.display = "block";
-            document.getElementById("calendarWrapper").style.display = "none";
-        };
-        document.getElementById('calendarBox').onclick = (e) => {
-            e.stopPropagation();
-            document.getElementById("calendarWrapper").style.display = "block";
-            document.getElementById("courseDropdown").style.display = "none";
-            renderCalendar();
-        };
-        document.getElementById('prevMonth').onclick = (e) => { e.stopPropagation(); date.setMonth(date.getMonth()-1); renderCalendar(); };
-        document.getElementById('nextMonth').onclick = (e) => { e.stopPropagation(); date.setMonth(date.getMonth()+1); renderCalendar(); };
-        document.addEventListener('click', () => {
-            document.getElementById("courseDropdown").style.display = "none";
-            document.getElementById("calendarWrapper").style.display = "none";
-        });
-    });
-</script>
+    </script>
 </body>
 </html>
