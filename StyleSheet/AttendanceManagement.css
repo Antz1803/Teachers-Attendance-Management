@@ -1,113 +1,118 @@
-
 :root {
     --teal-main: #008081;
     --teal-dark: #006666;
-    --bg-gray: #f5f5f5;
+    --bg-gray: #f4f7f6;
     --border-color: #008081;
+    --white: #ffffff;
 }
 
-/* Sidebar Navigation */
-.sidebar {
-    width: 180px;
-    background-color: var(--teal-main);
-    color: white;
+body {
     display: flex;
-    flex-direction: column;
-    padding-top: 30px;
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: var(--bg-gray);
 }
 
-.profile-icon {
-    width: 60px;
-    height: 60px;
-    background-color: #d9d9d9;
-    border-radius: 50%;
-    margin: 0 auto 40px;
-}
-
-.nav-item {
-    padding: 15px 25px;
-    font-size: 12px;
-    text-transform: uppercase;
-    cursor: pointer;
-    letter-spacing: 0.5px;
-}
-
-.nav-item:hover {
-    background-color: var(--teal-dark);
-}
-
-/* Main Content Area */
-.content {
+.main-content {
     flex-grow: 1;
-    padding: 20px 50px;
-    position: relative;
+    padding: 30px 50px;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 
-.header-row {
+header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 40px;
 }
 
-h1 {
+header h1 {
     font-size: 28px;
-    font-weight: normal;
-    margin-bottom: 30px;
+    color: #333;
+    margin: 0;
 }
 
-.menu-burger {
-    background-color: var(--teal-main);
-    color: white;
-    padding: 5px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-/* Filter Section */
+/* Filters */
 .filters {
     display: flex;
     gap: 30px;
-    align-items: flex-end;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
 }
 
 .filter-group {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 8px;
 }
 
 .filter-group label {
     font-size: 14px;
+    font-weight: 600;
+    color: #555;
 }
 
-select {
+.course-input-box, 
+.calendar-input-box {
     width: 320px;
-    padding: 10px;
-    border: 2px solid var(--border-color);
-    border-radius: 15px;
-    appearance: none;
-    background: white url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 15px center;
-    cursor: pointer;
-}
-
-.btn-search, .btn-save {
-    background-color: var(--teal-main);
-    color: white;
-    border: none;
-    padding: 10px 35px;
+    height: 40px;
+    padding: 0 20px;
+    border: 2px solid var(--teal-main);
     border-radius: 20px;
+    background: var(--white);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     cursor: pointer;
-    font-size: 14px;
+    box-sizing: border-box;
 }
 
-/* Attendance Table */
+.pill-arrow {
+    font-size: 10px;
+    color: #333;
+}
+
+/* Dropdowns */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--teal-main);
+    border-radius: 12px;
+    min-width: 220px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+.dropdown-list {
+    left: 0;
+    margin-top: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.dropdown-menu a {
+    color: white;
+    padding: 12px 20px;
+    text-decoration: none;
+    display: block;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.dropdown-menu a:hover {
+    background: var(--teal-dark);
+}
+
+.show { display: block !important; }
+
+/* Table Container */
 .table-box {
-    background: white;
-    border: 1px solid var(--teal-main);
+    background: var(--white);
+    border: 2px solid var(--teal-main);
     border-radius: 15px;
     overflow: hidden;
-    margin-top: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
 table {
@@ -116,265 +121,104 @@ table {
 }
 
 .table-header {
-    background-color: var(--teal-main);
-    color: white;
+    background: var(--teal-main);
+    color: var(--white);
 }
 
 th {
+    padding: 15px 25px;
     text-align: left;
-    padding: 15px 20px;
-    font-weight: normal;
+    font-weight: 500;
+    font-size: 14px;
+    text-transform: uppercase;
 }
 
 td {
-    padding: 15px 20px;
-    border-bottom: 2px solid var(--teal-main);
+    padding: 15px 25px;
+    border-bottom: 1px solid #eee;
     font-size: 14px;
-}
-
-tr:last-child td {
-    border-bottom: none;
 }
 
 .status-dropdown {
-    width: 250px;
-    padding: 6px 15px;
+    width: 200px;
+    padding: 8px 15px;
+    border: 2px solid var(--teal-main);
     border-radius: 15px;
     color: var(--teal-main);
     font-weight: bold;
-    font-size: 12px;
+    cursor: pointer;
 }
 
-/* Container for positioning */
-.menu-container {
-    position: relative;
-    display: inline-block;
-}
-:root {
-    --primary-teal: #10808a; /* Matching the teal in your image */
-    --white: #ffffff;
-}
 .footer-actions {
-    padding: 15px 20px;
+    padding: 20px;
     text-align: right;
+    background: #fafafa;
 }
 
-   /* The Burger Button */
-   .menu-button {
-    background-color: var(--primary-teal);
+.btn-save {
+    background: var(--teal-main);
     color: white;
     border: none;
-    border-radius: 6px;
-    padding: 5px 10px;
-    font-size: 24px;
+    padding: 10px 40px;
+    border-radius: 20px;
+    font-weight: 600;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
 }
 
-.menu-button:hover {
-    background-color: #0d6a72;
+/* Modal Styling */
+.logout-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 9999;
 }
 
-/* The Dropdown Menu Wrapper */
-.dropdown-menu {
-    display: none; /* Hidden by default */
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 350px;
+    text-align: center;
+}
+
+.modal-content i {
+    font-size: 3rem;
+    color: #e74c3c;
+    margin-bottom: 15px;
+}
+
+.modal-btns {
+    display: flex; gap: 10px; margin-top: 20px;
+}
+
+.btn-confirm { background: #e74c3c; color: white; flex: 1; border: none; padding: 12px; border-radius: 8px; cursor: pointer; }
+.btn-cancel { background: #eee; flex: 1; border: none; padding: 12px; border-radius: 8px; cursor: pointer; }
+
+/* Calendar Wrapper */
+#calendarWrapper {
     position: absolute;
-    right: 0;
-    top: 45px;
-    background-color: var(--primary-teal);
-    min-width: 220px;
-    border-radius: 12px;
-    overflow: hidden;
-    z-index: 100;
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-}
-
-/* Menu Links */
-.dropdown-menu a {
-    color: white;
-    padding: 12px 20px;
-    text-decoration: none;
-    display: block;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.dropdown-menu a:last-child {
-    border-bottom: none;
-}
-
-.dropdown-menu a:hover {
-    background-color: #0d6a72;
-}
-
-/* Show class for JS */
-.show {
-    display: block;
-}
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-}
-:root {
-    --calendar-border: #acc6cc; /* Light teal border from image */
-    --calendar-text: #444;
-    --calendar-red: #ff6b6b;    /* Red for Sundays/Today */
-    --calendar-teal: #008081;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    margin-top: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 .calendar-container {
-    font-family: Arial, sans-serif;
-    width: 260px;
-    border: 2.5px solid var(--calendar-border);
-    border-radius: 12px;
-    padding: 5px;
     background: white;
-    user-select: none;
-}
-
-/* Header with Arrows and Month */
-.cal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 5px 10px;
-    border-bottom: 1px solid var(--calendar-border);
-    margin-bottom: 5px;
-}
-
-.cal-header span {
-    color: var(--calendar-teal);
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 18px;
-}
-
-.month-name {
-    font-size: 14px;
-    letter-spacing: 1px;
-    text-decoration: underline;
-    color: #333 !important;
-}
-
-/* Day Labels (Sun, Mon...) */
-.day-labels {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    text-align: center;
-    border-bottom: 1px solid var(--calendar-border);
-    padding-bottom: 5px;
-    margin-bottom: 5px;
-}
-
-.day-labels div {
-    font-size: 12px;
-    color: var(--calendar-text);
-}
-
-/* Red text for Sun/Sat in header */
-.day-labels .weekend-label {
-    color: var(--calendar-red);
-}
-
-/* The Grid of Dates */
-.days-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    text-align: center;
-}
-
-.days-grid div {
-    padding: 8px 0;
-    font-size: 13px;
-    color: var(--calendar-text);
-    cursor: pointer;
-}
-
-/* Styling for Sundays and the "Today" marker */
-.sun-col, .is-today {
-    color: var(--calendar-red) !important;
+    border: 2px solid var(--teal-main);
+    border-radius: 12px;
+    padding: 10px;
+    width: 280px;
 }
 
 .is-today {
+    color: var(--teal-main) !important;
     font-weight: bold;
     text-decoration: underline;
 }
 
-.days-grid div:hover:not(:empty) {
-    background-color: #f0f7f7;
-    border-radius: 5px;
-}
-.is-today {
-color: #0c7b84 !important; 
-font-weight: bold;
-text-decoration: underline;
-background-color: rgba(255, 107, 107, 0.1);
-border-radius: 50%;
-cursor: pointer;}
-
-.filter-group {
-font-family: Arial, sans-serif;
-}
-
-.filter-group label {
-font-size: 14px;
-color: #333;
-}
-
-.calendar-input-box {
-width: 300px; 
-height: 35px;
-padding: 0 15px;
-border: 2px solid #0c7b84;
-border-radius: 25px;      
-background-color: white;
-display: flex;
-justify-content: space-between;
-align-items: center;
-cursor: pointer;
-box-sizing: border-box;
-}
-.course-input-box {
-width: 300px; 
-height: 35px;
-padding: 0 15px;
-border: 2px solid #0c7b84;
-border-radius: 25px;      
-background-color: white;
-display: flex;
-justify-content: space-between;
-align-items: center;
-cursor: pointer;
-box-sizing: border-box;
-}
-.selected-text {
-font-size: 14px;
-color: #333;
-}
-
-/* Small black arrow positioned on the right */
-.pill-arrow {
-font-size: 10px;
-color: #000;
-margin-left: 10px;
-}
-
-.calendar-input-box:hover {
-background-color: #f9f9f9;
-}
-
-.days-grid div.disabled-day {
-        color: #ccc;
-        cursor: not-allowed;
-        background-color: #f9f9f9;
-    }
-    .days-grid div.disabled-day:hover {
-        background-color: #f9f9f9; /* Remove hover effect for future dates */
-    }
-
+.sun-col { color: #e74c3c !important; }
+.disabled-day { color: #ccc !important; cursor: not-allowed; }
