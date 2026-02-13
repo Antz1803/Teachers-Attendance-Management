@@ -7,6 +7,7 @@
     --accent-gold: #ffce45;
 }
 
+/* RESET & BASE STRUCTURE */
 * {
     box-sizing: border-box;
 }
@@ -26,11 +27,6 @@ body {
     width: 250px;
     background-color: var(--primary-teal);
     flex-shrink: 0;
-    min-height: 100vh;
-}
-
-.dashboard-wrapper {
-    display: flex;
     min-height: 100vh;
 }
 
@@ -503,6 +499,7 @@ body {
             font-size: 12px;
         }
         .btn-upload:hover { background: #e0e0e0; }
+
 
 
 
