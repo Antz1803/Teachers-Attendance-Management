@@ -18,7 +18,6 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--bg-light);
     display: flex;
-    min-height: 100vh;
     width: 100%;
 }
 
@@ -27,7 +26,6 @@ body {
     width: 250px;
     background-color: var(--primary-teal);
     flex-shrink: 0;
-    min-height: 100vh;
 }
 
 /* --- Main Content Layout --- */
@@ -501,6 +499,7 @@ body {
             font-size: 12px;
         }
         .btn-upload:hover { background: #e0e0e0; }
+
 
 
 
