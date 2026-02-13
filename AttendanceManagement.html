@@ -68,7 +68,9 @@
                     </tr>
                 </thead>
                 <tbody id="studentTableBody">
-                    <tr><td colspan="3" style="text-align: center; color: #666;">Select Course and Date to load list</td></tr>
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: #666;">Select a course and date to load students</td>
+                    </tr>
                 </tbody>
             </table>
             <div class="footer-actions">
@@ -82,36 +84,53 @@
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getDatabase, ref, get, set, query, orderByChild } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-        const firebaseConfig = { /* Your Config Here */ };
+        const firebaseConfig = {
+            apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
+            authDomain: "attendancesystem-cb683.firebaseapp.com",
+            databaseURL: "https://attendancesystem-cb683-default-rtdb.firebaseio.com",
+            projectId: "attendancesystem-cb683",
+            storageBucket: "attendancesystem-cb683.firebasestorage.app",
+            messagingSenderId: "975901701661",
+            appId: "1:975901701661:web:f8ccfbafd8e6c6e9c3f8f4",
+        };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
 
-        // 1. Sidebar Loader
+        // --- 1. Load External Sidebar ---
         fetch('sidebar.html')
-            .then(res => res.text())
-            .then(data => document.getElementById('sidebarContainer').innerHTML = data);
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('sidebarContainer').innerHTML = data;
+            })
+            .catch(err => console.error("Sidebar failed to load:", err));
 
-        // 2. Dynamic Course Fetching
-        async function loadCourses() {
-            const courseDropdown = document.getElementById("courseDropdown");
+        // --- 2. Auth Guard ---
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = 'index.html';
+        });
+
+        // --- 3. Dynamic Course Fetcher ---
+        async function loadDynamicCourses() {
+            const dropdown = document.getElementById("courseDropdown");
             try {
-                const studentsRef = ref(db, 'students');
-                const snapshot = await get(studentsRef);
+                const snapshot = await get(ref(db, 'students'));
                 if (snapshot.exists()) {
                     const courses = new Set();
                     snapshot.forEach(child => {
-                        if(child.val().stuCourses) courses.add(child.val().stuCourses);
+                        const course = child.val().stuCourses;
+                        if (course) courses.add(course);
                     });
-                    
-                    courseDropdown.innerHTML = Array.from(courses).map(course => 
+
+                    dropdown.innerHTML = Array.from(courses).sort().map(course => 
                         `<a href="javascript:void(0)" onclick="setCourse('${course}')">${course}</a>`
                     ).join('');
                 }
-            } catch (e) { console.error("Course load error:", e); }
+            } catch (e) { console.error("Error loading courses:", e); }
         }
 
-        // 3. Automated Fetch Logic
+        // --- 4. Auto-Fetch Students ---
         window.fetchStudents = async function() {
             const tableBody = document.getElementById("studentTableBody");
             const selectedCourse = document.getElementById("coursePillText").innerText;
@@ -120,7 +139,7 @@
             if (selectedCourse === "Select Course" || selectedDate === "Select Date") return;
 
             const dateKey = formatDateForFirebase(selectedDate);
-            tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Loading...</td></tr>";
+            tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Fetching data...</td></tr>";
 
             try {
                 const attendanceSnapshot = await get(ref(db, `attendance/${dateKey}`));
@@ -128,14 +147,23 @@
                 const studentSnapshot = await get(query(ref(db, 'students'), orderByChild('name')));
 
                 tableBody.innerHTML = "";
+                let found = false;
+
                 studentSnapshot.forEach((child) => {
                     const data = child.val();
                     if (data.stuCourses === selectedCourse) {
-                        const existingStatus = savedAttendance[child.key] ? savedAttendance[child.key].status : "PRESENT";
+                        found = true;
+                        const userId = child.key;
+                        const existingStatus = savedAttendance[userId] ? savedAttendance[userId].status : "PRESENT";
+
                         const row = document.createElement("tr");
-                        row.setAttribute('data-user-id', child.key);
+                        row.setAttribute('data-user-id', userId);
                         row.setAttribute('data-name', data.name);
                         row.setAttribute('data-student-id', data.studentID);
+                        row.setAttribute('data-section', data.section || "N/A");
+                        row.setAttribute('data-email', data.email || "");
+                        row.setAttribute('data-year', data.yearLevel || "");
+
                         row.innerHTML = `
                             <td>${data.name}</td>
                             <td>${data.studentID}</td>
@@ -149,33 +177,117 @@
                         tableBody.appendChild(row);
                     }
                 });
-            } catch (error) { console.error(error); }
+
+                if (!found) tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No students found for this course.</td></tr>";
+            } catch (e) { console.error(e); }
         };
 
-        // Bridge UI to Module
+        window.saveAttendance = async function() {
+            const rows = document.querySelectorAll("tr[data-user-id]");
+            if (rows.length === 0) return alert("No data to save!");
+
+            const selectedDate = document.getElementById("selectedDateText").innerText;
+            const selectedCourse = document.getElementById("coursePillText").innerText;
+            const dateKey = formatDateForFirebase(selectedDate);
+
+            try {
+                const promises = Array.from(rows).map(row => {
+                    const userId = row.getAttribute('data-user-id');
+                    return set(ref(db, `attendance/${dateKey}/${userId}`), {
+                        name: row.getAttribute('data-name'),
+                        studentID: row.getAttribute('data-student-id'),
+                        email: row.getAttribute('data-email'),
+                        year: row.getAttribute('data-year'),
+                        section: row.getAttribute('data-section'),
+                        course: selectedCourse,
+                        status: row.querySelector('.status-dropdown').value,
+                        date: selectedDate,
+                        timestamp: new Date().toISOString()
+                    });
+                });
+                await Promise.all(promises);
+                alert("Attendance Saved!");
+            } catch (e) { alert("Save Error: " + e.message); }
+        };
+
+        function formatDateForFirebase(str) {
+            const d = new Date(str);
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        }
+
+        loadDynamicCourses();
+    </script>
+
+    <script>
+        let date = new Date();
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
+        function toggleMenu() { document.getElementById("myDropdown").classList.toggle("show"); }
+
         window.setCourse = function(course) {
             const pill = document.getElementById("coursePillText");
             pill.innerText = course;
             pill.style.color = "#000";
             document.getElementById("courseDropdown").style.display = "none";
-            fetchStudents(); // Auto-trigger
+            if(window.fetchStudents) window.fetchStudents(); // Trigger auto-fetch
+        }
+
+        function renderCalendar() {
+            const monthYear = document.getElementById('currentMonthYear');
+            const daysGrid = document.getElementById('calendarDays');
+            const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+            
+            monthYear.innerText = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+            const lastDate = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+
+            let daysHTML = "";
+            for (let x = firstDay; x > 0; x--) daysHTML += `<div></div>`;
+            for (let i = 1; i <= lastDate; i++) {
+                const cur = new Date(date.getFullYear(), date.getMonth(), i);
+                let cls = (cur.getDay() === 0 || cur.getDay() === 6) ? "sun-col" : "";
+                if (cur.getTime() === today.getTime()) cls += " is-today";
+                
+                if (cur > today) {
+                    daysHTML += `<div class="${cls} disabled-day">${i}</div>`;
+                } else {
+                    daysHTML += `<div class="${cls}" onclick="selectDate(${i})">${i}</div>`;
+                }
+            }
+            daysGrid.innerHTML = daysHTML;
         }
 
         window.selectDate = function(day) {
             const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-            const selectedDateText = `${monthNames[date.getMonth()]} ${day}, ${date.getFullYear()}`;
-            document.getElementById("selectedDateText").innerText = selectedDateText;
+            document.getElementById("selectedDateText").innerText = `${monthNames[date.getMonth()]} ${day}, ${date.getFullYear()}`;
             document.getElementById("selectedDateText").style.color = "#000";
             document.getElementById("calendarWrapper").style.display = "none";
-            fetchStudents(); // Auto-trigger
+            if(window.fetchStudents) window.fetchStudents(); // Trigger auto-fetch
         }
 
-        function formatDateForFirebase(dateString) {
-            const date = new Date(dateString);
-            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-        }
+        window.moveMonth = (dir) => { date.setMonth(date.getMonth() + dir); renderCalendar(); };
 
-        loadCourses();
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCalendar();
+            document.getElementById('courseBox').onclick = (e) => {
+                e.stopPropagation();
+                document.getElementById('courseDropdown').style.display = 'block';
+                document.getElementById('calendarWrapper').style.display = 'none';
+            };
+            document.getElementById('calendarBox').onclick = (e) => {
+                e.stopPropagation();
+                document.getElementById('calendarWrapper').style.display = 'block';
+                document.getElementById('courseDropdown').style.display = 'none';
+            };
+            document.getElementById('prevMonth').onclick = (e) => { e.stopPropagation(); moveMonth(-1); };
+            document.getElementById('nextMonth').onclick = (e) => { e.stopPropagation(); moveMonth(1); };
+        });
+
+        document.addEventListener('click', () => {
+            document.getElementById('courseDropdown').style.display = 'none';
+            document.getElementById('calendarWrapper').style.display = 'none';
+        });
     </script>
 </body>
 </html>
