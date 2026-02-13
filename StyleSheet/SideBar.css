@@ -1,3 +1,9 @@
+:root {
+    --primary-teal: #0c7b84;
+    --dark-teal: #064f55;
+    --white: #ffffff;
+}
+
 /* Sidebar Style */
 .sidebar {
     width: 240px; /* Slightly wider for better text flow */
