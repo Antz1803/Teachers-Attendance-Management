@@ -11,18 +11,27 @@ body {
     margin: 0;
     width: 100%;
     min-height: 100vh;
-    background-color: var(--bg-gray);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6; 
+    overflow-x: hidden;
 }
 
-/* Sidebar Navigation */
 #sidebar-placeholder {
-    width: 250px;
-    min-width: 250px;
+    width: 280px;         
+    min-width: 280px;    
     height: 100vh;
     background-color: var(--teal-main);
     position: sticky;
     top: 0;
+    flex-shrink: 0;     
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 40px 60px;  
+    background-color: #f4f7f6;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;            
 }
 
 .profile-icon {
@@ -386,4 +395,5 @@ background-color: #f9f9f9;
     .days-grid div.disabled-day:hover {
         background-color: #f9f9f9; /* Remove hover effect for future dates */
     }
+
 
