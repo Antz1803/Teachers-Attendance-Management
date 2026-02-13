@@ -44,18 +44,18 @@
     border-bottom: 1px solid rgba(0,0,0,0.05);
 }
     
-    header h1 {
-        margin-bottom: 30px;
-        font-size: 2.2rem;
-        color: #333;
-    }
+ .header-left {
+    flex: 1;
+}
 
-.profile-icon {
-    width: 60px;
-    height: 60px;
-    background-color: #d9d9d9;
-    border-radius: 50%;
-    margin: 0 auto 40px;
+.header-left h1 {
+    margin: 0;
+    color: #b0b0b0;          
+    font-family: 'Segoe UI', Tahoma, sans-serif; 
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
 /* Main Content Area */
@@ -63,18 +63,6 @@
     flex-grow: 1;
     padding: 20px 50px;
     position: relative;
-}
-
-.header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-h1 {
-    font-size: 28px;
-    font-weight: normal;
-    margin-bottom: 30px;
 }
 
 .menu-burger {
@@ -399,6 +387,7 @@ background-color: #f9f9f9;
     .days-grid div.disabled-day:hover {
         background-color: #f9f9f9; /* Remove hover effect for future dates */
     }
+
 
 
 
