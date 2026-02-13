@@ -147,41 +147,28 @@
     const db = getDatabase(app);
 
     // --- SIDEBAR LOADER ---
-// --- IMPROVED SIDEBAR LOADER ---
 async function loadSidebar() {
     try {
-        const response = await fetch('SideBar.html'); // Ensure this filename is exact
+        const response = await fetch('SideBar.html');
         if (!response.ok) throw new Error("Sidebar file not found");
         
-        const html = await response.text();
-        document.getElementById('sidebar-placeholder').innerHTML = html;
-
-        // Apply "Active" class to current link
-        const path = window.location.pathname.split("/").pop() || "index.html";
-        const navLinks = document.querySelectorAll('.nav-links a');
-        navLinks.forEach(link => {
-            if (link.getAttribute('href') === path) {
-                link.parentElement.classList.add('active');
-            }
-        });
-
-        // Initialize Logout
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                document.getElementById('logoutModal').style.display = 'flex';
-            });
-        }
+        const content = await response.text();
+        const placeholder = document.getElementById('sidebar-placeholder');
         
-        return true; // Signal completion
-    } catch (err) { 
-        console.error("Sidebar Loading Error:", err); 
-        // Fallback: If fetch fails, show a manual error in the placeholder
-        document.getElementById('sidebar-placeholder').innerHTML = "<p style='color:white; padding:20px;'>Error loading sidebar. Please use a local server.</p>";
+        if (placeholder) {
+            placeholder.innerHTML = content;
+            console.log("Sidebar loaded successfully.");
+            // Call profile sync only AFTER the HTML is injected
+            syncProfile(); 
+        }
+    } catch (err) {
+        console.error("Sidebar Error:", err);
+        // Fallback: Show a visible error in the sidebar area
+        document.getElementById('sidebar-placeholder').innerHTML = 
+            `<div style="color:white; padding:20px;">Sidebar Load Failed</div>`;
     }
 }
-
+    
 // Separate function for profile sync to call after sidebar loads
 function syncProfile() {
     const user = auth.currentUser;
@@ -327,6 +314,7 @@ window.closeLogoutModal = function() {
 </body>
 
 </html>
+
 
 
 
