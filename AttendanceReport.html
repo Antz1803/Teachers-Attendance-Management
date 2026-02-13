@@ -147,6 +147,7 @@
     const db = getDatabase(app);
 
     // --- SIDEBAR LOADER ---
+// --- UPDATED SIDEBAR LOADER ---
 async function loadSidebar() {
     try {
         const response = await fetch('SideBar.html');
@@ -159,7 +160,7 @@ async function loadSidebar() {
             placeholder.innerHTML = content;
             console.log("Sidebar injected.");
             
-            // Re-bind the logout button click event since it's inside the injected HTML
+            // Re-bind the logout button click event
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) {
                 logoutBtn.onclick = (e) => {
@@ -167,20 +168,22 @@ async function loadSidebar() {
                     document.getElementById('logoutModal').style.display = 'flex';
                 };
             }
+            
+            // NOW that sidebar is here, sync the profile
+            syncProfile(); 
         }
     } catch (err) {
         console.error("Sidebar Error:", err);
     }
 }
 
-// Watch Auth state and update sidebar whenever it's ready
+// Watch Auth state
 onAuthStateChanged(auth, (user) => {
     if (user) {
         console.log("User authenticated:", user.uid);
-        // Wait a tiny bit for the sidebar HTML to be ready
-        setTimeout(syncProfile, 500); 
-        populateFilters(); // Load your courses
-        window.generateReport(); // Load initial data
+        loadSidebar(); // This will trigger syncProfile once loaded
+        populateFilters();
+        window.generateReport();
     } else {
         window.location.href = 'index.html';
     }
@@ -320,7 +323,6 @@ window.closeLogoutModal = function() {
         window.generateReport();
     };
 
-    document.querySelector('.btn-generate').onclick = window.generateReport;
     window.toggleMenu = () => document.getElementById("myDropdown").classList.toggle("show");
     
     // Init Sidebar
@@ -347,6 +349,7 @@ window.onclick = function(event) {
 </body>
 
 </html>
+
 
 
 
