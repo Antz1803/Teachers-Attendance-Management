@@ -147,29 +147,28 @@
     const db = getDatabase(app);
 
     // --- SIDEBAR LOADER ---
-    async function loadSidebar() {
-        try {
-            const response = await fetch('SideBar.html');
-            const html = await response.text();
-            document.getElementById('sidebar-placeholder').innerHTML = html;
+        async function loadSidebar() {
+            try {
+                const response = await fetch('SideBar.html');
+                if (!response.ok) throw new Error("Sidebar fetch failed");
+                document.getElementById('sidebar-placeholder').innerHTML = await response.text();
 
-            const currentPage = window.location.pathname.split("/").pop();
-            document.querySelectorAll('.nav-item').forEach(item => {
-                const link = item.querySelector('a');
-                if (link && link.getAttribute('href') === currentPage) {
-                    item.classList.add('active');
-                }
-            });
+                // Highlight Active Page
+                const path = window.location.pathname.split("/").pop() || "index.html";
+                const navLinks = document.querySelectorAll('.nav-links a');
+                navLinks.forEach(link => {
+                    if (link.getAttribute('href') === path) {
+                        link.parentElement.classList.add('active');
+                    }
+                });
 
-            const logoutBtn = document.getElementById('logoutBtn');
-            if(logoutBtn) {
-                logoutBtn.addEventListener('click', (e) => {
+                // Bind Logout Button
+                document.getElementById('logoutBtn').onclick = (e) => {
                     e.preventDefault();
                     document.getElementById('logoutModal').style.display = 'flex';
-                });
-            }
-        } catch (err) { console.error("Sidebar error:", err); }
-    }
+                };
+            } catch (err) { console.error(err); }
+        }
 
     // --- AUTH & PROFILE ---
     onAuthStateChanged(auth, (user) => {
@@ -306,6 +305,7 @@
 </body>
 
 </html>
+
 
 
 
