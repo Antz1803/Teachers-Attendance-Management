@@ -5,15 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Management</title>
     <link rel="stylesheet" href="StyleSheet/AttendanceManagement.css">
+    <link rel="stylesheet" href="StyleSheet/SideBar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Essential CSS from Dashboard to make the Sidebar/Modal work */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
+        .toast { padding: 12px 20px; border-radius: 8px; color: #fff; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; font-family: sans-serif; box-shadow: 0 4px 10px rgba(0,0,0,0.2); animation: slideIn 0.3s forwards; }
+        .info { background: #3498db; }
+        .error { background: #e74c3c; }
+
+        .logout-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; }
+        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 350px; text-align: center; box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
+        .modal-btns { display: flex; gap: 15px; margin-top: 20px; }
+        .btn-confirm { background: #e74c3c; color: white; flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .btn-cancel { background: #f0f0f0; flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; }
+        
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    </style>
 </head>
-<body style="display: flex;">
+<body style="display: flex; margin: 0; background-color: #f4f7f6;">
+
     <div id="toast-container"></div>
-    <div id="logoutModal" class="logout-modal">...</div>
+
+    <div id="logoutModal" class="logout-modal">
+        <div class="modal-content">
+            <i class="fas fa-sign-out-alt" style="font-size: 3rem; color: #e74c3c;"></i>
+            <h3>Ready to Leave?</h3>
+            <p>Confirm if you want to log out of your session.</p>
+            <div class="modal-btns">
+                <button class="btn-confirm" id="confirmLogout">Yes, Log out</button>
+                <button class="btn-cancel" onclick="document.getElementById('logoutModal').style.display='none'">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <div id="sidebar-placeholder"></div>
 
-<div class="main-content" style="flex-grow: 1;">
+    <div class="main-content" style="flex-grow: 1; min-height: 100vh; display: flex; flex-direction: column;">
         <header>
             <h1>Attendance Management</h1>
             <div class="menu-container">
@@ -32,8 +61,7 @@
                     <span id="coursePillText" style="color: #666;">Select Course</span>
                     <span class="pill-arrow">▼</span>
                 </div>
-                <div id="courseDropdown" class="dropdown-menu" style="display: none;">
-                    </div>
+                <div id="courseDropdown" class="dropdown-menu" style="display: none;"></div>
             </div>
 
             <div class="filter-group" style="position: relative;">
@@ -42,7 +70,6 @@
                     <span id="selectedDateText" style="color: #666;">Select Date</span>
                     <span class="pill-arrow">▼</span>
                 </div>
-
                 <div id="calendarWrapper" style="display: none; position: absolute; top: 100%; left: 0; z-index: 999; margin-top: 5px;">
                     <div class="calendar-container">
                         <div class="cal-header">
@@ -71,9 +98,7 @@
                     </tr>
                 </thead>
                 <tbody id="studentTableBody">
-                    <tr>
-                        <td colspan="3" style="text-align: center; color: #666;">Choose Course and Date to display students</td>
-                    </tr>
+                    <tr><td colspan="3" style="text-align: center; color: #666;">Choose Course and Date to display students</td></tr>
                 </tbody>
             </table>
             <div class="footer-actions">
@@ -85,7 +110,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getDatabase, ref, get, set, query, orderByChild } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, ref, get, set, onValue, query, orderByChild } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
@@ -101,43 +126,51 @@
         const db = getDatabase(app);
         const auth = getAuth(app);
 
-        // 1. Sidebar Loader & Profile Logic
-        async function setupSidebar() {
+        // --- 1. SIDEBAR LOADER (Match Dashboard Logic) ---
+        async function loadSidebar() {
             try {
-                const res = await fetch('sidebar.html');
-                const html = await res.text();
-                document.getElementById('sidebarContainer').innerHTML = html;
+                const response = await fetch('SideBar.html');
+                if (!response.ok) throw new Error("Sidebar fetch failed");
+                document.getElementById('sidebar-placeholder').innerHTML = await response.text();
 
-                // Logout logic
-                document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => window.location.href='index.html');
-                
-                // Set name if user is logged in
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        document.getElementById('sidebarName').innerText = user.email.split('@')[0];
-                    } else {
-                        window.location.href = 'index.html';
+                // Highlight Active Page
+                const path = window.location.pathname.split("/").pop() || "index.html";
+                const navLinks = document.querySelectorAll('.nav-links a');
+                navLinks.forEach(link => {
+                    if (link.getAttribute('href') === path) {
+                        link.parentElement.classList.add('active');
                     }
                 });
-            } catch (err) { console.error("Sidebar error:", err); }
+
+                // Bind Logout Button
+                document.getElementById('logoutBtn').onclick = (e) => {
+                    e.preventDefault();
+                    document.getElementById('logoutModal').style.display = 'flex';
+                };
+            } catch (err) { console.error(err); }
         }
 
-        // 2. Fetch Unique Courses from Database
-        async function fetchCourses() {
-            const dropdown = document.getElementById("courseDropdown");
-            const snapshot = await get(ref(db, 'students'));
-            if (snapshot.exists()) {
-                const courses = new Set();
-                snapshot.forEach(child => {
-                    if (child.val().stuCourses) courses.add(child.val().stuCourses);
+        // --- 2. AUTH & PROFILE SYNC ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const userRef = ref(db, 'users/' + user.uid);
+                onValue(userRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        document.getElementById('sidebarName').textContent = data.fullName || "Admin";
+                        document.getElementById('sidebarRole').textContent = data.role || "Teacher";
+                        const container = document.getElementById('profileContainer');
+                        if (data.profilePic && data.profilePic !== "N/A" && container) {
+                            container.innerHTML = `<img src="${data.profilePic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                        }
+                    }
                 });
-                dropdown.innerHTML = Array.from(courses).sort().map(c => 
-                    `<a href="javascript:void(0)" onclick="setCourse('${c}')">${c}</a>`
-                ).join('');
+            } else {
+                window.location.href = 'index.html';
             }
-        }
+        });
 
-        // 3. Automated Fetch Logic
+        // --- 3. ATTENDANCE LOGIC ---
         window.fetchStudents = async function() {
             const tableBody = document.getElementById("studentTableBody");
             const selectedCourse = document.getElementById("coursePillText").innerText;
@@ -146,7 +179,7 @@
             if (selectedCourse === "Select Course" || selectedDate === "Select Date") return;
 
             const dateKey = formatDateForFirebase(selectedDate);
-            tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Loading Master List...</td></tr>";
+            tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Loading...</td></tr>";
 
             try {
                 const attendanceSnap = await get(ref(db, `attendance/${dateKey}`));
@@ -169,7 +202,6 @@
                                     <option value="ABSENT" ${status === 'ABSENT' ? 'selected' : ''}>ABSENT</option>
                                 </select>
                             </td>`;
-                        // Store hidden data for saving
                         row.dataset.userId = child.key;
                         row.dataset.name = data.name;
                         row.dataset.id = data.studentID;
@@ -210,14 +242,30 @@
             return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         }
 
-        setupSidebar();
-        fetchCourses();
+        document.getElementById('confirmLogout').onclick = () => {
+            signOut(auth).then(() => window.location.href = 'index.html');
+        };
+
+        // Init
+        loadSidebar();
+        
+        // Fetch Courses dropdown data
+        const dropdown = document.getElementById("courseDropdown");
+        get(ref(db, 'students')).then(snapshot => {
+            if (snapshot.exists()) {
+                const courses = new Set();
+                snapshot.forEach(child => { if (child.val().stuCourses) courses.add(child.val().stuCourses); });
+                dropdown.innerHTML = Array.from(courses).sort().map(c => 
+                    `<a href="javascript:void(0)" onclick="setCourse('${c}')">${c}</a>`
+                ).join('');
+            }
+        });
     </script>
 
     <script>
+        /* UI Scripts (Non-Module) */
         let date = new Date();
-        const today = new Date();
-        today.setHours(0,0,0,0);
+        const today = new Date(); today.setHours(0,0,0,0);
 
         function toggleMenu() { document.getElementById("myDropdown").classList.toggle("show"); }
 
@@ -240,10 +288,8 @@
             const grid = document.getElementById('calendarDays');
             const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
             document.getElementById('currentMonthYear').innerText = `${months[date.getMonth()]} ${date.getFullYear()}`;
-            
             const first = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
             const last = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-
             let html = "";
             for (let x = first; x > 0; x--) html += `<div></div>`;
             for (let i = 1; i <= last; i++) {
@@ -275,57 +321,6 @@
             document.getElementById('courseDropdown').style.display = 'none';
             document.getElementById('calendarWrapper').style.display = 'none';
         });
-
-        onAuthStateChanged(auth, (user) => {
-    if (user) {
-        const userRef = ref(db, 'users/' + user.uid);
-        onValue(userRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                // This updates the sidebar with your actual name "Jeorge Rey..."
-                document.getElementById('sidebarName').textContent = data.fullName || "Admin";
-                document.getElementById('sidebarRole').textContent = data.role || "Teacher";
-                
-                const container = document.getElementById('profileContainer');
-                if (data.profilePic && data.profilePic !== "N/A") {
-                    container.innerHTML = `<img src="${data.profilePic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-                }
-            }
-        });
-    } else {
-        window.location.href = 'index.html';
-    }
-});
-        async function loadSidebar() {
-    try {
-        const response = await fetch('SideBar.html');
-        if (!response.ok) throw new Error("Failed to fetch sidebar");
-        const html = await response.text();
-        document.getElementById('sidebar-placeholder').innerHTML = html; // Make sure your ID matches
-
-        // This part makes the "Attendance Management" link turn active
-        const path = window.location.pathname;
-        const currentPage = path.split("/").pop() || "index.html";
-
-        const navLinks = document.querySelectorAll('.nav-links a');
-        navLinks.forEach(link => {
-            const linkHref = link.getAttribute('href');
-            link.parentElement.classList.remove('active');
-            if (linkHref === currentPage) {
-                link.parentElement.classList.add('active');
-            }
-        });
-
-        // Bind the Logout Modal (instead of just a simple signOut)
-        document.getElementById('logoutBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('logoutModal').style.display = 'flex';
-        });
-
-    } catch (error) {
-        console.error("Sidebar Error:", error);
-    }
-}
     </script>
 </body>
 </html>
