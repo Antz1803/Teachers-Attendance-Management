@@ -1,5 +1,6 @@
 :root {
     --primary-teal: #008081;
+    --dark-teal: #005a5a;
     --bg-light: #f4f7f6;
     --white: #ffffff;
 }
@@ -14,7 +15,7 @@ body {
     padding: 0;
     font-family: 'Segoe UI', sans-serif;
     background-color: var(--bg-light);
-    display: flex; /* This is the most important line */
+    display: flex;
     min-height: 100vh;
     width: 100%;
 }
@@ -23,73 +24,66 @@ body {
 #sidebar-placeholder {
     width: 250px;
     background-color: var(--primary-teal);
-    flex-shrink: 0; /* Prevents sidebar from squishing */
+    flex-shrink: 0;
     min-height: 100vh;
 }
 
 /* MAIN DASHBOARD AREA */
 .main-content {
-    flex-grow: 1; /* Makes this take up all remaining space */
+    flex-grow: 1;
     padding: 30px;
     overflow-y: auto;
     display: block;
 }
 
-/* HEADER SECTION */
+/* HEADER SECTION - THE THREE-COLUMN FIX */
 .top-header {
     display: flex;
     justify-content: space-between;
     align-items: center; 
     margin-bottom: 30px;
     width: 100%;
-    padding-bottom: 10px;
+    padding-bottom: 15px;
     border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
+/* Force left and right to be equal width so center is mathematically centered */
 .header-left, .header-right {
-    flex: 1; 
+    flex: 1;
 }
 
 .header-center {
-    flex: 2; 
+    flex: 2; /* More room for the clock */
     text-align: center;
 }
 
 .header-right {
     display: flex;
-    justify-content: flex-end; 
+    justify-content: flex-end;
 }
 
+/* Dashboard Label (Upper Left) */
 .header-left h1 {
     margin: 0;
     color: #b0b0b0; 
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-size: 1.6rem;
+    font-weight: 800;
     letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
+/* Centered Live Clock Only */
 #liveClock {
     color: var(--primary-teal);
-    font-size: 2.2rem; 
+    font-size: 2.6rem; 
     font-weight: 800;
     letter-spacing: 1px;
     background: rgba(0, 128, 129, 0.08);
-    padding: 5px 25px;
+    padding: 10px 35px;
     border-radius: 50px;
     display: inline-block;
-    line-height: 1.2;
-}
-
-#liveClock {
-    color: #008081; 
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-top: 5px;
-    letter-spacing: 0.5px;
-    background: rgba(0, 128, 129, 0.05); 
-    padding: 4px 15px;
-    border-radius: 20px;
-    display: inline-block;
+    line-height: 1;
+    font-family: 'Segoe UI', sans-serif;
 }
 
 /* CARDS GRID */
@@ -101,27 +95,27 @@ body {
 }
 
 .card {
-    flex: 1; /* Makes all cards equal width */
+    flex: 1;
     background-color: var(--primary-teal);
     color: white;
-    padding: 20px;
-    border-radius: 12px;
+    padding: 25px;
+    border-radius: 15px;
     text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .card h2 {
     margin: 0 0 10px 0;
     font-size: 1.6rem;
-    border-bottom: 2px solid rgba(255,255,255,0.3);
+    border-bottom: 2px solid rgba(255,255,255,0.2);
     padding-bottom: 10px;
 }
 
 /* Numbers in Cards */
 #lateCount, #absentCount, #presentCount {
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: bold;
-    margin: 10px 0 0 0;
+    margin: 15px 0 0 0;
 }
 
 #lateCount { color: #f9a825; }
@@ -131,9 +125,10 @@ body {
 /* TABLE SECTION */
 .table-container {
     background: white;
-    border: 2px solid var(--primary-teal);
+    border: 1px solid #ddd;
     border-radius: 12px;
     overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .table-header {
@@ -141,6 +136,7 @@ body {
     color: white;
     padding: 15px 20px;
     font-weight: bold;
+    font-size: 1.1rem;
 }
 
 table {
@@ -151,70 +147,76 @@ table {
 th, td {
     padding: 15px;
     text-align: left;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+th {
+    background-color: #fafafa;
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
 }
 
 /* Status Badges */
-.status-present { color: #2e7d32; background: #e8f5e9; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
-.status-late { color: #f9a825; background: #fffde7; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
-.status-absent { color: #c62828; background: #ffebee; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
+.status-present { color: #2e7d32; background: #e8f5e9; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.85rem; }
+.status-late { color: #f9a825; background: #fffde7; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.85rem; }
+.status-absent { color: #c62828; background: #ffebee; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.85rem; }
 
+/* MENU STYLING */
 .menu-container {
     position: relative;
     display: inline-block;
-    align-self: flex-start; 
 }
 
 .menu-button {
     background-color: var(--primary-teal);
     color: white;
     border: none;
-    border-radius: 6px;
-    width: 40px; 
-    height: 40px; 
+    border-radius: 8px;
+    width: 45px;
+    height: 45px;
     font-size: 20px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
-    margin-left: auto; 
+    transition: all 0.2s ease;
+}
+
+.menu-button:hover {
+    background-color: var(--dark-teal);
+    transform: scale(1.05);
 }
 
 .dropdown-menu {
-    display: none; 
+    display: none;
     position: absolute;
     right: 0;
-    top: 50px; 
-    background-color: var(--primary-teal);
-    min-width: 200px;
-    border-radius: 8px;
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-    z-index: 1000; 
-    padding: 5px 0;
+    top: 55px;
+    background-color: white;
+    min-width: 220px;
+    border-radius: 10px;
+    box-shadow: 0px 8px 25px rgba(0,0,0,0.15);
+    z-index: 1000;
+    overflow: hidden;
+    border: 1px solid #eee;
 }
 
 .dropdown-menu a {
-    color: white !important;
-    padding: 12px 20px;
+    color: #444 !important;
+    padding: 14px 20px;
     text-decoration: none;
     display: block;
     font-size: 14px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    white-space: nowrap; 
-}
-
-.dropdown-menu a:last-child {
-    border-bottom: none;
+    transition: background 0.2s;
+    border-bottom: 1px solid #f9f9f9;
 }
 
 .dropdown-menu a:hover {
-    background-color: var(--dark-teal);
+    background-color: #f4f7f6;
+    color: var(--primary-teal) !important;
 }
 
-/* Show class for JS */
 .show {
     display: block !important;
 }
-
-
