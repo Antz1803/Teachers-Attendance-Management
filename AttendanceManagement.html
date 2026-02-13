@@ -87,30 +87,24 @@
         const auth = getAuth(app);
 
         // --- 1. Load Sidebar Dynamically (FIXED FILE NAME) ---
-        async function setupApp() {
-            try {
-                // Changing this to 'SideBar.html' to match your exact file name in GitHub
-                const res = await fetch('SideBar.html'); 
-                if (!res.ok) throw new Error("Sidebar file not found");
-                
-                document.getElementById('sidebarContainer').innerHTML = await res.text();
-                
-                // Initialize Sidebar Logic after loading
-                const logoutBtn = document.getElementById('logoutBtn');
-                if(logoutBtn) logoutBtn.onclick = () => signOut(auth);
+       async function setupApp() {
+    try {
+        // This line fetches the actual Sidebar file
+        const res = await fetch('SideBar.html'); 
+        
+        // This line puts the content of that file into your div
+        document.getElementById('sidebarContainer').innerHTML = await res.text();
+        
+        // Additional logic to handle the logout button inside the sidebar
+        const logoutBtn = document.getElementById('logoutBtn');
+        if(logoutBtn) logoutBtn.onclick = () => signOut(auth);
+    } catch (e) { 
+        console.error("Sidebar Load Failed:", e); 
+    }
+}
 
-                onAuthStateChanged(auth, (user) => {
-                    if (!user) {
-                        window.location.href = 'index.html';
-                    } else {
-                        const nameEl = document.getElementById('sidebarName');
-                        if(nameEl) nameEl.innerText = user.email.split('@')[0];
-                    }
-                });
-            } catch (e) { 
-                console.error("Sidebar Load Failed:", e); 
-            }
-        }
+// You must call the function for it to run
+setupApp();
 
         // --- 2. Fetch Unique Courses from Database ---
         async function loadCourses() {
@@ -266,4 +260,5 @@
     </script>
 </body>
 </html>
+
 
