@@ -147,15 +147,16 @@
     const db = getDatabase(app);
 
     // --- SIDEBAR LOADER ---
+// --- IMPROVED SIDEBAR LOADER ---
 async function loadSidebar() {
     try {
-        const response = await fetch('SideBar.html');
-        if (!response.ok) throw new Error("Sidebar fetch failed");
+        const response = await fetch('SideBar.html'); // Ensure this filename is exact
+        if (!response.ok) throw new Error("Sidebar file not found");
         
-        // 1. Inject the HTML
-        document.getElementById('sidebar-placeholder').innerHTML = await response.text();
+        const html = await response.text();
+        document.getElementById('sidebar-placeholder').innerHTML = html;
 
-        // 2. ONLY NOW can you find the elements inside the sidebar
+        // Apply "Active" class to current link
         const path = window.location.pathname.split("/").pop() || "index.html";
         const navLinks = document.querySelectorAll('.nav-links a');
         navLinks.forEach(link => {
@@ -164,20 +165,20 @@ async function loadSidebar() {
             }
         });
 
-        // Bind Logout Button (Check if it exists first)
+        // Initialize Logout
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
-            logoutBtn.onclick = (e) => {
+            logoutBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 document.getElementById('logoutModal').style.display = 'flex';
-            };
+            });
         }
         
-        // Trigger Profile Sync once we know the sidebar is ready
-        syncProfile();
-
+        return true; // Signal completion
     } catch (err) { 
-        console.error("Sidebar Error:", err); 
+        console.error("Sidebar Loading Error:", err); 
+        // Fallback: If fetch fails, show a manual error in the placeholder
+        document.getElementById('sidebar-placeholder').innerHTML = "<p style='color:white; padding:20px;'>Error loading sidebar. Please use a local server.</p>";
     }
 }
 
@@ -205,19 +206,20 @@ function syncProfile() {
         }
     });
 }
-    onAuthStateChanged(auth, (user) => {
-    if (user) {
-        populateFilters();
-        // Delay profile sync until sidebar is definitely loaded
-        loadSidebar().then(() => {
-            syncProfile(); 
-        });
-    } else {
+// Handle the actual logout action
+document.getElementById('confirmLogout').onclick = async () => {
+    try {
+        await signOut(auth);
         window.location.href = 'index.html';
+    } catch (error) {
+        console.error("Logout Error:", error);
     }
-});
+};
 
-
+// Function to close the modal
+window.closeLogoutModal = function() {
+    document.getElementById('logoutModal').style.display = 'none';
+};
     // --- AUTOMATIC REPORT LOGIC ---
     async function populateFilters() {
         const studentRef = ref(db, 'students');
@@ -325,6 +327,7 @@ function syncProfile() {
 </body>
 
 </html>
+
 
 
 
