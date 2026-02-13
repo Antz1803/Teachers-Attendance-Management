@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Management</title>
     <link rel="stylesheet" href="StyleSheet/AttendanceManagement.css">
+    <link rel="stylesheet" href="StyleSheet/sidebar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <div class="sidebar" id="sidebarContainer"></div>
+    <div id="sidebarContainer"></div>
 
     <div class="content">
         <header>
@@ -68,9 +70,7 @@
                     </tr>
                 </thead>
                 <tbody id="studentTableBody">
-                    <tr>
-                        <td colspan="3" style="text-align: center; color: #666;">Select a course and date to load students</td>
-                    </tr>
+                    <tr><td colspan="3" style="text-align: center; color: #666;">Select Course and Date to load students</td></tr>
                 </tbody>
             </table>
             <div class="footer-actions">
@@ -81,7 +81,7 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getDatabase, ref, get, set, query, orderByChild } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         const firebaseConfig = {
@@ -98,39 +98,38 @@
         const db = getDatabase(app);
         const auth = getAuth(app);
 
-        // --- 1. Load External Sidebar ---
-        fetch('sidebar.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('sidebarContainer').innerHTML = data;
-            })
-            .catch(err => console.error("Sidebar failed to load:", err));
-
-        // --- 2. Auth Guard ---
-        onAuthStateChanged(auth, (user) => {
-            if (!user) window.location.href = 'index.html';
-        });
-
-        // --- 3. Dynamic Course Fetcher ---
-        async function loadDynamicCourses() {
-            const dropdown = document.getElementById("courseDropdown");
+        // --- 1. Load Sidebar Dynamically ---
+        async function setupApp() {
             try {
-                const snapshot = await get(ref(db, 'students'));
-                if (snapshot.exists()) {
-                    const courses = new Set();
-                    snapshot.forEach(child => {
-                        const course = child.val().stuCourses;
-                        if (course) courses.add(course);
-                    });
+                const res = await fetch('sidebar.html');
+                document.getElementById('sidebarContainer').innerHTML = await res.text();
+                
+                // Attach Logout Event
+                document.getElementById('logoutBtn').onclick = () => signOut(auth);
 
-                    dropdown.innerHTML = Array.from(courses).sort().map(course => 
-                        `<a href="javascript:void(0)" onclick="setCourse('${course}')">${course}</a>`
-                    ).join('');
-                }
-            } catch (e) { console.error("Error loading courses:", e); }
+                onAuthStateChanged(auth, (user) => {
+                    if (!user) window.location.href = 'index.html';
+                    else document.getElementById('sidebarName').innerText = user.email.split('@')[0];
+                });
+            } catch (e) { console.error("Sidebar Load Failed", e); }
         }
 
-        // --- 4. Auto-Fetch Students ---
+        // --- 2. Fetch Unique Courses from Database ---
+        async function loadCourses() {
+            const dropdown = document.getElementById("courseDropdown");
+            const snapshot = await get(ref(db, 'students'));
+            if (snapshot.exists()) {
+                const courses = new Set();
+                snapshot.forEach(child => {
+                    if (child.val().stuCourses) courses.add(child.val().stuCourses);
+                });
+                dropdown.innerHTML = Array.from(courses).sort().map(c => 
+                    `<a href="javascript:void(0)" onclick="setCourse('${c}')">${c}</a>`
+                ).join('');
+            }
+        }
+
+        // --- 3. Auto-Fetch Students on Filter Change ---
         window.fetchStudents = async function() {
             const tableBody = document.getElementById("studentTableBody");
             const selectedCourse = document.getElementById("coursePillText").innerText;
@@ -139,75 +138,56 @@
             if (selectedCourse === "Select Course" || selectedDate === "Select Date") return;
 
             const dateKey = formatDateForFirebase(selectedDate);
-            tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Fetching data...</td></tr>";
+            tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Fetching students...</td></tr>";
 
             try {
-                const attendanceSnapshot = await get(ref(db, `attendance/${dateKey}`));
-                const savedAttendance = attendanceSnapshot.exists() ? attendanceSnapshot.val() : {};
-                const studentSnapshot = await get(query(ref(db, 'students'), orderByChild('name')));
+                const attSnap = await get(ref(db, `attendance/${dateKey}`));
+                const attData = attSnap.exists() ? attSnap.val() : {};
+                const stuSnap = await get(query(ref(db, 'students'), orderByChild('name')));
 
                 tableBody.innerHTML = "";
-                let found = false;
-
-                studentSnapshot.forEach((child) => {
+                stuSnap.forEach(child => {
                     const data = child.val();
                     if (data.stuCourses === selectedCourse) {
-                        found = true;
-                        const userId = child.key;
-                        const existingStatus = savedAttendance[userId] ? savedAttendance[userId].status : "PRESENT";
-
+                        const status = attData[child.key] ? attData[child.key].status : "PRESENT";
                         const row = document.createElement("tr");
-                        row.setAttribute('data-user-id', userId);
-                        row.setAttribute('data-name', data.name);
-                        row.setAttribute('data-student-id', data.studentID);
-                        row.setAttribute('data-section', data.section || "N/A");
-                        row.setAttribute('data-email', data.email || "");
-                        row.setAttribute('data-year', data.yearLevel || "");
-
+                        row.dataset.userId = child.key;
+                        row.dataset.name = data.name;
+                        row.dataset.id = data.studentID;
                         row.innerHTML = `
                             <td>${data.name}</td>
                             <td>${data.studentID}</td>
                             <td>
                                 <select class="status-dropdown">
-                                    <option value="PRESENT" ${existingStatus === 'PRESENT' ? 'selected' : ''}>PRESENT</option>
-                                    <option value="LATE" ${existingStatus === 'LATE' ? 'selected' : ''}>LATE</option>
-                                    <option value="ABSENT" ${existingStatus === 'ABSENT' ? 'selected' : ''}>ABSENT</option>
+                                    <option value="PRESENT" ${status === 'PRESENT' ? 'selected' : ''}>PRESENT</option>
+                                    <option value="LATE" ${status === 'LATE' ? 'selected' : ''}>LATE</option>
+                                    <option value="ABSENT" ${status === 'ABSENT' ? 'selected' : ''}>ABSENT</option>
                                 </select>
                             </td>`;
                         tableBody.appendChild(row);
                     }
                 });
-
-                if (!found) tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No students found for this course.</td></tr>";
             } catch (e) { console.error(e); }
         };
 
         window.saveAttendance = async function() {
-            const rows = document.querySelectorAll("tr[data-user-id]");
-            if (rows.length === 0) return alert("No data to save!");
+            const rows = document.querySelectorAll("#studentTableBody tr[data-user-id]");
+            const dateText = document.getElementById("selectedDateText").innerText;
+            const course = document.getElementById("coursePillText").innerText;
+            const dateKey = formatDateForFirebase(dateText);
 
-            const selectedDate = document.getElementById("selectedDateText").innerText;
-            const selectedCourse = document.getElementById("coursePillText").innerText;
-            const dateKey = formatDateForFirebase(selectedDate);
-
-            try {
-                const promises = Array.from(rows).map(row => {
-                    const userId = row.getAttribute('data-user-id');
-                    return set(ref(db, `attendance/${dateKey}/${userId}`), {
-                        name: row.getAttribute('data-name'),
-                        studentID: row.getAttribute('data-student-id'),
-                        email: row.getAttribute('data-email'),
-                        year: row.getAttribute('data-year'),
-                        section: row.getAttribute('data-section'),
-                        course: selectedCourse,
-                        status: row.querySelector('.status-dropdown').value,
-                        date: selectedDate,
-                        timestamp: new Date().toISOString()
-                    });
+            const promises = Array.from(rows).map(row => {
+                return set(ref(db, `attendance/${dateKey}/${row.dataset.userId}`), {
+                    name: row.dataset.name,
+                    studentID: row.dataset.id,
+                    course: course,
+                    status: row.querySelector('.status-dropdown').value,
+                    date: dateText,
+                    timestamp: new Date().toISOString()
                 });
-                await Promise.all(promises);
-                alert("Attendance Saved!");
-            } catch (e) { alert("Save Error: " + e.message); }
+            });
+            await Promise.all(promises);
+            alert("Success: Attendance Saved!");
         };
 
         function formatDateForFirebase(str) {
@@ -215,7 +195,8 @@
             return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         }
 
-        loadDynamicCourses();
+        setupApp();
+        loadCourses();
     </script>
 
     <script>
@@ -225,48 +206,39 @@
 
         function toggleMenu() { document.getElementById("myDropdown").classList.toggle("show"); }
 
-        window.setCourse = function(course) {
-            const pill = document.getElementById("coursePillText");
-            pill.innerText = course;
-            pill.style.color = "#000";
+        window.setCourse = (c) => {
+            const p = document.getElementById("coursePillText");
+            p.innerText = c; p.style.color = "#000";
             document.getElementById("courseDropdown").style.display = "none";
-            if(window.fetchStudents) window.fetchStudents(); // Trigger auto-fetch
-        }
+            if (window.fetchStudents) window.fetchStudents();
+        };
+
+        window.selectDate = (day) => {
+            const m = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+            document.getElementById("selectedDateText").innerText = `${m[date.getMonth()]} ${day}, ${date.getFullYear()}`;
+            document.getElementById("selectedDateText").style.color = "#000";
+            document.getElementById("calendarWrapper").style.display = "none";
+            if (window.fetchStudents) window.fetchStudents();
+        };
 
         function renderCalendar() {
-            const monthYear = document.getElementById('currentMonthYear');
-            const daysGrid = document.getElementById('calendarDays');
-            const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+            const grid = document.getElementById('calendarDays');
+            const m = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+            document.getElementById('currentMonthYear').innerText = `${m[date.getMonth()]} ${date.getFullYear()}`;
             
-            monthYear.innerText = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
-            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-            const lastDate = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+            const first = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+            const last = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 
-            let daysHTML = "";
-            for (let x = firstDay; x > 0; x--) daysHTML += `<div></div>`;
-            for (let i = 1; i <= lastDate; i++) {
+            let h = "";
+            for (let x = first; x > 0; x--) h += `<div></div>`;
+            for (let i = 1; i <= last; i++) {
                 const cur = new Date(date.getFullYear(), date.getMonth(), i);
                 let cls = (cur.getDay() === 0 || cur.getDay() === 6) ? "sun-col" : "";
                 if (cur.getTime() === today.getTime()) cls += " is-today";
-                
-                if (cur > today) {
-                    daysHTML += `<div class="${cls} disabled-day">${i}</div>`;
-                } else {
-                    daysHTML += `<div class="${cls}" onclick="selectDate(${i})">${i}</div>`;
-                }
+                h += cur > today ? `<div class="${cls} disabled-day">${i}</div>` : `<div class="${cls}" onclick="selectDate(${i})">${i}</div>`;
             }
-            daysGrid.innerHTML = daysHTML;
+            grid.innerHTML = h;
         }
-
-        window.selectDate = function(day) {
-            const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-            document.getElementById("selectedDateText").innerText = `${monthNames[date.getMonth()]} ${day}, ${date.getFullYear()}`;
-            document.getElementById("selectedDateText").style.color = "#000";
-            document.getElementById("calendarWrapper").style.display = "none";
-            if(window.fetchStudents) window.fetchStudents(); // Trigger auto-fetch
-        }
-
-        window.moveMonth = (dir) => { date.setMonth(date.getMonth() + dir); renderCalendar(); };
 
         document.addEventListener('DOMContentLoaded', () => {
             renderCalendar();
@@ -280,8 +252,8 @@
                 document.getElementById('calendarWrapper').style.display = 'block';
                 document.getElementById('courseDropdown').style.display = 'none';
             };
-            document.getElementById('prevMonth').onclick = (e) => { e.stopPropagation(); moveMonth(-1); };
-            document.getElementById('nextMonth').onclick = (e) => { e.stopPropagation(); moveMonth(1); };
+            document.getElementById('prevMonth').onclick = (e) => { e.stopPropagation(); date.setMonth(date.getMonth()-1); renderCalendar(); };
+            document.getElementById('nextMonth').onclick = (e) => { e.stopPropagation(); date.setMonth(date.getMonth()+1); renderCalendar(); };
         });
 
         document.addEventListener('click', () => {
