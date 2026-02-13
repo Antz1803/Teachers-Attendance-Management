@@ -15,15 +15,19 @@
             background-color: var(--bg-gray);
         }
 
+/* Ensure the sidebar container has a fixed width */
 #sidebar-placeholder {
-    min-width: 250px; 
+    width: 250px; 
+    min-width: 250px;
     height: 100vh;
-    background-color: var(--teal-primary); 
+    background-color: #10808a; /* Match your theme teal */
+    flex-shrink: 0; /* Prevents the main content from pushing it out */
 }
 
+/* Ensure the main content takes up the remaining space */
 .main-content {
     flex-grow: 1;
-    padding: 20px;
+    width: calc(100% - 250px);
     height: 100vh;
     overflow-y: auto;
 }
@@ -192,6 +196,7 @@
         }
 
         .val-blue { color: #0055aa; font-weight: bold; }
+
 
 
 
