@@ -12,7 +12,39 @@ body {
     font-family: 'Segoe UI', Arial, sans-serif;
     background-color: #f4f7f6;
 }
+#sidebar-placeholder {
+        width: 280px;      /* The exact width for that prominent look */
+        min-width: 280px;  /* Prevents it from shrinking like in Photo 2 */
+        height: 100vh;
+        background-color: #0c7b84; /* Your sidebar teal */
+        flex-shrink: 0;    /* Absolute fix for the 'squeeze' problem */
+    }
 
+    /* FIX 2: Create the spacious Margin/Gap for the content */
+    .main-content {
+        flex-grow: 1;
+        padding: 50px 60px; /* 50px from top, 60px from the sidebar */
+        box-sizing: border-box;
+        height: 100vh;
+        overflow-y: auto;   /* Scroll only the content, not the whole page */
+        background-color: #f4f7f6;
+    }
+
+    /* FIX 3: Clean up the Header layout */
+    .top-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 15px;
+        margin-bottom: 30px; /* Space between header and profile card */
+    }
+    
+    /* Ensure the Profile Card stays centered and neat */
+    .profile-card {
+        margin: 0 auto; /* Centers it within the now-padded area */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
 .dashboard-wrapper {
     display: flex;
     min-height: 100vh;
@@ -487,6 +519,7 @@ body {
             font-size: 12px;
         }
         .btn-upload:hover { background: #e0e0e0; }
+
 
 
 
