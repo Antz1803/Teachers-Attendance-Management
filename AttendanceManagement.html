@@ -9,7 +9,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* Essential CSS from Dashboard to make the Sidebar/Modal work */
+        /* Essential Layout Fixes */
+        .main-content {
+            flex-grow: 1;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 30px; /* This creates the margin you asked for */
+            box-sizing: border-box;
+            background-color: #f4f7f6; /* Optional: light background */
+        }
+
+        #sidebar-placeholder {
+            width: 250px; /* Ensures space is reserved for sidebar */
+            min-width: 250px;
+        }
+
+        /* Toast & Modal CSS */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
         .toast { padding: 12px 20px; border-radius: 8px; color: #fff; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; font-family: sans-serif; box-shadow: 0 4px 10px rgba(0,0,0,0.2); animation: slideIn 0.3s forwards; }
         .info { background: #3498db; }
@@ -24,7 +39,7 @@
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
     </style>
 </head>
-<body style="display: flex;">
+<body style="display: flex; margin: 0;">
 
     <div id="toast-container"></div>
 
@@ -42,9 +57,9 @@
 
     <div id="sidebar-placeholder"></div>
 
-  <div class="main-content">
-        <header>
-            <h1>Attendance Management</h1>
+    <div class="main-content">
+        <header style="margin-bottom: 25px;">
+            <h1 style="font-weight: bold; margin: 0;">Attendance Management</h1>
             <div class="menu-container">
                 <button class="menu-button" onclick="toggleMenu()">&#9776;</button>
                 <div id="myDropdown" class="dropdown-menu">
@@ -54,7 +69,7 @@
             </div>
         </header>
 
-        <div class="filters">
+        <div class="filters" style="margin-bottom: 20px;">
             <div class="filter-group" style="position: relative;">
                 <label>Courses</label>
                 <div class="course-input-box" id="courseBox">
@@ -88,7 +103,7 @@
             </div>
         </div>
 
-        <div class="table-box">
+        <div class="table-box" style="background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
             <table>
                 <thead class="table-header">
                     <tr>
@@ -101,7 +116,7 @@
                     <tr><td colspan="3" style="text-align: center; color: #666;">Choose Course and Date to display students</td></tr>
                 </tbody>
             </table>
-            <div class="footer-actions">
+            <div class="footer-actions" style="padding: 20px;">
                 <button class="btn-save" onclick="saveAttendance()">Save All</button>
             </div>
         </div>
@@ -126,51 +141,76 @@
         const db = getDatabase(app);
         const auth = getAuth(app);
 
-        // --- 1. SIDEBAR LOADER (Match Dashboard Logic) ---
+        // --- 1. IMPROVED SIDEBAR LOADER ---
         async function loadSidebar() {
             try {
                 const response = await fetch('SideBar.html');
                 if (!response.ok) throw new Error("Sidebar fetch failed");
-                document.getElementById('sidebar-placeholder').innerHTML = await response.text();
-
-                // Highlight Active Page
-                const path = window.location.pathname.split("/").pop() || "index.html";
-                const navLinks = document.querySelectorAll('.nav-links a');
-                navLinks.forEach(link => {
-                    if (link.getAttribute('href') === path) {
-                        link.parentElement.classList.add('active');
-                    }
-                });
+                const sidebarPlaceholder = document.getElementById('sidebar-placeholder');
+                sidebarPlaceholder.innerHTML = await response.text();
 
                 // Bind Logout Button
-                document.getElementById('logoutBtn').onclick = (e) => {
-                    e.preventDefault();
-                    document.getElementById('logoutModal').style.display = 'flex';
-                };
-            } catch (err) { console.error(err); }
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.onclick = (e) => {
+                        e.preventDefault();
+                        document.getElementById('logoutModal').style.display = 'flex';
+                    };
+                }
+                
+                // Sync Profile immediately after sidebar is in the DOM
+                syncProfile();
+            } catch (err) { console.error("Sidebar Error:", err); }
         }
 
-        // --- 2. AUTH & PROFILE SYNC ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                const userRef = ref(db, 'users/' + user.uid);
-                onValue(userRef, (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        document.getElementById('sidebarName').textContent = data.fullName || "Admin";
-                        document.getElementById('sidebarRole').textContent = data.role || "Teacher";
-                        const container = document.getElementById('profileContainer');
-                        if (data.profilePic && data.profilePic !== "N/A" && container) {
+        function syncProfile() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const userRef = ref(db, 'users/' + user.uid);
+            onValue(userRef, (snapshot) => {
+                const data = snapshot.val();
+                const nameEl = document.getElementById('sidebarName');
+                const roleEl = document.getElementById('sidebarRole');
+                const container = document.getElementById('profileContainer');
+
+                if (data) {
+                    if (nameEl) nameEl.textContent = data.fullName || "Admin";
+                    if (roleEl) roleEl.textContent = data.role || "Teacher";
+                    if (container) {
+                        if (data.profilePic && data.profilePic !== "N/A" && data.profilePic !== "avatar.png") {
                             container.innerHTML = `<img src="${data.profilePic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                        } else {
+                            container.innerHTML = `<i class="fas fa-user-tie"></i>`;
                         }
                     }
-                });
+                }
+            });
+        }
+
+        // --- 2. AUTH STATE ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadSidebar();
+                fetchCourseDropdown();
             } else {
                 window.location.href = 'index.html';
             }
         });
 
-        // --- 3. ATTENDANCE LOGIC ---
+        // --- 3. LOGIC ---
+        async function fetchCourseDropdown() {
+            const dropdown = document.getElementById("courseDropdown");
+            const snapshot = await get(ref(db, 'students'));
+            if (snapshot.exists()) {
+                const courses = new Set();
+                snapshot.forEach(child => { if (child.val().stuCourses) courses.add(child.val().stuCourses); });
+                dropdown.innerHTML = Array.from(courses).sort().map(c => 
+                    `<a href="javascript:void(0)" onclick="setCourse('${c}')">${c}</a>`
+                ).join('');
+            }
+        }
+
         window.fetchStudents = async function() {
             const tableBody = document.getElementById("studentTableBody");
             const selectedCourse = document.getElementById("coursePillText").innerText;
@@ -205,9 +245,9 @@
                         row.dataset.userId = child.key;
                         row.dataset.name = data.name;
                         row.dataset.id = data.studentID;
-                        row.dataset.email = data.email || "";
-                        row.dataset.year = data.yearLevel || "";
-                        row.dataset.section = data.section || "";
+                        row.dataset.email = data.email || "N/A";
+                        row.dataset.year = data.yearLevel || "N/A";
+                        row.dataset.section = data.section || "N/A";
                         tableBody.appendChild(row);
                     }
                 });
@@ -216,6 +256,8 @@
 
         window.saveAttendance = async function() {
             const rows = document.querySelectorAll("#studentTableBody tr[data-user-id]");
+            if (rows.length === 0) return alert("No students to save.");
+
             const dateText = document.getElementById("selectedDateText").innerText;
             const course = document.getElementById("coursePillText").innerText;
             const dateKey = formatDateForFirebase(dateText);
@@ -245,25 +287,10 @@
         document.getElementById('confirmLogout').onclick = () => {
             signOut(auth).then(() => window.location.href = 'index.html');
         };
-
-        // Init
-        loadSidebar();
-        
-        // Fetch Courses dropdown data
-        const dropdown = document.getElementById("courseDropdown");
-        get(ref(db, 'students')).then(snapshot => {
-            if (snapshot.exists()) {
-                const courses = new Set();
-                snapshot.forEach(child => { if (child.val().stuCourses) courses.add(child.val().stuCourses); });
-                dropdown.innerHTML = Array.from(courses).sort().map(c => 
-                    `<a href="javascript:void(0)" onclick="setCourse('${c}')">${c}</a>`
-                ).join('');
-            }
-        });
     </script>
 
     <script>
-        /* UI Scripts (Non-Module) */
+        /* UI Scripts remain the same */
         let date = new Date();
         const today = new Date(); today.setHours(0,0,0,0);
 
@@ -318,11 +345,9 @@
         });
 
         document.addEventListener('click', () => {
-            document.getElementById('courseDropdown').style.display = 'none';
-            document.getElementById('calendarWrapper').style.display = 'none';
+            if(document.getElementById('courseDropdown')) document.getElementById('courseDropdown').style.display = 'none';
+            if(document.getElementById('calendarWrapper')) document.getElementById('calendarWrapper').style.display = 'none';
         });
     </script>
 </body>
 </html>
-
-
