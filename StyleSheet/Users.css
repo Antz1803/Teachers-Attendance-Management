@@ -1,11 +1,9 @@
 :root {
-    --sidebar-teal: #0c7b84;
-    --card-teal: #086b74;
-    --dark-teal: #004d4d;
-    --accent-teal: #008080;
+    --primary-teal: #008081;
+    --dark-teal: #005a5a;
+    --bg-light: #f4f7f6;
     --white: #ffffff;
-    --error-red: #ff4d4d;
-    --bg-gray: #f4f7f6;
+    --text-gray: #b0b0b0;
 }
 
  body {
@@ -14,7 +12,17 @@
     height: 100vh;
     overflow: hidden; 
 }
+/* This ensures the active link "Users" looks exactly like the Dashboard one */
+.nav-links li.active {
+    background-color: #ffffff !important;
+    border-radius: 10px;
+    margin: 0 15px;
+}
 
+.nav-links li.active a {
+    color: #008080 !important;
+    font-weight: 600; /* Matching the font weight is key for font consistency */
+}
 #sidebar-placeholder {
     width: 250px; 
     min-width: 250px;
@@ -246,4 +254,5 @@
     from { transform: translateY(20px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
+
 
