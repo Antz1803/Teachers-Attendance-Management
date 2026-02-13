@@ -9,33 +9,43 @@
 
       body {
     margin: 0;
-    display: flex; /* Ensures sidebar and main content sit side-by-side */
+    display: flex; 
     height: 100vh;
-    overflow: hidden; /* Prevents double scrollbars */
+    overflow: hidden; 
 }
 
 #sidebar-placeholder {
-    width: 250px; /* Adjust to match your SideBar.css width */
+    width: 250px; 
     min-width: 250px;
     height: 100vh;
-    background-color: #008081; /* Matches your theme */
+    background-color: #008081; 
 }
 
-/* Ensure the main content doesn't overlap the sidebar */
 .main-content {
-    margin-left: 0; 
-    flex: 1;
+    flex-grow: 1;
+    height: 100vh;
+    overflow-y: auto;
+    /* ADD THESE LINES */
+    padding: 30px; 
+    box-sizing: border-box; 
+    background-color: #f4f7f6;
 }
-
 .top-header {
+    margin-bottom: 25px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #ddd;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
 }
 
+.filters {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 20px;
+}
+
+.summary-bar {
+    margin-bottom: 25px;
+}
 /* Container for positioning */
 .menu-container {
     position: relative;
@@ -191,6 +201,7 @@
         }
 
         .val-blue { color: #0055aa; font-weight: bold; }
+
 
 
 
