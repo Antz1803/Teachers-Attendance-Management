@@ -147,7 +147,6 @@
     const db = getDatabase(app);
 
     // --- SIDEBAR LOADER ---
-       // --- SIDEBAR LOADER ---
 async function loadSidebar() {
     try {
         const response = await fetch('SideBar.html');
@@ -206,6 +205,17 @@ function syncProfile() {
         }
     });
 }
+    onAuthStateChanged(auth, (user) => {
+    if (user) {
+        populateFilters();
+        // Delay profile sync until sidebar is definitely loaded
+        loadSidebar().then(() => {
+            syncProfile(); 
+        });
+    } else {
+        window.location.href = 'index.html';
+    }
+});
 
 
     // --- AUTOMATIC REPORT LOGIC ---
@@ -315,6 +325,7 @@ function syncProfile() {
 </body>
 
 </html>
+
 
 
 
