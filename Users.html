@@ -52,7 +52,7 @@
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
     </style>
 </head>
-<body style="display: flex; margin: 0;"> 
+<body style="display: flex; margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden;">
     <div id="sidebar-placeholder"></div>
     <div id="toast-container"></div>
       <div class="main-content">
@@ -480,6 +480,7 @@
         document.getElementById('editAge').value = calculateAge(e.target.value);
     });
 </script>
+
 
 
 
