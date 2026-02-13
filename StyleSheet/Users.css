@@ -14,7 +14,7 @@
     height: 100vh;
     overflow: hidden; 
 }
-/* This ensures the active link "Users" looks exactly like the Dashboard one */
+
 .nav-links li.active {
     background-color: #ffffff !important;
     border-radius: 10px;
@@ -23,13 +23,14 @@
 
 .nav-links li.active a {
     color: #008080 !important;
-    font-weight: 600; /* Matching the font weight is key for font consistency */
+    font-weight: 600; 
 }
 #sidebar-placeholder {
     width: 250px; 
     min-width: 250px;
     height: 100vh;
     background-color: #008081; 
+    font-family: 'Poppins', sans-serif;
 }
 
 .main-content {
@@ -256,6 +257,7 @@
     from { transform: translateY(20px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
+
 
 
 
