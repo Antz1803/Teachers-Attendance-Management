@@ -75,7 +75,7 @@ body {
 /* Centered Live Clock Only */
 #liveClock {
     color: var(--primary-teal);
-    font-size: 2.6rem; 
+    font-size: 1.0rem; 
     font-weight: 800;
     letter-spacing: 1px;
     background: rgba(0, 128, 129, 0.08);
@@ -220,3 +220,4 @@ th {
 .show {
     display: block !important;
 }
+
