@@ -157,19 +157,35 @@ async function loadSidebar() {
         
         if (placeholder) {
             placeholder.innerHTML = content;
-            console.log("Sidebar loaded successfully.");
-            // Call profile sync only AFTER the HTML is injected
-            syncProfile(); 
+            console.log("Sidebar injected.");
+            
+            // Re-bind the logout button click event since it's inside the injected HTML
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.onclick = (e) => {
+                    e.preventDefault();
+                    document.getElementById('logoutModal').style.display = 'flex';
+                };
+            }
         }
     } catch (err) {
         console.error("Sidebar Error:", err);
-        // Fallback: Show a visible error in the sidebar area
-        document.getElementById('sidebar-placeholder').innerHTML = 
-            `<div style="color:white; padding:20px;">Sidebar Load Failed</div>`;
     }
 }
-    
-// Separate function for profile sync to call after sidebar loads
+
+// Watch Auth state and update sidebar whenever it's ready
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log("User authenticated:", user.uid);
+        // Wait a tiny bit for the sidebar HTML to be ready
+        setTimeout(syncProfile, 500); 
+        populateFilters(); // Load your courses
+        window.generateReport(); // Load initial data
+    } else {
+        window.location.href = 'index.html';
+    }
+});
+
 function syncProfile() {
     const user = auth.currentUser;
     if (!user) return;
@@ -177,16 +193,15 @@ function syncProfile() {
     const userRef = ref(db, 'users/' + user.uid);
     onValue(userRef, (snapshot) => {
         const data = snapshot.val();
-        // Use optional chaining or null checks because elements might be slow to render
         const nameEl = document.getElementById('sidebarName');
         const roleEl = document.getElementById('sidebarRole');
         const container = document.getElementById('profileContainer');
 
-        if (data && nameEl) {
-            nameEl.textContent = data.fullName || "Admin";
+        if (data) {
+            if (nameEl) nameEl.textContent = data.fullName || "Admin";
             if (roleEl) roleEl.textContent = data.role || "Teacher";
-            if (container) {
-                container.innerHTML = (data.profilePic && data.profilePic !== "avatar.png") 
+            if (container && data.profilePic) {
+                container.innerHTML = data.profilePic !== "avatar.png" 
                     ? `<img src="${data.profilePic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`
                     : `<i class="fas fa-user-tie"></i>`;
             }
@@ -310,10 +325,29 @@ window.closeLogoutModal = function() {
     
     // Init Sidebar
     loadSidebar();
+
+    // This "exposes" the function to the HTML onclick attribute
+window.toggleMenu = () => {
+    document.getElementById("myDropdown").classList.toggle("show");
+};
+
+// Close dropdown if user clicks outside
+window.onclick = function(event) {
+    if (!event.target.matches('.menu-button')) {
+        var dropdowns = document.getElementsByClassName("dropdown-menu");
+        for (var i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
+}
 </script>
 </body>
 
 </html>
+
 
 
 
