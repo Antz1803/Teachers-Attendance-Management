@@ -1,497 +1,482 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users - Attendance System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="StyleSheet/Users.css">
-    <link rel="stylesheet" href="StyleSheet/SideBar.css">
-     <style>
-        /* Toast Notification - Upper Right */
-        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
-        .toast { 
-            padding: 12px 20px; border-radius: 8px; color: #fff; margin-bottom: 10px;
-            display: flex; align-items: center; gap: 10px; font-family: sans-serif;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2); animation: slideIn 0.3s forwards;
-        }
-        .success { background: #008080; }
-        .error { background: #e74c3c; }
-        .info { background: #3498db; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - Attendance System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="StyleSheet/Users.css">
+    <link rel="stylesheet" href="StyleSheet/SideBar.css">
+     <style>
+        /* Toast Notification - Upper Right */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
+        .toast { 
+            padding: 12px 20px; border-radius: 8px; color: #fff; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 10px; font-family: sans-serif;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); animation: slideIn 0.3s forwards;
+        }
+        .success { background: #008080; }
+        .error { background: #e74c3c; }
+        .info { background: #3498db; }
 
-        /* Custom Logout Modal */
-        .logout-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); 
-            display: none; align-items: center; justify-content: center; z-index: 9999;
-        }
+        /* Custom Logout Modal */
+        .logout-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); 
+            display: none; align-items: center; justify-content: center; z-index: 9999;
+        }
 
-        .modal-content {
-            background: white; padding: 30px; border-radius: 15px;
-            width: 350px; text-align: center; box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-        }
-        .modal-btns { display: flex; gap: 15px; margin-top: 20px; }
-        .btn-confirm { 
-            background: #e74c3c; color: white; flex: 1; padding: 12px; border: none; 
-            border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s;
-        }
-        /* Interactive Shake Animation */
-        .btn-confirm:hover { 
-            background: #c0392b; 
-            animation: shake 0.5s ease; 
-        }
-        .btn-cancel { background: #f0f0f0; flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; }
-       
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
+        .modal-content {
+            background: white; padding: 30px; border-radius: 15px;
+            width: 350px; text-align: center; box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .modal-btns { display: flex; gap: 15px; margin-top: 20px; }
+        .btn-confirm { 
+            background: #e74c3c; color: white; flex: 1; padding: 12px; border: none; 
+            border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s;
+        }
+        /* Interactive Shake Animation */
+        .btn-confirm:hover { 
+            background: #c0392b; 
+            animation: shake 0.5s ease; 
+        }
+        .btn-cancel { background: #f0f0f0; flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; }
+       
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
 
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-        @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
-    </style>
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
+    </style>
 </head>
-<body style="display: flex;">
-    <div id="sidebar-placeholder"></div>
-    <div id="toast-container"></div>
-      <div class="main-content">
-        <header class="top-header">
-            <h1>Users</h1>       
-        </header>
+<body style="display: flex; margin: 0;"> 
+    <div id="sidebar-placeholder"></div>
+    <div id="toast-container"></div>
+      <div class="main-content">
+        <header class="top-header">
+            <h1>Users</h1>       
+        </header>
 
-        <div class="controls-row">
-            <button class="btn-add-student" onclick="openModal()">+ Student</button>
-        </div>
-        
-     <h3 class="admin-label">Hello! <span id="display-admin-name">Loading...</span></h3>
+        <div class="controls-row">
+            <button class="btn-add-student" onclick="openModal()">+ Student</button>
+        </div>
+        
+     <h3 class="admin-label">Hello! <span id="display-admin-name">Loading...</span></h3>
 
 <div class="profile-card">
-    <div class="card-content">
-        <h2 class="card-title">Teacher's Profile</h2>
-        <div class="profile-details">
-            <div class="detail-item"><strong>Name:</strong> <u id="display-name">Loading...</u></div>
-            <div class="detail-item"><strong>Age:</strong> <u id="display-age">Loading...</u></div>
-            <div class="detail-item"><strong>Birthdate:</strong> <u id="display-birthdate">Loading...</u></div>
-            <div class="detail-item"><strong>Gender:</strong> <span id="display-gender">Loading...</span></div>
-            <div class="detail-item"><strong>Email:</strong> <u id="display-email">Loading...</u></div>
-            <div class="detail-item"><strong>Birthplace:</strong> <u id="display-birthplace">Loading...</u></div>
-            <div class="detail-item"><strong>Current Address:</strong> <u id="display-address">Loading...</u></div>
-            <div class="detail-item"><strong>Nationality:</strong> <u id="display-nationality">Loading...</u></div>
-            <div class="detail-item"><strong>Status:</strong> <span id="display-status">Loading...</span></div>
-        </div>
-    </div>
+    <div class="card-content">
+        <h2 class="card-title">Teacher's Profile</h2>
+        <div class="profile-details">
+            <div class="detail-item"><strong>Name:</strong> <u id="display-name">Loading...</u></div>
+            <div class="detail-item"><strong>Age:</strong> <u id="display-age">Loading...</u></div>
+            <div class="detail-item"><strong>Birthdate:</strong> <u id="display-birthdate">Loading...</u></div>
+            <div class="detail-item"><strong>Gender:</strong> <span id="display-gender">Loading...</span></div>
+            <div class="detail-item"><strong>Email:</strong> <u id="display-email">Loading...</u></div>
+            <div class="detail-item"><strong>Birthplace:</strong> <u id="display-birthplace">Loading...</u></div>
+            <div class="detail-item"><strong>Current Address:</strong> <u id="display-address">Loading...</u></div>
+            <div class="detail-item"><strong>Nationality:</strong> <u id="display-nationality">Loading...</u></div>
+            <div class="detail-item"><strong>Status:</strong> <span id="display-status">Loading...</span></div>
+        </div>
+    </div>
 
-    <div class="photo-column">
-        <div class="profile-photo-container">
-            <img src="avatar.png" id="display-photo" alt="Profile Photo">
-        </div>
-        <button class="btn-edit-profile" onclick="openEditModal()">✎ Edit profile</button>
-    </div>
+    <div class="photo-column">
+        <div class="profile-photo-container">
+            <img src="avatar.png" id="display-photo" alt="Profile Photo">
+        </div>
+        <button class="btn-edit-profile" onclick="openEditModal()">✎ Edit profile</button>
+    </div>
 </div>
 
 <div id="editProfileModal" class="modal-overlay" style="display: none;">
-    <div class="modal-card">
-       <div class="modal-body">
-            <h3 class="full-width">Update Teacher Profile</h3>
-            <div class="file-input-wrapper">
-                <img id="edit-preview" src="avatar.png" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
-                <label for="editPhoto" class="btn-upload">Choose New Photo</label>
-                <input type="file" id="editPhoto" accept="image/*" onchange="previewImage(event)">
-            </div>
-            <div class="modal-grid">
-                <div class="modal-form-group">
-                    <label>Full Name</label>
-                    <input type="text" id="editName">
-                </div>
-                <div class="modal-form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="editEmail">
-                </div>
-               <div class="modal-form-group">
-                    <label>Age</label>
-                    <input type="text" id="editAge" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
-                </div>
-                <div class="modal-form-group">
-                    <label>Birthdate</label>
-                    <input type="date" id="editBirthdate">
-                </div>
-                <div class="modal-form-group">
-                    <label>Gender</label>
-                    <select id="editGender">
-                        <option value="MALE">MALE</option>
-                        <option value="FEMALE">FEMALE</option>
-                        <option value="OTHER">OTHER</option>
-                    </select>
-                </div>
-                <div class="modal-form-group">
-                    <label>Status</label>
-                    <select id="editStatus">
-                        <option value="SINGLE">SINGLE</option>
-                        <option value="MARRIED">MARRIED</option>
-                        <option value="WIDOWED">WIDOWED</option>
-                    </select>
-                </div>
-                <div class="modal-form-group">
-                    <label>Birthplace</label>
-                    <input type="text" id="editBirthplace">
-                </div>
-                <div class="modal-form-group">
-                    <label>Nationality</label>
-                    <input type="text" id="editNationality">
-                </div>
-                <div class="modal-form-group full-width">
-                    <label>Current Address</label>
-                    <input type="text" id="editAddress">
-                </div>
-            </div>
+    <div class="modal-card">
+       <div class="modal-body">
+            <h3 class="full-width">Update Teacher Profile</h3>
+            <div class="file-input-wrapper">
+                <img id="edit-preview" src="avatar.png" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
+                <label for="editPhoto" class="btn-upload">Choose New Photo</label>
+                <input type="file" id="editPhoto" accept="image/*" onchange="previewImage(event)">
+            </div>
+            <div class="modal-grid">
+                <div class="modal-form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="editName">
+                </div>
+                <div class="modal-form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="editEmail">
+                </div>
+               <div class="modal-form-group">
+                    <label>Age</label>
+                    <input type="text" id="editAge" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
+                </div>
+                <div class="modal-form-group">
+                    <label>Birthdate</label>
+                    <input type="date" id="editBirthdate">
+                </div>
+                <div class="modal-form-group">
+                    <label>Gender</label>
+                    <select id="editGender">
+                        <option value="MALE">MALE</option>
+                        <option value="FEMALE">FEMALE</option>
+                        <option value="OTHER">OTHER</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label>Status</label>
+                    <select id="editStatus">
+                        <option value="SINGLE">SINGLE</option>
+                        <option value="MARRIED">MARRIED</option>
+                        <option value="WIDOWED">WIDOWED</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label>Birthplace</label>
+                    <input type="text" id="editBirthplace">
+                </div>
+                <div class="modal-form-group">
+                    <label>Nationality</label>
+                    <input type="text" id="editNationality">
+                </div>
+                <div class="modal-form-group full-width">
+                    <label>Current Address</label>
+                    <input type="text" id="editAddress">
+                </div>
+            </div>
 
-            <div class="modal-footer">
-                <button class="btn-submit" id="saveBtn" onclick="saveProfile()">Save Changes</button>
-                <button class="btn-clear" onclick="closeEditModal()">Cancel</button>
-            </div>
-        </div>
-    </div>
+            <div class="modal-footer">
+                <button class="btn-submit" id="saveBtn" onclick="saveProfile()">Save Changes</button>
+                <button class="btn-clear" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
 </div>
 
-          <div id="logoutModal" class="logout-modal">
-    <div class="modal-content">
-        <i class="fas fa-sign-out-alt" style="font-size: 40px; color: #e74c3c; margin-bottom: 15px;"></i>
-        <h2>Confirm Logout</h2>
-        <p>Are you sure you want to log out of the system?</p>
-        <div class="modal-btns">
-            <button class="btn-confirm" id="confirmLogout">Yes, Logout</button>
-            <button class="btn-cancel" onclick="closeLogoutModal()">Cancel</button>
-        </div>
-    </div>
+          <div id="logoutModal" class="logout-modal">
+    <div class="modal-content">
+        <i class="fas fa-sign-out-alt" style="font-size: 40px; color: #e74c3c; margin-bottom: 15px;"></i>
+        <h2>Confirm Logout</h2>
+        <p>Are you sure you want to log out of the system?</p>
+        <div class="modal-btns">
+            <button class="btn-confirm" id="confirmLogout">Yes, Logout</button>
+            <button class="btn-cancel" onclick="closeLogoutModal()">Cancel</button>
+        </div>
+    </div>
 </div>
 
-    <div id="studentModal" class="modal-overlay" style="display: none;">
-        <div class="modal-card">
-            <div class="modal-header"></div>
-            <div class="modal-body">
-                <h3>New Student Details</h3>
-   
-                <div class="modal-form-group">
-                    <label>Full Name</label>
-                    <input type="text" id="stuName" placeholder="Please enter your fullname">
-                    <small id="error-name" class="error-msg" style="color: red; display: none;">❌ This name is already registered.</small>
-                </div>
+    <div id="studentModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header"></div>
+            <div class="modal-body">
+                <h3>New Student Details</h3>
+   
+                <div class="modal-form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="stuName" placeholder="Please enter your fullname">
+                    <small id="error-name" class="error-msg" style="color: red; display: none;">❌ This name is already registered.</small>
+                </div>
 
-                <div class="modal-form-group">
-                    <label>Email</label>
-                    <input type="email" id="stuEmail" placeholder="Please enter your email">
-                    <small id="error-email" class="error-msg">❌ Email must end with @gmail.com</small>
-                </div>
+                <div class="modal-form-group">
+                    <label>Email</label>
+                    <input type="email" id="stuEmail" placeholder="Please enter your email">
+                    <small id="error-email" class="error-msg">❌ Email must end with @gmail.com</small>
+                </div>
 
-               <div class="modal-form-group">
-                    <label>Student ID</label>
-                    <input type="text" id="stuID" placeholder="Numbers & symbols only" maxlength="10">
-                    <small id="error-id" class="error-msg">❌ This Student ID is already registered.</small>
-                </div>
+               <div class="modal-form-group">
+                    <label>Student ID</label>
+                    <input type="text" id="stuID" placeholder="Numbers & symbols only" maxlength="10">
+                    <small id="error-id" class="error-msg">❌ This Student ID is already registered.</small>
+                </div>
 
-                <div class="modal-form-group">
-                    <label>Course</label>
-                    <input type="text" id="stuCourse" placeholder="e.g. PLATECH" oninput="this.value = this.value.toUpperCase()">
-                </div>
+                <div class="modal-form-group">
+                    <label>Course</label>
+                    <input type="text" id="stuCourse" placeholder="e.g. PLATECH" oninput="this.value = this.value.toUpperCase()">
+                </div>
 
-                <div class="modal-form-group" style="margin-bottom: 15px;">
+                <div class="modal-form-group" style="margin-bottom: 15px;">
 
-                    <label>Year lvl</label>
-                    <select id="stuYear" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
-                        <option value="" disabled selected>Select Year Level</option>
-                        <option value="1st Year">1st Year</option>
-                        <option value="2nd Year">2nd Year</option>
-                        <option value="3rd Year">3rd Year</option>
-                        <option value="4th Year">4th Year</option>
-                    </select>
-                </div>
-                <div class="modal-form-group">
+                    <label>Year lvl</label>
+                    <select id="stuYear" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
+                        <option value="" disabled selected>Select Year Level</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
 
-                    <label>Section</label>
-                    <input type="text" id="stuSection" placeholder="e.g. IT803A">
-                </div>
+                    <label>Section</label>
+                    <input type="text" id="stuSection" placeholder="e.g. IT803A">
+                </div>
 
-                <div class="modal-footer">
-                    <button class="btn-submit" onclick="submitStudent()">Submit</button>
-                    <button class="btn-clear" onclick="clearForm()">Cancel</button>
-                </div>
-            </div>
-        </div>
-    </div>
+                <div class="modal-footer">
+                    <button class="btn-submit" onclick="submitStudent()">Submit</button>
+                    <button class="btn-clear" onclick="clearForm()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-    import { getDatabase, ref, push, get, onValue, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-    import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getDatabase, ref, push, get, onValue, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
-        authDomain: "attendancesystem-cb683.firebaseapp.com",
-        databaseURL: "https://attendancesystem-cb683-default-rtdb.firebaseio.com",
-        projectId: "attendancesystem-cb683",
-        storageBucket: "attendancesystem-cb683.appspot.com",
-        messagingSenderId: "975901701661",
-        appId: "1:975901701661:web:f8ccfbafd8e6c6e9c3f8f4"
-    };
+    const firebaseConfig = {
+        apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
+        authDomain: "attendancesystem-cb683.firebaseapp.com",
+        databaseURL: "https://attendancesystem-cb683-default-rtdb.firebaseio.com",
+        projectId: "attendancesystem-cb683",
+        storageBucket: "attendancesystem-cb683.appspot.com",
+        messagingSenderId: "975901701661",
+        appId: "1:975901701661:web:f8ccfbafd8e6c6e9c3f8f4"
+    };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    const storage = getStorage(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const storage = getStorage(app);
 
-    // --- TOAST NOTIFICATION SYSTEM ---
-    function notify(message, type = "info") {
-        const container = document.getElementById('toast-container');
-        if (!container) return;
-        
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        
-        const icon = type === 'success' ? 'fa-check-circle' : 
-                     type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
-                     
-        toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
-        container.appendChild(toast);
+    // --- TOAST NOTIFICATION SYSTEM ---
+    function notify(message, type = "info") {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icon = type === 'success' ? 'fa-check-circle' : 
+                     type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+                     
+        toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+        container.appendChild(toast);
 
-        setTimeout(() => {
-            toast.style.animation = "fadeOut 0.5s forwards";
-            setTimeout(() => toast.remove(), 500);
-        }, 3000);
-    }
+        setTimeout(() => {
+            toast.style.animation = "fadeOut 0.5s forwards";
+            setTimeout(() => toast.remove(), 500);
+        }, 3000);
+    }
 
-    // --- SIDEBAR LOADER ---
-   async function loadSidebar() {
-    try {
-        const response = await fetch('SideBar.html');
-        if (!response.ok) throw new Error("Failed to fetch sidebar");
-        const html = await response.text();
-        document.getElementById('sidebar-placeholder').innerHTML = html;
+    // --- SIDEBAR LOADER ---
+    async function loadSidebar() {
+        try {
+            const response = await fetch('SideBar.html');
+            if (!response.ok) throw new Error("Failed to fetch sidebar");
+            const html = await response.text();
+            document.getElementById('sidebar-placeholder').innerHTML = html;
 
-        // Get the current file name accurately
-        const path = window.location.pathname;
-        const currentPage = path.split("/").pop() || "index.html";
+            const currentPage = window.location.pathname.split("/").pop() || "index.html";
+            document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                if (link.getAttribute('href') === currentPage) {
+                    link.parentElement.classList.add('active');
+                }
+            });
 
-        // Remove 'active' from all first, then add to the specific one
-        const navLinks = document.querySelectorAll('.nav-links a');
-        navLinks.forEach(link => {
-            const linkHref = link.getAttribute('href');
-            
-            // Remove active class from parent nav-item to be safe
-            link.parentElement.classList.remove('active');
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.getElementById('logoutModal').style.display = 'flex';
+                });
+            }
+        } catch (error) {
+            console.error("Sidebar Error:", error);
+        }
+    }
 
-            // Exact match check
-            if (linkHref === currentPage) {
-                link.parentElement.classList.add('active');
-            }
-        });
+    // --- LOGOUT LOGIC (Combined & Fixed) ---
+    document.getElementById('confirmLogout').addEventListener('click', () => {
+        document.getElementById('logoutModal').style.display = 'none';
+        notify("Logging out Redirecting...", "info");
 
-        // Re-bind logout
-        document.getElementById('logoutBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('logoutModal').style.display = 'flex';
-        });
+        setTimeout(() => {
+            signOut(auth).then(() => {
+                window.location.href = 'index.html';
+            }).catch(err => {
+                notify(err.message, "error");
+            });
+        }, 1500); 
+    });
 
-    } catch (error) {
-        console.error("Sidebar Error:", error);
-    }
+    // --- AUTH & PROFILE LOGIC ---
+   function startAuthObserver() {
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const userRef = ref(db, 'users/' + user.uid);
+            onValue(userRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    
+                    // --- Update Main Page Profile ---
+                    document.getElementById('display-admin-name').innerText = data.fullName || "Admin";
+                    document.getElementById('display-name').innerText = data.fullName || "N/A";
+                    document.getElementById('display-age').innerText = data.age || "N/A";
+                    document.getElementById('display-birthdate').innerText = data.birthdate || "N/A";
+                    document.getElementById('display-gender').innerText = data.gender || "N/A";
+                    document.getElementById('display-email').innerText = data.email || user.email;
+                    document.getElementById('display-birthplace').innerText = data.birthplace || "N/A";
+                    document.getElementById('display-address').innerText = data.currentAddress || "N/A";
+                    document.getElementById('display-nationality').innerText = data.nationality || "N/A";
+                    document.getElementById('display-status').innerText = data.status || "N/A";
+                    if (data.profilePic) document.getElementById('display-photo').src = data.profilePic;
+
+                    // --- Update Sidebar Profile (The Fix) ---
+                    const updateSidebarUI = () => {
+                        const sbName = document.getElementById('sidebarName');
+                        const sbRole = document.getElementById('sidebarRole');
+                        const sbPic = document.getElementById('profileContainer');
+
+                        if (sbName) sbName.textContent = data.fullName || "Admin";
+                        if (sbRole) sbRole.textContent = data.role || "Teacher";
+                        if (sbPic) {
+                            if (data.profilePic && data.profilePic !== "avatar.png") {
+                                sbPic.innerHTML = `<img src="${data.profilePic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                            } else {
+                                sbPic.innerHTML = `<i class="fas fa-user-tie"></i>`;
+                            }
+                        }
+                    };
+                    updateSidebarUI();
+                    setTimeout(updateSidebarUI, 500); 
+                }
+            });
+        } else {
+            window.location.href = 'index.html';
+        }
+    });
 }
+    // --- TEACHER PROFILE UTILITIES ---
+    function calculateAge(birthdateString) {
+        if (!birthdateString || birthdateString === "N/A") return "";
+        const today = new Date();
+        const birthDate = new Date(birthdateString);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
+        return age >= 0 ? age : 0;
+    }
 
-    // --- LOGOUT LOGIC ---
-    document.getElementById('confirmLogout').addEventListener('click', () => {
-        document.getElementById('logoutModal').style.display = 'none';
-        notify("Logging out Redirecting...", "info");
+    window.previewImage = (event) => {
+        const reader = new FileReader();
+        reader.onload = () => { document.getElementById('edit-preview').src = reader.result; };
+        if(event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
+    };
 
-        setTimeout(() => {
-            signOut(auth).then(() => {
-                window.location.href = 'index.html';
-            }).catch(err => {
-                notify(err.message, "error");
-            });
-        }, 1500); 
-    });
+    window.openEditModal = async () => {
+        const user = auth.currentUser;
+        const snapshot = await get(ref(db, 'users/' + user.uid));
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            document.getElementById('editName').value = data.fullName || "";
+            document.getElementById('editEmail').value = data.email || user.email || "";
+            document.getElementById('editBirthdate').value = data.birthdate !== "N/A" ? data.birthdate : "";
+            document.getElementById('editGender').value = data.gender || "MALE";
+            document.getElementById('editBirthplace').value = data.birthplace !== "N/A" ? data.birthplace : "";
+            document.getElementById('editAddress').value = data.currentAddress !== "N/A" ? data.currentAddress : "";
+            document.getElementById('editNationality').value = data.nationality !== "N/A" ? data.nationality : "";
+            document.getElementById('editStatus').value = data.status || "SINGLE";
+            document.getElementById('edit-preview').src = data.profilePic || "avatar.png";
+            document.getElementById('editAge').value = calculateAge(data.birthdate);
+            document.getElementById('editProfileModal').style.display = 'flex';
+        }
+    };
 
-    // --- AUTH & PROFILE LOGIC ---
-   function startAuthObserver() {
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            const userRef = ref(db, 'users/' + user.uid);
-            onValue(userRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    
-                    // --- Update Main Page Profile ---
-                    document.getElementById('display-admin-name').innerText = data.fullName || "Admin";
-                    document.getElementById('display-name').innerText = data.fullName || "N/A";
-                    document.getElementById('display-age').innerText = data.age || "N/A";
-                    document.getElementById('display-birthdate').innerText = data.birthdate || "N/A";
-                    document.getElementById('display-gender').innerText = data.gender || "N/A";
-                    document.getElementById('display-email').innerText = data.email || user.email;
-                    document.getElementById('display-birthplace').innerText = data.birthplace || "N/A";
-                    document.getElementById('display-address').innerText = data.currentAddress || "N/A";
-                    document.getElementById('display-nationality').innerText = data.nationality || "N/A";
-                    document.getElementById('display-status').innerText = data.status || "N/A";
-                    if (data.profilePic) document.getElementById('display-photo').src = data.profilePic;
+    window.saveProfile = async () => {
+        const user = auth.currentUser;
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.innerText = "Saving...";
+        saveBtn.disabled = true;
+        const photoBase64 = document.getElementById('edit-preview').src;
 
-                    // --- Update Sidebar Profile (The Fix) ---
-                    const updateSidebarUI = () => {
-                        const sbName = document.getElementById('sidebarName');
-                        const sbRole = document.getElementById('sidebarRole');
-                        const sbPic = document.getElementById('profileContainer');
+        try {
+            const updatedData = {
+                fullName: document.getElementById('editName').value,
+                email: document.getElementById('editEmail').value,
+                age: document.getElementById('editAge').value || "N/A",
+                birthdate: document.getElementById('editBirthdate').value || "N/A",
+                gender: document.getElementById('editGender').value,
+                birthplace: document.getElementById('editBirthplace').value || "N/A",
+                currentAddress: document.getElementById('editAddress').value || "N/A",
+                nationality: document.getElementById('editNationality').value || "N/A",
+                status: document.getElementById('editStatus').value,
+                profilePic: photoBase64 
+            };
+            await update(ref(db, 'users/' + user.uid), updatedData);
+            notify("Profile Updated Successfully!", "success"); // TOAST APPLIED
+            document.getElementById('editProfileModal').style.display = 'none';
+        } catch (error) {
+            notify(error.message, "error"); // TOAST APPLIED
+        } finally {
+            saveBtn.innerText = "Save Changes";
+            saveBtn.disabled = false;
+        }
+    };
 
-                        if (sbName) sbName.textContent = data.fullName || "Admin";
-                        if (sbRole) sbRole.textContent = data.role || "Teacher";
-                        if (sbPic) {
-                            if (data.profilePic && data.profilePic !== "avatar.png") {
-                                sbPic.innerHTML = `<img src="${data.profilePic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-                            } else {
-                                sbPic.innerHTML = `<i class="fas fa-user-tie"></i>`;
-                            }
-                        }
-                    };
-                    updateSidebarUI();
-                    setTimeout(updateSidebarUI, 500); 
-                }
-            });
-        } else {
-            window.location.href = 'index.html';
-        }
-    });
-}
-    // --- TEACHER PROFILE UTILITIES ---
-    function calculateAge(birthdateString) {
-        if (!birthdateString || birthdateString === "N/A") return "";
-        const today = new Date();
-        const birthDate = new Date(birthdateString);
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
-        return age >= 0 ? age : 0;
-    }
+    // --- STUDENT MANAGEMENT ---
+    window.submitStudent = async () => {
+        const name = document.getElementById('stuName').value.trim();
+        const email = document.getElementById('stuEmail').value.trim();
+        const id = document.getElementById('stuID').value.trim();
+        const course = document.getElementById('stuCourse').value.trim().toUpperCase();
+        const year = document.getElementById('stuYear').value;
+        const section = document.getElementById('stuSection').value.trim().toUpperCase();
 
-    window.previewImage = (event) => {
-        const reader = new FileReader();
-        reader.onload = () => { document.getElementById('edit-preview').src = reader.result; };
-        if(event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
-    };
+        if (!name || !email || !id || !course || !year || !section) {
+            notify("Please fill in all fields.", "error"); // TOAST APPLIED
+            return;
+        }
 
-    window.openEditModal = async () => {
-        const user = auth.currentUser;
-        const snapshot = await get(ref(db, 'users/' + user.uid));
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            document.getElementById('editName').value = data.fullName || "";
-            document.getElementById('editEmail').value = data.email || user.email || "";
-            document.getElementById('editBirthdate').value = data.birthdate !== "N/A" ? data.birthdate : "";
-            document.getElementById('editGender').value = data.gender || "MALE";
-            document.getElementById('editBirthplace').value = data.birthplace !== "N/A" ? data.birthplace : "";
-            document.getElementById('editAddress').value = data.currentAddress !== "N/A" ? data.currentAddress : "";
-            document.getElementById('editNationality').value = data.nationality !== "N/A" ? data.nationality : "";
-            document.getElementById('editStatus').value = data.status || "SINGLE";
-            document.getElementById('edit-preview').src = data.profilePic || "avatar.png";
-            document.getElementById('editAge').value = calculateAge(data.birthdate);
-            document.getElementById('editProfileModal').style.display = 'flex';
-        }
-    };
+        try {
+            const studentsRef = ref(db, 'students');
+            const snapshot = await get(studentsRef);
+            if (snapshot.exists()) {
+                const existingData = snapshot.val();
+                for (let key in existingData) {
+                    if (existingData[key].studentID === id) {
+                        document.getElementById('error-id').style.display = 'block';
+                        return;
+                    }
+                }
+            }
 
-    window.saveProfile = async () => {
-        const user = auth.currentUser;
-        const saveBtn = document.getElementById('saveBtn');
-        saveBtn.innerText = "Saving...";
-        saveBtn.disabled = true;
-        const photoBase64 = document.getElementById('edit-preview').src;
+            const newStudentRef = push(ref(db, 'students'));
+            await update(newStudentRef, {
+                name, email, studentID: id, stuCourses: course, yearLevel: year, section,
+                createdAt: new Date().toISOString()
+            });
 
-        try {
-            const updatedData = {
-                fullName: document.getElementById('editName').value,
-                email: document.getElementById('editEmail').value,
-                age: document.getElementById('editAge').value || "N/A",
-                birthdate: document.getElementById('editBirthdate').value || "N/A",
-                gender: document.getElementById('editGender').value,
-                birthplace: document.getElementById('editBirthplace').value || "N/A",
-                currentAddress: document.getElementById('editAddress').value || "N/A",
-                nationality: document.getElementById('editNationality').value || "N/A",
-                status: document.getElementById('editStatus').value,
-                profilePic: photoBase64 
-            };
-            await update(ref(db, 'users/' + user.uid), updatedData);
-            notify("Profile Updated Successfully!", "success"); // TOAST APPLIED
-            document.getElementById('editProfileModal').style.display = 'none';
-        } catch (error) {
-            notify(error.message, "error"); // TOAST APPLIED
-        } finally {
-            saveBtn.innerText = "Save Changes";
-            saveBtn.disabled = false;
-        }
-    };
+            notify("Student Registered Successfully!", "success"); // TOAST APPLIED
+            clearForm();
+        } catch (error) {
+            notify(error.message, "error"); // TOAST APPLIED
+        }
+    };
 
-    // --- STUDENT MANAGEMENT ---
-    window.submitStudent = async () => {
-        const name = document.getElementById('stuName').value.trim();
-        const email = document.getElementById('stuEmail').value.trim();
-        const id = document.getElementById('stuID').value.trim();
-        const course = document.getElementById('stuCourse').value.trim().toUpperCase();
-        const year = document.getElementById('stuYear').value;
-        const section = document.getElementById('stuSection').value.trim().toUpperCase();
+    window.clearForm = () => { 
+        document.querySelectorAll('#studentModal input, #studentModal select').forEach(i => i.value = "");
+        document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+        document.getElementById('studentModal').style.display = 'none'; 
+    };
 
-        if (!name || !email || !id || !course || !year || !section) {
-            notify("Please fill in all fields.", "error"); // TOAST APPLIED
-            return;
-        }
+    // --- INITIALIZATION ---
+    async function init() {
+        await loadSidebar();
+        startAuthObserver();
+    }
 
-        try {
-            const studentsRef = ref(db, 'students');
-            const snapshot = await get(studentsRef);
-            if (snapshot.exists()) {
-                const existingData = snapshot.val();
-                for (let key in existingData) {
-                    if (existingData[key].studentID === id) {
-                        document.getElementById('error-id').style.display = 'block';
-                        return;
-                    }
-                }
-            }
+    init();
 
-            const newStudentRef = push(ref(db, 'students'));
-            await update(newStudentRef, {
-                name, email, studentID: id, stuCourses: course, yearLevel: year, section,
-                createdAt: new Date().toISOString()
-            });
+    // Global UI handlers
+    window.closeLogoutModal = () => document.getElementById('logoutModal').style.display = 'none';
+    window.closeEditModal = () => document.getElementById('editProfileModal').style.display = 'none';
+    window.openModal = () => document.getElementById('studentModal').style.display = 'flex';
 
-            notify("Student Registered Successfully!", "success"); // TOAST APPLIED
-            clearForm();
-        } catch (error) {
-            notify(error.message, "error"); // TOAST APPLIED
-        }
-    };
-
-    window.clearForm = () => { 
-        document.querySelectorAll('#studentModal input, #studentModal select').forEach(i => i.value = "");
-        document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
-        document.getElementById('studentModal').style.display = 'none'; 
-    };
-
-    // --- INITIALIZATION ---
-    async function init() {
-        await loadSidebar();
-        startAuthObserver();
-    }
-
-    init();
-
-    // Global UI handlers
-    window.closeLogoutModal = () => document.getElementById('logoutModal').style.display = 'none';
-    window.closeEditModal = () => document.getElementById('editProfileModal').style.display = 'none';
-    window.openModal = () => document.getElementById('studentModal').style.display = 'flex';
-
-    document.getElementById('editBirthdate').addEventListener('change', (e) => {
-        document.getElementById('editAge').value = calculateAge(e.target.value);
-    });
+    document.getElementById('editBirthdate').addEventListener('change', (e) => {
+        document.getElementById('editAge').value = calculateAge(e.target.value);
+    });
 </script>
-
-
-
-
-
-
