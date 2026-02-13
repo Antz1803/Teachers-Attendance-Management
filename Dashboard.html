@@ -71,22 +71,23 @@
 
 <div class="main-content">
 <header class="top-header">
-    <div style="width: 45px;"></div> 
-
-    <div>
+    <div class="header-left">
         <h1>DASHBOARD</h1>
-        <div class="header-center">
-        <div id="liveClock">Loading date and time...</div>
-        </div>
+    </div>
+
+    <div class="header-center">
+        <div id="liveClock">Loading time...</div>
     </div>
     
-    <div class="menu-container">
-        <button class="menu-button" onclick="toggleMenu()">
-            <i class="fas fa-bars"></i>
-        </button>
-        <div id="myDropdown" class="dropdown-menu">
-            <a href="AttendanceManagement.html">Attendance Management</a>
-            <a href="AttendanceReport.html">Attendance Report</a>
+    <div class="header-right">
+        <div class="menu-container">
+            <button class="menu-button" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div id="myDropdown" class="dropdown-menu">
+                <a href="AttendanceManagement.html">Attendance Management</a>
+                <a href="AttendanceReport.html">Attendance Report</a>
+            </div>
         </div>
     </div>
 </header>
@@ -303,6 +304,7 @@
 </script>
 </body>
 </html>
+
 
 
 
