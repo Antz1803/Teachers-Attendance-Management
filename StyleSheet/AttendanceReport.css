@@ -15,6 +15,19 @@
             background-color: var(--bg-gray);
         }
 
+#sidebar-placeholder {
+    min-width: 250px; 
+    height: 100vh;
+    background-color: var(--teal-primary); 
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    height: 100vh;
+    overflow-y: auto;
+}
+
 .top-header {
     display: flex;
     justify-content: space-between;
@@ -179,5 +192,6 @@
         }
 
         .val-blue { color: #0055aa; font-weight: bold; }
+
 
 
