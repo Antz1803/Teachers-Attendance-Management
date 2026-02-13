@@ -18,21 +18,12 @@ body {
     width: 100%;
 }
 
-.nav-links li.active {
-    background-color: #ffffff !important;
-    border-radius: 10px;
-    margin: 0 15px;
-}
-
-.nav-links li.active a {
-    color: #008080 !important;
-    font-weight: 600; 
-}
+/* SIDEBAR STYLING */
 #sidebar-placeholder {
-    width: 250px; 
-    min-width: 250px;
-    height: 100vh;
-    background-color: #008081; 
+    width: 250px;
+    background-color: var(--primary-teal);
+    flex-shrink: 0;
+    min-height: 100vh;
 }
 
 .main-content {
@@ -259,6 +250,7 @@ body {
     from { transform: translateY(20px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
+
 
 
 
