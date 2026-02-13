@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Management</title>
     <link rel="stylesheet" href="StyleSheet/AttendanceManagement.css">
-    <link rel="stylesheet" href="StyleSheet/sidebar.css">
+    <link rel="stylesheet" href="StyleSheet/SideBar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -98,20 +98,30 @@
         const db = getDatabase(app);
         const auth = getAuth(app);
 
-        // --- 1. Load Sidebar Dynamically ---
+        // --- 1. Load Sidebar Dynamically (FIXED FILE NAME) ---
         async function setupApp() {
             try {
-                const res = await fetch('sidebar.html');
+                // Changing this to 'SideBar.html' to match your exact file name in GitHub
+                const res = await fetch('SideBar.html'); 
+                if (!res.ok) throw new Error("Sidebar file not found");
+                
                 document.getElementById('sidebarContainer').innerHTML = await res.text();
                 
-                // Attach Logout Event
-                document.getElementById('logoutBtn').onclick = () => signOut(auth);
+                // Initialize Sidebar Logic after loading
+                const logoutBtn = document.getElementById('logoutBtn');
+                if(logoutBtn) logoutBtn.onclick = () => signOut(auth);
 
                 onAuthStateChanged(auth, (user) => {
-                    if (!user) window.location.href = 'index.html';
-                    else document.getElementById('sidebarName').innerText = user.email.split('@')[0];
+                    if (!user) {
+                        window.location.href = 'index.html';
+                    } else {
+                        const nameEl = document.getElementById('sidebarName');
+                        if(nameEl) nameEl.innerText = user.email.split('@')[0];
+                    }
                 });
-            } catch (e) { console.error("Sidebar Load Failed", e); }
+            } catch (e) { 
+                console.error("Sidebar Load Failed:", e); 
+            }
         }
 
         // --- 2. Fetch Unique Courses from Database ---
@@ -121,7 +131,8 @@
             if (snapshot.exists()) {
                 const courses = new Set();
                 snapshot.forEach(child => {
-                    if (child.val().stuCourses) courses.add(child.val().stuCourses);
+                    const data = child.val();
+                    if (data.stuCourses) courses.add(data.stuCourses);
                 });
                 dropdown.innerHTML = Array.from(courses).sort().map(c => 
                     `<a href="javascript:void(0)" onclick="setCourse('${c}')">${c}</a>`
@@ -148,6 +159,7 @@
                 tableBody.innerHTML = "";
                 stuSnap.forEach(child => {
                     const data = child.val();
+                    // Matching your database field 'stuCourses'
                     if (data.stuCourses === selectedCourse) {
                         const status = attData[child.key] ? attData[child.key].status : "PRESENT";
                         const row = document.createElement("tr");
@@ -167,7 +179,7 @@
                         tableBody.appendChild(row);
                     }
                 });
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Data fetch error:", e); }
         };
 
         window.saveAttendance = async function() {
@@ -204,11 +216,14 @@
         const today = new Date();
         today.setHours(0,0,0,0);
 
-        function toggleMenu() { document.getElementById("myDropdown").classList.toggle("show"); }
+        function toggleMenu() { 
+            document.getElementById("myDropdown").classList.toggle("show"); 
+        }
 
         window.setCourse = (c) => {
             const p = document.getElementById("coursePillText");
-            p.innerText = c; p.style.color = "#000";
+            p.innerText = c; 
+            p.style.color = "#000";
             document.getElementById("courseDropdown").style.display = "none";
             if (window.fetchStudents) window.fetchStudents();
         };
