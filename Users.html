@@ -52,7 +52,7 @@
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
     </style>
 </head>
-<body style="display: flex; margin: 0;"> 
+<body style="display: flex;"> 
     <div id="sidebar-placeholder"></div>
     <div id="toast-container"></div>
       <div class="main-content">
@@ -262,32 +262,41 @@
     }
 
     // --- SIDEBAR LOADER ---
-    async function loadSidebar() {
-        try {
-            const response = await fetch('SideBar.html');
-            if (!response.ok) throw new Error("Failed to fetch sidebar");
-            const html = await response.text();
-            document.getElementById('sidebar-placeholder').innerHTML = html;
+   async function loadSidebar() {
+    try {
+        const response = await fetch('SideBar.html');
+        if (!response.ok) throw new Error("Failed to fetch sidebar");
+        const html = await response.text();
+        document.getElementById('sidebar-placeholder').innerHTML = html;
 
-            const currentPage = window.location.pathname.split("/").pop() || "index.html";
-            document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                if (link.getAttribute('href') === currentPage) {
-                    link.parentElement.classList.add('active');
-                }
-            });
+        // Get the current file name accurately
+        const path = window.location.pathname;
+        const currentPage = path.split("/").pop() || "index.html";
 
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.getElementById('logoutModal').style.display = 'flex';
-                });
+        // Remove 'active' from all first, then add to the specific one
+        const navLinks = document.querySelectorAll('.nav-links a');
+        navLinks.forEach(link => {
+            const linkHref = link.getAttribute('href');
+            
+            // Remove active class from parent nav-item to be safe
+            link.parentElement.classList.remove('active');
+
+            // Exact match check
+            if (linkHref === currentPage) {
+                link.parentElement.classList.add('active');
             }
-        } catch (error) {
-            console.error("Sidebar Error:", error);
-        }
+        });
+
+        // Re-bind logout
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('logoutModal').style.display = 'flex';
+        });
+
+    } catch (error) {
+        console.error("Sidebar Error:", error);
     }
+}
 
     // --- LOGOUT LOGIC (Combined & Fixed) ---
     document.getElementById('confirmLogout').addEventListener('click', () => {
@@ -480,6 +489,7 @@
         document.getElementById('editAge').value = calculateAge(e.target.value);
     });
 </script>
+
 
 
 
