@@ -316,7 +316,12 @@ window.closeLogoutModal = function() {
     totalDaysCount > 0
         ? ((grandPresent / totalDaysCount) * 100).toFixed(1) + '%'
         : '0%';
-        document.getElementById('avgAbsentCount').textContent = totalStudents > 0 ? Math.round((totalDaysCount - grandPresent) / totalStudents) : 0;
+        
+        document.getElementById('avgAbsentCount').textContent =
+    totalDaysCount > 0
+        ? (100 - ((grandPresent / totalDaysCount) * 100)).toFixed(1) + '%'
+        : '0%';
+
     }
 
     // --- EVENT LISTENERS FOR AUTO-GENERATION ---
@@ -354,6 +359,7 @@ window.onclick = function(event) {
 </body>
 
 </html>
+
 
 
 
