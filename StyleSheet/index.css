@@ -21,25 +21,25 @@ body {
     width: 400px;
     background: white;
     border-radius: 20px;
-    overflow: hidden;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    overflow: hidden; /* keeps header corners clean */
 }
+
+/* Header */
 .card-header {
-    background-color: var(--teal-main); 
+    background-color: var(--teal-main);
     height: 120px;
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
 }
 
+/* Logo inside header */
 .card-header img {
     max-height: 60px;
     width: auto;
 }
-
 
 .card-body {
     padding: 30px 40px 40px;
@@ -221,4 +221,5 @@ input[type="text"] {
     font-weight: bold;
 
 }
+
 
