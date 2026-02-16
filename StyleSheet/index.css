@@ -24,6 +24,20 @@ body {
     overflow: hidden;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
+.card-header {
+    background-color: #1f7f82; 
+    height: 120px;           
+    display: flex;
+    align-items: center;        
+    justify-content: center;     
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+.card-header img {
+    max-height: 70px;          
+    width: auto;
+}
 
 .card-header {
     background-color: var(--teal-main);
@@ -209,4 +223,5 @@ input[type="text"] {
     color: var(--primary-teal);
     text-decoration: none;
     font-weight: bold;
+
 }
