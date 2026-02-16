@@ -312,7 +312,10 @@ window.closeLogoutModal = function() {
 
         tbody.innerHTML = html || '<tr><td colspan="5" style="text-align:center;">No records matching filters.</td></tr>';
         document.getElementById('totalStudentsCount').textContent = totalStudents;
-        document.getElementById('avgPresentCount').textContent = totalStudents > 0 ? Math.round(grandPresent / totalStudents) : 0;
+        document.getElementById('avgPresentCount').textContent =
+    totalDaysCount > 0
+        ? ((grandPresent / totalDaysCount) * 100).toFixed(1) + '%'
+        : '0%';
         document.getElementById('avgAbsentCount').textContent = totalStudents > 0 ? Math.round((totalDaysCount - grandPresent) / totalStudents) : 0;
     }
 
@@ -351,6 +354,7 @@ window.onclick = function(event) {
 </body>
 
 </html>
+
 
 
 
