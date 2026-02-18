@@ -111,15 +111,15 @@
 
     // --- TOAST NOTIFICATION UTILITY ---
     const notify = (msg, type = 'success') => {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle"></i> ${msg}`;
-        document.getElementById('toast-container').appendChild(toast);
-        setTimeout(() => {
-            toast.style.animation = 'fadeOut 0.5s forwards';
-            setTimeout(() => toast.remove(), 500);
-        }, 3000);
-    };
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle"></i> ${msg}`;
+    document.getElementById('toast-container').appendChild(toast);
+    setTimeout(() => {
+        toast.style.animation = 'fadeOut 0.5s forwards';
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+};
 
     // ===== REGISTRATION =====
     document.getElementById('regForm').addEventListener('submit', async (e) => {
@@ -150,7 +150,7 @@
 
     // ===== LOGIN =====
     document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
-        e.preventDefault();
+    e.preventDefault(); 
         const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
 
@@ -159,8 +159,8 @@
             notify('Login Successful! Redirecting...', 'success');
             
             setTimeout(() => {
-                window.location.href = 'Dashboard.html';
-            }, 1500);
+    window.location.href = 'Dashboard.html';
+}, 1500);
 
         } catch (error) {
             let msg = error.message;
@@ -169,19 +169,21 @@
         }
     });
 
-    window.showRegister = () => {
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('registerForm').style.display = 'block';
-    }
+ window.showRegister = () => {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'block';
+}
 
-    window.showLogin = () => {
-        document.getElementById('registerForm').style.display = 'none';
-        document.getElementById('loginForm').style.display = 'block';
-    }
+window.showLogin = () => {
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('loginForm').style.display = 'block';
+}
+
 </script>
 
 </body>
 </html>
+
 
 
 
