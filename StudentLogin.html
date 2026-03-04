@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance System - ID Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="StyleSheet/index.css">
+    <style>
+        /* Toast Notification Styling */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
+        .toast { 
+            padding: 12px 20px; border-radius: 8px; color: #fff; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 10px; font-family: sans-serif;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); animation: slideIn 0.3s forwards;
+        }
+        .success { background: #008080; }
+        .error { background: #e74c3c; }
+        
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
+    </style>
+</head>
+<body>
+
+    <div id="toast-container"></div>
+
+    <div class="login-card" id="loginForm">
+        <div class="card-header">
+            <img src="images/Logowhite.png" alt="Logo">
+        </div>
+        <div class="card-body">
+            <h2>Student Login</h2>
+            <form id="loginFormElement">
+                <div class="form-group">
+                    <label>Student ID</label>
+                    <input type="text" id="loginStudentID" placeholder="e.g. 22-9090909" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn-action">Login</button>
+                <div class="signup-links">
+                    <label>New Student?</label>
+                    <a href="#" onclick="showRegister()">Create Account</a>
+                </div>
+            </form> 
+        </div>        
+    </div>          
+    
+    <div class="login-card" id="registerForm" style="display:none;">
+        <div class="card-header">
+            <img src="images/Logowhite.png" alt="Logo">
+        </div>
+        <div class="card-body">
+            <h2>Student Registration</h2>
+            <form id="regForm">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="regFullName" placeholder="Full Name" required>
+                </div>
+                <div class="form-group">
+                    <label>Gmail / Email</label>
+                    <input type="email" id="regEmail" placeholder="example@gmail.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Student ID</label>
+                    <input type="text" id="regStudentID" placeholder="e.g. 22-9090909" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="regPassword" placeholder="Create password" required>
+                </div>
+                <button type="submit" class="btn-action">Register</button>
+                <div class="signup-links">      
+                    <a href="#" onclick="showLogin()">Back to Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getDatabase, ref, set } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCSADfQpAWpCbB8Idf3Eu94kMeO-7QX4aQ",
+        authDomain: "attendancesystem-cb683.firebaseapp.com",
+        databaseURL: "https://attendancesystem-cb683-default-rtdb.firebaseio.com",
+        projectId: "attendancesystem-cb683",
+        storageBucket: "attendancesystem-cb683.appspot.com",
+        messagingSenderId: "975901701661",
+        appId: "1:975901701661:web:f8ccfbafd8e6c6e9c3f8f4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // Virtual domain used ONLY for Firebase Auth background tasks
+    const ID_DOMAIN = "@attendance.system";
+
+    const notify = (msg, type = 'success') => {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'exclamation-circle'}"></i> ${msg}`;
+        document.getElementById('toast-container').appendChild(toast);
+        setTimeout(() => {
+            toast.style.animation = 'fadeOut 0.5s forwards';
+            setTimeout(() => toast.remove(), 500);
+        }, 3000);
+    };
+
+    // ===== STUDENT REGISTRATION =====
+    document.getElementById('regForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fullName = document.getElementById('regFullName').value;
+        const email = document.getElementById('regEmail').value; // Actual Gmail
+        const studentID = document.getElementById('regStudentID').value.trim();
+        const password = document.getElementById('regPassword').value;
+        
+        // We still register the Auth account using StudentID to ensure ID-based login
+        const authEmail = studentID + ID_DOMAIN;
+
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, authEmail, password);
+            const user = userCredential.user;
+
+            // Save all details to Realtime Database
+            await set(ref(db, 'users/' + user.uid), {
+                fullName: fullName,
+                gmail: email,      // Saved for communication
+                studentID: studentID, // Saved for Teacher relationship
+                role: 'Student', 
+                createdAt: new Date().toISOString()
+            });
+
+            notify('✅ Student Registered Successfully!', 'success');
+            document.getElementById('regForm').reset();
+            setTimeout(showLogin, 1500);
+
+        } catch (error) {
+            notify('❌ ' + error.message, 'error');
+        }
+    });
+
+    // ===== STUDENT LOGIN =====
+    document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
+        e.preventDefault(); 
+        const studentID = document.getElementById('loginStudentID').value.trim();
+        const password = document.getElementById('loginPassword').value;
+
+        const authEmail = studentID + ID_DOMAIN;
+
+        try {
+            await signInWithEmailAndPassword(auth, authEmail, password);
+            notify('Login Successful!', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'StudentAttendanceView.html';
+            }, 1500);
+
+        } catch (error) {
+            notify('Error: Invalid Student ID or password.', 'error');
+        }
+    });
+
+    window.showRegister = () => {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('registerForm').style.display = 'block';
+    }
+
+    window.showLogin = () => {
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('loginForm').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
