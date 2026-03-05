@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="StyleSheet/Users.css">
     <link rel="stylesheet" href="StyleSheet/SideBar.css">
     <style>
-        /* Toast Notification Layout */
+        /* Toast Notification - Upper Right */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
         .toast { 
             padding: 12px 20px; border-radius: 8px; color: #fff; margin-bottom: 10px;
@@ -19,47 +19,55 @@
         .error { background: #e74c3c; }
         .info { background: #3498db; }
 
-        /* Logout Modal Specifics */
+        /* Custom Logout Modal */
         .logout-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); 
             display: none; align-items: center; justify-content: center; z-index: 9999;
         }
+        .modal-content {
+            background: white; padding: 30px; border-radius: 15px;
+            width: 350px; text-align: center; box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .modal-btns { display: flex; gap: 15px; margin-top: 20px; }
+        .btn-confirm { 
+            background: #e74c3c; color: white; flex: 1; padding: 12px; border: none; 
+            border-radius: 8px; cursor: pointer; font-weight: 600;
+        }
+        .btn-cancel { background: #f0f0f0; flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; }
 
-        /* Animations */
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
     </style>
 </head>
 <body>
     <div id="sidebar-placeholder"></div>
-
+    
     <div class="main-content">
         <header class="top-header">
             <div class="header-left">
                 <h1>Users</h1>
             </div>
+            <div class="header-right">
+                <button class="btn-add-student" onclick="openEnrollModal()">+ Student</button>
+            </div>
         </header>
 
-        <div class="controls-row">
-            <button class="btn-add-student" onclick="openEnrollModal()">+ Enroll Student</button>
-        </div>
-        
-        <h3 class="admin-label">Hello, <span id="display-admin-name">Teacher</span>!</h3>
+        <h3 class="admin-label">Hello! <span id="display-admin-name">Loading...</span></h3>
 
         <div class="profile-card">
             <div class="card-content">
                 <h2 class="card-title">Teacher's Profile</h2>
                 <div class="profile-details">
-                    <div class="detail-item"><strong>Name:</strong> <span id="display-name">Loading...</span></div>
-                    <div class="detail-item"><strong>Age:</strong> <span id="display-age">Loading...</span></div>
-                    <div class="detail-item"><strong>Birthdate:</strong> <span id="display-birthdate">Loading...</span></div>
-                    <div class="detail-item"><strong>Gender:</strong> <span id="display-gender">Loading...</span></div>
-                    <div class="detail-item"><strong>Email:</strong> <span id="display-email">Loading...</span></div>
-                    <div class="detail-item"><strong>Birthplace:</strong> <span id="display-birthplace">Loading...</span></div>
-                    <div class="detail-item"><strong>Current Address:</strong> <span id="display-address">Loading...</span></div>
-                    <div class="detail-item"><strong>Nationality:</strong> <span id="display-nationality">Loading...</span></div>
-                    <div class="detail-item"><strong>Status:</strong> <span id="display-status">Loading...</span></div>
+                    <div class="detail-item"><strong>NAME:</strong> <span id="display-name">Loading...</span></div>
+                    <div class="detail-item"><strong>AGE:</strong> <span id="display-age">Loading...</span></div>
+                    <div class="detail-item"><strong>BIRTHDATE:</strong> <span id="display-birthdate">Loading...</span></div>
+                    <div class="detail-item"><strong>GENDER:</strong> <span id="display-gender">Loading...</span></div>
+                    <div class="detail-item"><strong>EMAIL:</strong> <span id="display-email">Loading...</span></div>
+                    <div class="detail-item"><strong>BIRTHPLACE:</strong> <span id="display-birthplace">Loading...</span></div>
+                    <div class="detail-item"><strong>CURRENT ADDRESS:</strong> <span id="display-address">Loading...</span></div>
+                    <div class="detail-item"><strong>NATIONALITY:</strong> <span id="display-nationality">Loading...</span></div>
+                    <div class="detail-item"><strong>STATUS:</strong> <span id="display-status">Loading...</span></div>
                 </div>
             </div>
 
@@ -67,7 +75,7 @@
                 <div class="profile-photo-container">
                     <img src="avatar.png" id="display-photo" alt="Profile Photo">
                 </div>
-                <button class="btn-edit-profile" onclick="openEditModal()">✎ Edit Profile</button>
+                <button class="btn-edit-profile" onclick="openEditModal()">✎ Edit profile</button>
             </div>
         </div>
     </div>
@@ -77,28 +85,21 @@
             <div class="modal-body">
                 <h3>Update Teacher Profile</h3>
                 <div class="file-input-wrapper">
-                    <img id="edit-preview" src="avatar.png" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">
+                    <img id="edit-preview" src="avatar.png" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
                     <label for="editPhoto" class="btn-upload">Choose New Photo</label>
                     <input type="file" id="editPhoto" accept="image/*" onchange="previewImage(event)" style="display:none;">
                 </div>
                 <div class="modal-grid">
                     <div class="modal-form-group full-width"><label>Full Name</label><input type="text" id="editName"></div>
                     <div class="modal-form-group"><label>Birthdate</label><input type="date" id="editBirthdate"></div>
-                    <div class="modal-form-group"><label>Age</label><input type="text" id="editAge" readonly style="background:#f0f0f0;"></div>
+                    <div class="modal-form-group"><label>Age</label><input type="text" id="editAge" readonly></div>
                     <div class="modal-form-group">
                         <label>Gender</label>
-                        <select id="editGender">
-                            <option value="MALE">MALE</option>
-                            <option value="FEMALE">FEMALE</option>
-                        </select>
+                        <select id="editGender"><option value="MALE">MALE</option><option value="FEMALE">FEMALE</option></select>
                     </div>
                     <div class="modal-form-group">
                         <label>Status</label>
-                        <select id="editStatus">
-                            <option value="SINGLE">SINGLE</option>
-                            <option value="MARRIED">MARRIED</option>
-                            <option value="WIDOWED">WIDOWED</option>
-                        </select>
+                        <select id="editStatus"><option value="SINGLE">SINGLE</option><option value="MARRIED">MARRIED</option></select>
                     </div>
                     <div class="modal-form-group"><label>Birthplace</label><input type="text" id="editBirthplace"></div>
                     <div class="modal-form-group"><label>Nationality</label><input type="text" id="editNationality"></div>
@@ -115,37 +116,23 @@
     <div id="studentModal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-body">
-                <h3>Enroll Student to Class</h3>
+                <h3>Add Student to Class</h3>
                 <div class="modal-form-group" style="display: flex; gap: 10px; align-items: flex-end;">
                     <div style="flex-grow: 1;">
-                        <label>Search Student ID or Email</label>
-                        <input type="text" id="stuID" placeholder="e.g. 2024-001">
+                        <label>Search Student ID</label>
+                        <input type="text" id="stuID" placeholder="Enter ID...">
                     </div>
-                    <button class="btn-action" onclick="searchStudent()" style="padding: 10px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    <button class="btn-action" onclick="searchStudent()" style="padding: 10px; background: #3498db; color: white; border: none; border-radius: 5px;">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
-                <small id="error-id" style="color: #e74c3c; display: none;">No student found with this ID.</small>
-                <hr style="margin: 15px 0; opacity: 0.1;">
-                <div class="modal-form-group">
-                    <label>Full Name</label>
-                    <input type="text" id="stuName" readonly style="background: #f9f9f9;">
-                </div>
+                <div class="modal-form-group"><label>Full Name</label><input type="text" id="stuName" readonly></div>
                 <div class="modal-grid">
-                    <div class="modal-form-group"><label>Course Code</label><input type="text" id="stuCourse" placeholder="IT101"></div>
-                    <div class="modal-form-group"><label>Section</label><input type="text" id="stuSection" placeholder="A"></div>
-                </div>
-                <div class="modal-form-group">
-                    <label>Year Level</label>
-                    <select id="stuYear">
-                        <option value="1st Year">1st Year</option>
-                        <option value="2nd Year">2nd Year</option>
-                        <option value="3rd Year">3rd Year</option>
-                        <option value="4th Year">4th Year</option>
-                    </select>
+                    <div class="modal-form-group"><label>Course Code</label><input type="text" id="stuCourse"></div>
+                    <div class="modal-form-group"><label>Section</label><input type="text" id="stuSection"></div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-submit" id="btnEnroll" onclick="submitStudent()" disabled style="opacity: 0.5;">Enroll Student</button>
+                    <button class="btn-submit" id="btnEnroll" onclick="submitStudent()" disabled style="opacity: 0.5;">Enroll</button>
                     <button class="btn-clear" onclick="clearEnrollForm()">Cancel</button>
                 </div>
             </div>
@@ -154,7 +141,7 @@
 
     <div id="logoutModal" class="logout-modal">
         <div class="modal-content">
-            <i class="fas fa-sign-out-alt" style="font-size: 40px; color: #e74c3c; margin-bottom: 15px;"></i>
+            <i class="fas fa-sign-out-alt" style="font-size: 40px; color: #e74c3c;"></i>
             <h2>Confirm Logout</h2>
             <p>Are you sure you want to log out?</p>
             <div class="modal-btns">
@@ -185,162 +172,106 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    // --- NOTIFICATIONS ---
-    function notify(message, type = "info") {
+    function notify(msg, type) {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-        toast.innerHTML = `<span>${message}</span>`;
+        toast.innerHTML = `<span>${msg}</span>`;
         container.appendChild(toast);
-        setTimeout(() => {
-            toast.style.animation = "fadeOut 0.5s forwards";
-            setTimeout(() => toast.remove(), 500);
-        }, 3000);
+        setTimeout(() => { toast.style.animation="fadeOut 0.5s forwards"; setTimeout(()=>toast.remove(), 500); }, 3000);
     }
 
-    // --- AGE CALCULATION ---
-    function calculateAge(birthdateString) {
-        if (!birthdateString) return "";
-        const today = new Date();
-        const birthDate = new Date(birthdateString);
-        let age = today.getFullYear() - birthDate.getFullYear();
-        if (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) age--;
-        return age;
-    }
-
-    // --- AUTH OBSERVER ---
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            onValue(ref(db, 'users/' + user.uid), (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    document.getElementById('display-admin-name').innerText = data.fullName || "Teacher";
-                    document.getElementById('display-name').innerText = data.fullName || "N/A";
-                    document.getElementById('display-age').innerText = data.age || "N/A";
-                    document.getElementById('display-birthdate').innerText = data.birthdate || "N/A";
-                    document.getElementById('display-gender').innerText = data.gender || "N/A";
-                    document.getElementById('display-email').innerText = user.email;
-                    document.getElementById('display-address').innerText = data.currentAddress || "N/A";
-                    document.getElementById('display-status').innerText = data.status || "N/A";
-                    document.getElementById('display-birthplace').innerText = data.birthplace || "N/A";
-                    document.getElementById('display-nationality').innerText = data.nationality || "N/A";
-                    if (data.profilePic) document.getElementById('display-photo').src = data.profilePic;
-                }
+            onValue(ref(db, 'users/' + user.uid), (snap) => {
+                const data = snap.val() || {};
+                document.getElementById('display-admin-name').innerText = data.fullName || "Admin";
+                document.getElementById('display-name').innerText = data.fullName || "N/A";
+                document.getElementById('display-age').innerText = data.age || "N/A";
+                document.getElementById('display-birthdate').innerText = data.birthdate || "N/A";
+                document.getElementById('display-gender').innerText = data.gender || "N/A";
+                document.getElementById('display-email').innerText = user.email;
+                document.getElementById('display-address').innerText = data.currentAddress || "N/A";
+                document.getElementById('display-birthplace').innerText = data.birthplace || "N/A";
+                document.getElementById('display-nationality').innerText = data.nationality || "N/A";
+                document.getElementById('display-status').innerText = data.status || "N/A";
+                if(data.profilePic) document.getElementById('display-photo').src = data.profilePic;
             });
-        } else {
-            window.location.href = 'index.html';
-        }
+        } else { window.location.href = 'index.html'; }
     });
 
-    // --- PROFILE ACTIONS ---
     window.openEditModal = async () => {
         const snap = await get(ref(db, 'users/' + auth.currentUser.uid));
-        if (snap.exists()) {
-            const data = snap.val();
-            document.getElementById('editName').value = data.fullName || "";
-            document.getElementById('editBirthdate').value = data.birthdate || "";
-            document.getElementById('editAge').value = data.age || "";
-            document.getElementById('editGender').value = data.gender || "MALE";
-            document.getElementById('editStatus').value = data.status || "SINGLE";
-            document.getElementById('editBirthplace').value = data.birthplace || "";
-            document.getElementById('editNationality').value = data.nationality || "";
-            document.getElementById('editAddress').value = data.currentAddress || "";
-            document.getElementById('edit-preview').src = data.profilePic || "avatar.png";
-            document.getElementById('editProfileModal').style.display = 'flex';
-        }
+        const data = snap.val() || {};
+        document.getElementById('editName').value = data.fullName || "";
+        document.getElementById('editBirthdate').value = data.birthdate || "";
+        document.getElementById('editAge').value = data.age || "";
+        document.getElementById('editProfileModal').style.display = 'flex';
     };
 
     window.saveProfile = async () => {
-        const btn = document.getElementById('saveBtn');
-        btn.innerText = "Saving...";
-        try {
-            const updates = {
-                fullName: document.getElementById('editName').value,
-                birthdate: document.getElementById('editBirthdate').value,
-                age: document.getElementById('editAge').value,
-                gender: document.getElementById('editGender').value,
-                status: document.getElementById('editStatus').value,
-                birthplace: document.getElementById('editBirthplace').value,
-                nationality: document.getElementById('editNationality').value,
-                currentAddress: document.getElementById('editAddress').value,
-                profilePic: document.getElementById('edit-preview').src
-            };
-            await update(ref(db, 'users/' + auth.currentUser.uid), updates);
-            notify("Profile Updated!", "success");
-            closeEditModal();
-        } catch (e) { notify(e.message, "error"); }
-        btn.innerText = "Save Changes";
+        const updates = {
+            fullName: document.getElementById('editName').value,
+            birthdate: document.getElementById('editBirthdate').value,
+            age: document.getElementById('editAge').value,
+            gender: document.getElementById('editGender').value,
+            status: document.getElementById('editStatus').value,
+            currentAddress: document.getElementById('editAddress').value,
+            profilePic: document.getElementById('edit-preview').src
+        };
+        await update(ref(db, 'users/' + auth.currentUser.uid), updates);
+        notify("Updated!", "success");
+        closeEditModal();
     };
 
-    // --- ENROLLMENT ACTIONS ---
     window.searchStudent = async () => {
         const id = document.getElementById('stuID').value.trim();
-        if (!id) return notify("Enter ID first", "error");
         const snap = await get(ref(db, 'users'));
         let found = false;
-        snap.forEach(child => {
-            const u = child.val();
-            if (u.role === 'Student' && (u.studentID === id || u.email === id)) {
+        snap.forEach(c => {
+            const u = c.val();
+            if(u.role==='Student' && (u.studentID===id || u.email===id)) {
                 document.getElementById('stuName').value = u.fullName;
                 document.getElementById('btnEnroll').disabled = false;
                 document.getElementById('btnEnroll').style.opacity = "1";
-                document.getElementById('error-id').style.display = 'none';
                 found = true;
             }
         });
-        if (!found) {
-            document.getElementById('error-id').style.display = 'block';
-            document.getElementById('btnEnroll').disabled = true;
-            document.getElementById('btnEnroll').style.opacity = "0.5";
-        }
+        if(!found) notify("Not found", "error");
     };
 
     window.submitStudent = async () => {
-        const studentData = {
+        const data = {
             name: document.getElementById('stuName').value,
-            studentID: document.getElementById('stuID').value,
-            course: document.getElementById('stuCourse').value.toUpperCase(),
-            section: document.getElementById('stuSection').value.toUpperCase(),
-            yearLevel: document.getElementById('stuYear').value,
+            course: document.getElementById('stuCourse').value,
+            section: document.getElementById('stuSection').value,
             teacherID: auth.currentUser.uid,
             enrolledAt: new Date().toISOString()
         };
-        try {
-            await push(ref(db, 'students'), studentData);
-            notify("Student Enrolled Successfully!", "success");
-            clearEnrollForm();
-        } catch (e) { notify(e.message, "error"); }
+        await push(ref(db, 'students'), data);
+        notify("Enrolled!", "success");
+        clearEnrollForm();
     };
 
     window.clearEnrollForm = () => {
         document.getElementById('stuID').value = "";
         document.getElementById('stuName').value = "";
-        document.getElementById('stuCourse').value = "";
-        document.getElementById('stuSection').value = "";
-        document.getElementById('btnEnroll').disabled = true;
         document.getElementById('studentModal').style.display = 'none';
     };
 
-    // --- UI EVENT LISTENERS ---
     window.previewImage = (e) => {
         const reader = new FileReader();
         reader.onload = () => document.getElementById('edit-preview').src = reader.result;
-        if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
+        reader.readAsDataURL(e.target.files[0]);
     };
 
     window.closeEditModal = () => document.getElementById('editProfileModal').style.display = 'none';
     window.openEnrollModal = () => document.getElementById('studentModal').style.display = 'flex';
     window.closeLogoutModal = () => document.getElementById('logoutModal').style.display = 'none';
-    
     document.getElementById('confirmLogout').onclick = () => signOut(auth);
-    document.getElementById('editBirthdate').onchange = (e) => {
-        document.getElementById('editAge').value = calculateAge(e.target.value);
-    };
 
-    // Initialize Sidebar
-    fetch('../SideBar.html').then(res => res.text()).then(html => {
-        document.getElementById('sidebar-placeholder').innerHTML = html;
-    });
+    // Sidebar Load
+    fetch('../SideBar.html').then(r => r.text()).then(h => document.getElementById('sidebar-placeholder').innerHTML = h);
 </script>
 </body>
 </html>
