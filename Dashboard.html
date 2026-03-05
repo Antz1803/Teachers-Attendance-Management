@@ -159,9 +159,19 @@
             }
         });
 
+        // Logout button
         document.getElementById('logoutBtn').addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('logoutModal').style.display = 'flex';
+        });
+
+        // Remove sidebar highlight if hamburger menu is used
+        document.querySelectorAll('#myDropdown a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.querySelectorAll('.nav-links li').forEach(item => {
+                    item.classList.remove('active');
+                });
+            });
         });
 
     } catch (error) {
@@ -295,9 +305,11 @@
     
     // Globally expose dropdown toggle
     window.toggleMenu = () => document.getElementById("myDropdown").classList.toggle("show");
+   
 </script>
 </body>
 </html>
+
 
 
 
