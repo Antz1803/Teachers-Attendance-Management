@@ -49,6 +49,15 @@ body {
     margin-bottom: 10px;
 }
 
+.header-left h1 {
+    margin: 0;
+    color: var(--text-gray); 
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
 /* --- Controls Row --- */
 .controls-row {
     display: flex;
@@ -502,5 +511,6 @@ body {
             font-size: 12px;
         }
         .btn-upload:hover { background: #e0e0e0; }
+
 
 
