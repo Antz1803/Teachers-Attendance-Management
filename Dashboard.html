@@ -210,8 +210,6 @@ async function loadSidebar() {
 }
     document.getElementById('confirmLogout').addEventListener('click', () => {
     closeLogoutModal();
-    notify("Logging out... Redirecting in 3 seconds", "info");
-
     signOut(auth)
         .then(() => {
             setTimeout(() => {
@@ -315,6 +313,7 @@ async function loadSidebar() {
 </script>
 </body>
 </html>
+
 
 
 
