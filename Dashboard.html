@@ -165,21 +165,6 @@ async function loadSidebar() {
             });
         }
 
-        // Attach confirm logout button listener
-        const confirmLogoutBtn = document.getElementById('confirmLogout');
-        if (confirmLogoutBtn) {
-            confirmLogoutBtn.addEventListener('click', () => {
-                closeLogoutModal();
-                notify("Logging out... Redirecting in 3 seconds", "info");
-
-                signOut(auth).then(() => {
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 3000);
-                }).catch(err => notify(err.message, "error"));
-            });
-        }
-
         // Remove sidebar highlight if dropdown links are used
         document.querySelectorAll('#myDropdown a').forEach(link => {
             link.addEventListener('click', () => {
@@ -219,6 +204,22 @@ async function loadSidebar() {
             }
         });
     }
+
+    function closeLogoutModal() {
+    document.getElementById('logoutModal').style.display = 'none';
+}
+    document.getElementById('confirmLogout').addEventListener('click', () => {
+    closeLogoutModal();
+    notify("Logging out... Redirecting in 3 seconds", "info");
+
+    signOut(auth)
+        .then(() => {
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 3000);
+        })
+        .catch(err => notify(err.message, "error"));
+});
 
     // --- UTILITIES & DATA ---
     const notify = (msg, type = 'success') => {
@@ -314,6 +315,7 @@ async function loadSidebar() {
 </script>
 </body>
 </html>
+
 
 
 
