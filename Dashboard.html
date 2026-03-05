@@ -217,14 +217,20 @@
         }, 3000);
     };
 
-    window.closeLogoutModal = () => document.getElementById('logoutModal').style.display = 'none';
-
     document.getElementById('confirmLogout').addEventListener('click', () => {
-        closeLogoutModal();
-        signOut(auth).then(() => {
+    closeLogoutModal();
+
+    notify("Logging out... Redirecting", "info");
+
+    signOut(auth).then(() => {
+
+        // wait 3 seconds before redirect
+        setTimeout(() => {
             window.location.href = 'index.html';
-        }).catch(err => notify(err.message, "error"));
-    });
+        }, 3000);
+
+    }).catch(err => notify(err.message, "error"));
+});
 
   function loadTodayAttendance() {
         // Formats date as YYYY-MM-DD to match common Firebase keys
@@ -308,6 +314,7 @@
 </script>
 </body>
 </html>
+
 
 
 
