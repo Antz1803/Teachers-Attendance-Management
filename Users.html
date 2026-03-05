@@ -269,7 +269,7 @@
     // --- SIDEBAR LOADER ---
     async function loadSidebar() {
         try {
-            const response = await fetch('SideBar.html');
+            const response = await fetch('../SideBar.html');
             if (!response.ok) throw new Error("Failed to fetch sidebar");
             const html = await response.text();
             document.getElementById('sidebar-placeholder').innerHTML = html;
@@ -520,6 +520,7 @@ window.submitStudent = async () => {
 
 
   </body></html>
+
 
 
 
