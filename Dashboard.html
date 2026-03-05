@@ -208,18 +208,18 @@ async function loadSidebar() {
     function closeLogoutModal() {
     document.getElementById('logoutModal').style.display = 'none';
 }
-  document.getElementById('confirmLogout').addEventListener('click', () => {
-    notify("Logging out redirecting...", "info");
-    closeLogoutModal();
+document.getElementById('confirmLogout').addEventListener('click', () => {
+        document.getElementById('logoutModal').style.display = 'none';
+        notify("Logging out Redirecting...", "info");
 
-    signOut(auth)
-        .then(() => {
-            setTimeout(() => {
+        setTimeout(() => {
+            signOut(auth).then(() => {
                 window.location.href = 'index.html';
-            }, 9000);
-        })
-        .catch(err => notify(err.message, "error"));
-});
+            }).catch(err => {
+                notify(err.message, "error");
+            });
+        }, 1500); 
+    });
 
     // --- UTILITIES & DATA ---
     const notify = (msg, type = 'success') => {
@@ -315,6 +315,7 @@ async function loadSidebar() {
 </script>
 </body>
 </html>
+
 
 
 
