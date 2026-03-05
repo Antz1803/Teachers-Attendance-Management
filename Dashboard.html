@@ -208,15 +208,17 @@ async function loadSidebar() {
     function closeLogoutModal() {
     document.getElementById('logoutModal').style.display = 'none';
 }
-    document.getElementById('confirmLogout').addEventListener('click', () => {
+  document.getElementById('confirmLogout').addEventListener('click', () => {
+    notify("Logging out redirecting...", "info");
     closeLogoutModal();
-    notify("Logging out... Redirecting", "info");
+
     signOut(auth)
         .then(() => {
             setTimeout(() => {
                 window.location.href = 'index.html';
-            }, 5000);
+            }, 3000);
         })
+        .catch(err => notify(err.message, "error"));
 });
 
     // --- UTILITIES & DATA ---
@@ -313,6 +315,7 @@ async function loadSidebar() {
 </script>
 </body>
 </html>
+
 
 
 
