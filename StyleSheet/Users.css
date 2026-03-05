@@ -1,6 +1,7 @@
 
 :root {
     --sidebar-teal: #0c7b84;
+      --primary-teal: #008081;
     --card-teal: #086b74;
     --white: #ffffff;
     --error-red: #ff4d4d;
@@ -512,6 +513,7 @@ body {
             font-size: 12px;
         }
         .btn-upload:hover { background: #e0e0e0; }
+
 
 
 
