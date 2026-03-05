@@ -210,13 +210,13 @@ async function loadSidebar() {
 }
     document.getElementById('confirmLogout').addEventListener('click', () => {
     closeLogoutModal();
+    notify("Logging out... Redirecting", "info");
     signOut(auth)
         .then(() => {
             setTimeout(() => {
                 window.location.href = 'index.html';
-            }, 3000);
+            }, 5000);
         })
-        .catch(err => notify(err.message, "error"));
 });
 
     // --- UTILITIES & DATA ---
