@@ -139,7 +139,7 @@
     const db = getDatabase(app);
 
     // --- SIDEBAR LOADER ---
-   async function loadSidebar() {
+async function loadSidebar() {
     try {
         const response = await fetch('SideBar.html');
         if (!response.ok) throw new Error("Failed to fetch sidebar");
@@ -149,23 +149,38 @@
 
         const currentPage = window.location.pathname.split('/').pop();
 
+        // Highlight current page
         document.querySelectorAll('.nav-links a').forEach(link => {
             const linkPage = link.getAttribute('href').split('/').pop();
-
             link.parentElement.classList.remove('active');
-
-            if (linkPage === currentPage) {
-                link.parentElement.classList.add('active');
-            }
+            if (linkPage === currentPage) link.parentElement.classList.add('active');
         });
 
-        // Logout button
-        document.getElementById('logoutBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('logoutModal').style.display = 'flex';
-        });
+        // --- Attach logout listener AFTER sidebar is loaded ---
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('logoutModal').style.display = 'flex';
+            });
+        }
 
-        // Remove sidebar highlight if hamburger menu is used
+        // Attach confirm logout button listener
+        const confirmLogoutBtn = document.getElementById('confirmLogout');
+        if (confirmLogoutBtn) {
+            confirmLogoutBtn.addEventListener('click', () => {
+                closeLogoutModal();
+                notify("Logging out... Redirecting in 3 seconds", "info");
+
+                signOut(auth).then(() => {
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 3000);
+                }).catch(err => notify(err.message, "error"));
+            });
+        }
+
+        // Remove sidebar highlight if dropdown links are used
         document.querySelectorAll('#myDropdown a').forEach(link => {
             link.addEventListener('click', () => {
                 document.querySelectorAll('.nav-links li').forEach(item => {
@@ -216,21 +231,6 @@
             setTimeout(() => toast.remove(), 500);
         }, 3000);
     };
-
-    document.getElementById('confirmLogout').addEventListener('click', () => {
-    closeLogoutModal();
-
-    notify("Logging out... Redirecting", "info");
-
-    signOut(auth).then(() => {
-
-        // wait 3 seconds before redirect
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 3000);
-
-    }).catch(err => notify(err.message, "error"));
-});
 
   function loadTodayAttendance() {
         // Formats date as YYYY-MM-DD to match common Firebase keys
