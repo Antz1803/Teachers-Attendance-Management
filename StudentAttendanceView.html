@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Portal - Attendance</title>
+    <title>Student Portal - Attendance & Notifications</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -13,8 +13,9 @@
             --success: #2ecc71;
             --bg: #f4f7f6;
         }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 30px; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 60px; }
         
+        /* Header */
         .mobile-header {
             background: var(--primary);
             color: white;
@@ -23,72 +24,117 @@
             border-bottom-left-radius: 20px;
             border-bottom-right-radius: 20px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
         }
 
-        .content-section { padding: 15px; }
-        h3 { color: #444; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .menu-icon {
+            position: absolute;
+            right: 20px;
+            top: 25px;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .content-section { padding: 15px; display: none; }
+        .active-section { display: block; }
+
+        h3 { color: #444; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; }
 
         /* Course Grid */
-        #courseGrid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
-        }
+        #courseGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
         .course-card {
+            background: white; padding: 25px 15px; border-radius: 15px; text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); cursor: pointer; border: 1px solid #eee;
+            position: relative;
+        }
+
+        /* Red Badge Styling */
+        .notif-badge {
+            position: absolute;
+            top: -5px;
+            right: 20%;
+            background: var(--danger);
+            color: white;
+            font-size: 0.65rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .notif-container {
             background: white;
-            padding: 25px 15px;
+            border: 1px solid var(--primary);
             border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 20px;
         }
-        .course-card:hover { transform: translateY(-3px); }
-        .course-card i { font-size: 2.2rem; color: var(--primary); margin-bottom: 12px; }
-        .course-card h4 { margin: 0; font-size: 1rem; color: #333; }
+        .notif-header { color: var(--danger); font-weight: bold; margin-bottom: 10px; display: block; }
+        .notif-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        .notif-table th { text-align: left; font-size: 0.8rem; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .notif-table td { padding: 8px 0; font-size: 0.9rem; }
+        .notif-note { font-size: 0.75rem; color: #555; line-height: 1.4; }
+        .notif-note b { color: #333; }
 
-        #attendanceView { display: none; }
-        .back-btn { 
-            background: none; border: none; color: var(--primary); 
-            font-weight: bold; cursor: pointer; padding: 0; margin-bottom: 15px;
-            display: flex; align-items: center; gap: 8px;
+        /* Bottom Navbar */
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; background: white;
+            display: flex; justify-content: space-around; padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
         }
+        .nav-item { text-align: center; color: #888; cursor: pointer; flex: 1; position: relative; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 1.2rem; display: block; }
+        .nav-item span { font-size: 0.7rem; }
 
-        .history-card {
-            background: white; margin-bottom: 12px; padding: 15px;
-            border-radius: 12px; display: flex; justify-content: space-between;
-            align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .status-pill {
-            padding: 6px 12px; border-radius: 20px; font-size: 0.75rem;
-            font-weight: bold; text-transform: uppercase;
-        }
-        .status-PRESENT { background: #e8f8f0; color: var(--success); }
+        .status-pill { padding: 4px 10px; border-radius: 15px; font-size: 0.7rem; font-weight: bold; }
         .status-ABSENT { background: #fdeaea; color: var(--danger); }
         .status-LATE { background: #fff4e5; color: var(--warning); }
-
-        .loader, .no-data { text-align: center; padding: 50px; color: #777; width: 100%; }
+        
+        .loader { text-align: center; padding: 50px; color: #777; width: 100%; }
     </style>
 </head>
 <body>
 
     <div class="mobile-header">
-        <h2 id="studentName">Welcome</h2>
-        <p id="studentID">Loading Profile...</p>
+        <h2 id="headerTitle">Portal</h2>
+        <p id="studentDisplay">Loading...</p>
+        <i class="fas fa-bars menu-icon"></i>
     </div>
 
-    <div class="content-section" id="courseSelection">
+    <div class="content-section active-section" id="courseSection">
         <h3><i class="fas fa-th-large"></i> Enrolled Courses</h3>
         <div id="courseGrid">
-            <div class="loader"><i class="fas fa-spinner fa-spin fa-2x"></i><br><p>Searching for your courses...</p></div>
+            <div class="loader"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
         </div>
     </div>
 
-    <div class="content-section" id="attendanceView">
-        <button class="back-btn" onclick="showCourses()"><i class="fas fa-chevron-left"></i> Back to Courses</button>
+    <div class="content-section" id="notificationSection">
+        <h3>NOTIFICATIONS</h3>
+        <div id="notifList"></div>
+    </div>
+
+    <div class="content-section" id="historySection">
+        <button style="border:none; background:none; color:var(--primary); font-weight:bold; cursor:pointer;" onclick="switchTab('course')">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
         <h3 id="selectedCourseName">Course History</h3>
         <div id="attendanceList"></div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" id="nav-course" onclick="switchTab('course')">
+            <i class="fas fa-home"></i><span>Home</span>
+        </div>
+        <div class="nav-item" id="nav-notif" onclick="switchTab('notif')">
+            <div id="redBadge" class="notif-badge">0</div>
+            <i class="fas fa-bell"></i><span>Notifications</span>
+        </div>
     </div>
 
     <script type="module">
@@ -110,115 +156,138 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        let allRecords = []; 
+        let studentData = null;
+        let allRecords = [];
+
+        // 1. Get the last known count from the browser's storage
+        let viewedCount = parseInt(localStorage.getItem('viewedNotifCount')) || 0;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                loadStudentProfile(user.uid);
-            } else {
-                window.location.href = 'index.html';
-            }
+                const userRef = ref(db, 'users/' + user.uid);
+                onValue(userRef, (snap) => {
+                    if (snap.exists()) {
+                        studentData = snap.val();
+                        document.getElementById('studentDisplay').innerText = `ID: ${studentData.studentID}`;
+                        fetchData(studentData.studentID);
+                    }
+                });
+            } else { window.location.href = 'index.html'; }
         });
 
-        async function loadStudentProfile(uid) {
-            const userRef = ref(db, 'users/' + uid);
-            onValue(userRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    document.getElementById('studentName').innerText = "Hi, " + data.fullName;
-                    document.getElementById('studentID').innerText = "ID: " + data.studentID;
-                    fetchInitialData(data.studentID);
-                }
+        async function fetchData(sid) {
+            const studentSnap = await get(ref(db, 'students'));
+            let courses = new Set();
+            studentSnap.forEach(child => {
+                if (child.val().studentID === sid && child.val().stuCourses) courses.add(child.val().stuCourses);
             });
+
+            const attendanceSnap = await get(ref(db, 'attendance'));
+            allRecords = [];
+            attendanceSnap.forEach(dateNode => {
+                Object.values(dateNode.val()).forEach(rec => {
+                    if (rec.studentID === sid) {
+                        allRecords.push(rec);
+                        courses.add(rec.course);
+                    }
+                });
+            });
+
+            renderCourses(Array.from(courses));
+            renderNotifications();
         }
 
-        async function fetchInitialData(myStudentID) {
-            const courseGrid = document.getElementById('courseGrid');
-            
-            try {
-                // 1. Fetch Enrolled Courses from /students (matches your teacher's data structure)
-                const studentsRef = ref(db, 'students');
-                const studentSnap = await get(studentsRef);
-                let coursesFound = new Set();
-
-                if (studentSnap.exists()) {
-                    studentSnap.forEach((child) => {
-                        const data = child.val();
-                        if (data.studentID === myStudentID) {
-                            // Support for single course or multiple courses
-                            if (data.stuCourses) coursesFound.add(data.stuCourses);
-                        }
-                    });
-                }
-
-                // 2. Fetch Attendance records
-                const attendanceRef = ref(db, 'attendance');
-                const attendanceSnap = await get(attendanceRef);
-                allRecords = [];
-
-                if (attendanceSnap.exists()) {
-                    attendanceSnap.forEach((dateNode) => {
-                        Object.values(dateNode.val()).forEach(record => {
-                            if (record.studentID === myStudentID) {
-                                allRecords.push(record);
-                                coursesFound.add(record.course); // Add courses found in history too
-                            }
-                        });
-                    });
-                }
-
-                renderCourseGrid(Array.from(coursesFound));
-
-            } catch (e) {
-                console.error("Link Error:", e);
-                courseGrid.innerHTML = "<p>Error connecting to database.</p>";
-            }
-        }
-
-        function renderCourseGrid(courseList) {
+        function renderCourses(list) {
             const grid = document.getElementById('courseGrid');
-            if (courseList.length === 0) {
-                grid.innerHTML = `<div class="no-data"><i class="fas fa-user-slash fa-3x"></i><p>You aren't enrolled in any active classes yet.</p></div>`;
-                return;
-            }
-
-            grid.innerHTML = courseList.map(course => `
-                <div class="course-card" onclick="viewDetails('${course}')">
-                    <i class="fas fa-book-reader"></i>
-                    <h4>${course}</h4>
+            grid.innerHTML = list.map(c => `
+                <div class="course-card" onclick="viewHistory('${c}')">
+                    <i class="fas fa-book" style="font-size: 1.5rem; color: var(--primary); margin-bottom: 8px; display:block;"></i>
+                    <h4>${c}</h4>
                 </div>
             `).join('');
         }
 
-        window.viewDetails = (courseName) => {
-            document.getElementById('courseSelection').style.display = 'none';
-            document.getElementById('attendanceView').style.display = 'block';
-            document.getElementById('selectedCourseName').innerText = courseName;
+        function renderNotifications() {
+            const container = document.getElementById('notifList');
+            const issues = allRecords.filter(r => r.status === 'ABSENT' || r.status === 'LATE');
+            const totalIssues = issues.length;
 
-            const list = document.getElementById('attendanceList');
-            const filtered = allRecords
-                .filter(r => r.course === courseName)
-                .sort((a, b) => new Date(b.date) - new Date(a.date));
+            // 2. Handle the Red Circle Badge logic
+            const badge = document.getElementById('redBadge');
+            
+            // Only show the badge if there are MORE issues than what the user has seen
+            if (totalIssues > viewedCount) {
+                badge.innerText = totalIssues - viewedCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
 
-            if (filtered.length === 0) {
-                list.innerHTML = "<div class='no-data'><p>No attendance recorded for this course yet.</p></div>";
+            if (issues.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color:#999; margin-top: 50px;'>No new notifications.</p>";
                 return;
             }
 
-            list.innerHTML = filtered.map(rec => `
-                <div class="history-card">
-                    <div class="date-info">
-                        <h4>${rec.date}</h4>
-                        <p>${rec.course}</p>
-                    </div>
-                    <span class="status-pill status-${rec.status}">${rec.status}</span>
+            const absents = issues.filter(i => i.status === 'ABSENT');
+            const lates = issues.filter(i => i.status === 'LATE');
+
+            let html = "";
+            if (absents.length > 0) html += createNotifBox("Days Absent", absents);
+            if (lates.length > 0) html += createNotifBox("Late Arrivals", lates);
+
+            container.innerHTML = html;
+        }
+
+        function createNotifBox(title, list) {
+            return `
+                <div class="notif-container">
+                    <span class="notif-header">${title}</span>
+                    <table class="notif-table">
+                        <tr><th>Course</th><th>Date</th></tr>
+                        ${list.map(i => `<tr><td>${i.course}</td><td>${i.date}</td></tr>`).join('')}
+                    </table>
+                    <p class="notif-note"><b>Note:</b> Please address this matter to your direct instructor for brief explanation.</p>
                 </div>
-            `).join('');
+            `;
+        }
+
+        window.switchTab = (tab) => {
+            const sections = ['courseSection', 'notificationSection', 'historySection'];
+            sections.forEach(s => document.getElementById(s).classList.remove('active-section'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+            if (tab === 'course') {
+                document.getElementById('courseSection').classList.add('active-section');
+                document.getElementById('nav-course').classList.add('active');
+            } else if (tab === 'notif') {
+                document.getElementById('notificationSection').classList.add('active-section');
+                document.getElementById('nav-notif').classList.add('active');
+                
+                // 3. Mark all current notifications as "Seen"
+                const currentIssuesCount = allRecords.filter(r => r.status === 'ABSENT' || r.status === 'LATE').length;
+                viewedCount = currentIssuesCount;
+                
+                // Save this number to the browser so it survives a refresh
+                localStorage.setItem('viewedNotifCount', viewedCount);
+                
+                // Hide the badge immediately
+                document.getElementById('redBadge').style.display = 'none';
+            }
         };
 
-        window.showCourses = () => {
-            document.getElementById('attendanceView').style.display = 'none';
-            document.getElementById('courseSelection').style.display = 'block';
+        window.viewHistory = (course) => {
+            switchTab('history');
+            document.getElementById('historySection').classList.add('active-section');
+            document.getElementById('selectedCourseName').innerText = course;
+            const list = document.getElementById('attendanceList');
+            const filtered = allRecords.filter(r => r.course === course).sort((a,b) => new Date(b.date) - new Date(a.date));
+            
+            list.innerHTML = filtered.map(r => `
+                <div class="history-card" style="background:white; padding:15px; margin-bottom:10px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                    <div><b>${r.date}</b></div>
+                    <span class="status-pill status-${r.status}">${r.status}</span>
+                </div>
+            `).join('');
         };
     </script>
 </body>
