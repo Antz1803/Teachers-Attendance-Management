@@ -139,41 +139,26 @@
     const db = getDatabase(app);
 
     // --- SIDEBAR LOADER ---
-    async function loadSidebar() {
+   async function loadSidebar() {
     try {
         const response = await fetch('SideBar.html');
         if (!response.ok) throw new Error("Failed to fetch sidebar");
+
         const html = await response.text();
         document.getElementById('sidebar-placeholder').innerHTML = html;
 
-        // Get the current file name accurately
-       const currentPage = window.location.pathname.split('/').pop();
+        const currentPage = window.location.pathname.split('/').pop();
 
-document.querySelectorAll('.nav-links a').forEach(link => {
-    const linkPage = link.getAttribute('href').split('/').pop();
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            const linkPage = link.getAttribute('href').split('/').pop();
 
-    link.parentElement.classList.remove('active');
-
-    if (linkPage === currentPage) {
-        link.parentElement.classList.add('active');
-    }
-});
-
-        // Remove 'active' from all first, then add to the specific one
-        const navLinks = document.querySelectorAll('.nav-links a');
-        navLinks.forEach(link => {
-            const linkHref = link.getAttribute('href');
-            
-            // Remove active class from parent nav-item to be safe
             link.parentElement.classList.remove('active');
 
-            // Exact match check
-            if (linkHref === currentPage) {
+            if (linkPage === currentPage) {
                 link.parentElement.classList.add('active');
             }
         });
 
-        // Re-bind logout
         document.getElementById('logoutBtn').addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('logoutModal').style.display = 'flex';
@@ -313,6 +298,7 @@ document.querySelectorAll('.nav-links a').forEach(link => {
 </script>
 </body>
 </html>
+
 
 
 
